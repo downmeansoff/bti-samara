@@ -49,8 +49,13 @@
         <div style="font-size:12.5px;color:#9aa0a6;margin-top:6px;line-height:1.4">Есть скан выписки ЕГРН или документов на объект? Приложите их в Telegram или на почту после заявки.</div>
       </div>
 
+      <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;margin-top:2px">
+        <input type="checkbox" checked="{{ consent }}" onChange="{{ onConsent }}" style="width:17px;height:17px;margin:2px 0 0;flex:0 0 auto;accent-color:#1f9d4c;cursor:pointer" />
+        <span style="font-size:12.5px;color:#5c6670;line-height:1.5">Я согласен на обработку персональных данных и принимаю <a href="politika.dc.html" target="_blank" rel="noreferrer" style="color:#1f9d4c;text-decoration:underline">политику конфиденциальности</a></span>
+      </label>
+
       <sc-if value="{{ showError }}" hint-placeholder-val="{{ false }}">
-        <div style="font-size:13px;color:#c0392b;font-weight:600">Укажите имя и телефон — так мы сможем связаться.</div>
+        <div style="font-size:13px;color:#c0392b;font-weight:600">{{ errorText }}</div>
       </sc-if>
 
       <button type="button" onClick="{{ submit }}" style="margin-top:2px;width:100%;padding:15px;border-radius:12px;border:none;background:#1f9d4c;color:#ffffff;font-size:15.5px;font-weight:700;font-family:'Manrope',sans-serif;letter-spacing:0.01em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;box-sizing:border-box" style-hover="background:#188040">
@@ -103,6 +108,7 @@ class Component extends DCLogic {
     phone: '',
     service: '',
     comment: '',
+    consent: false,
     showError: false,
     sent: false,
   };
@@ -137,7 +143,11 @@ class Component extends DCLogic {
       triggerStyle = `padding:${pad};border-radius:999px;border:none;background:#1f9d4c;color:#ffffff;font-family:'Manrope',sans-serif;font-weight:700;font-size:${fontSize};cursor:pointer;white-space:nowrap;box-shadow:0 10px 24px rgba(31,157,76,0.28);box-sizing:border-box`;
     }
 
-    const canSubmit = this.state.name.trim().length > 0 && this.state.phone.trim().length > 0;
+    const hasContacts = this.state.name.trim().length > 0 && this.state.phone.trim().length > 0;
+    const canSubmit = hasContacts && this.state.consent;
+    const errorText = !hasContacts
+      ? 'Укажите имя и телефон — так мы сможем связаться.'
+      : 'Отметьте согласие на обработку персональных данных.';
 
     const submit = () => {
       if (!canSubmit) { this.setState({ showError: true }); return; }
@@ -167,6 +177,9 @@ class Component extends DCLogic {
       onPhone: (e) => this.setState({ phone: e.target.value }),
       onComment: (e) => this.setState({ comment: e.target.value }),
       onServiceChange: (e) => this.setState({ service: e.target.value }),
+      consent: this.state.consent,
+      onConsent: (e) => this.setState({ consent: e.target.checked, showError: false }),
+      errorText,
       showError: this.state.showError,
       sent: this.state.sent,
       submit,

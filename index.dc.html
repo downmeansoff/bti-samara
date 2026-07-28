@@ -87,7 +87,7 @@ a:hover { color: #167a3b; }
 </div>
 
 <div style="padding:56px 24px 8px;box-sizing:border-box">
-  <div style="max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px">
+  <div style="max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px">
     <sc-for list="{{ stats }}" as="st" hint-placeholder-count="4">
       <div style="background:#ffffff;border:1px solid #eceee6;border-radius:18px;padding:26px 22px;text-align:center;box-shadow:0 10px 30px rgba(10,20,40,0.05)">
         <div style="font-family:'Unbounded',sans-serif;font-size:clamp(30px,3.4vw,40px);font-weight:800;color:#1f9d4c;line-height:1">{{ st.value }}</div>
@@ -230,37 +230,6 @@ a:hover { color: #167a3b; }
   </div>
 </div>
 
-<div id="reviews" style="padding:88px 24px;background:#ffffff;box-sizing:border-box">
-  <div style="max-width:1240px;margin:0 auto">
-    <div style="max-width:640px;margin:0 auto 44px;text-align:center">
-      <div style="color:#1f9d4c;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Отзывы</div>
-      <h2 style="font-family:'Unbounded',sans-serif;font-size:clamp(26px,3.2vw,38px);font-weight:800;color:#0e1e35;margin:0;line-height:1.2">Что говорят клиенты</h2>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px">
-      <sc-for list="{{ testimonials }}" as="r" hint-placeholder-count="3">
-        <div style="background:#f6f7f4;border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:52px;height:52px;border-radius:999px;overflow:hidden;flex:0 0 auto">
-              <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="{{ r.avatarId }}" shape="circle" placeholder="Фото" hint-size="52px,52px" style="width:52px;height:52px"></x-import>
-            </div>
-            <div>
-              <div style="font-weight:700;font-size:14.5px;color:#0e1e35">{{ r.name }}</div>
-              <div style="font-size:12.5px;color:#5c6670">{{ r.role }}</div>
-            </div>
-          </div>
-          <div style="display:flex;gap:2px;color:#f5b400">
-            <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 1.5 12.5 7l6 .9-4.4 4.2 1 6-5.1-2.8L5 18.1l1-6L1.6 7.9l6-.9z"></path></svg>
-            <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 1.5 12.5 7l6 .9-4.4 4.2 1 6-5.1-2.8L5 18.1l1-6L1.6 7.9l6-.9z"></path></svg>
-            <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 1.5 12.5 7l6 .9-4.4 4.2 1 6-5.1-2.8L5 18.1l1-6L1.6 7.9l6-.9z"></path></svg>
-            <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 1.5 12.5 7l6 .9-4.4 4.2 1 6-5.1-2.8L5 18.1l1-6L1.6 7.9l6-.9z"></path></svg>
-            <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 1.5 12.5 7l6 .9-4.4 4.2 1 6-5.1-2.8L5 18.1l1-6L1.6 7.9l6-.9z"></path></svg>
-          </div>
-          <div style="font-size:14.5px;color:#3a4452;line-height:1.6">{{ r.quote }}</div>
-        </div>
-      </sc-for>
-    </div>
-  </div>
-</div>
 
 <div id="pricing" style="padding:80px 24px;box-sizing:border-box">
   <div style="max-width:680px;margin:0 auto;text-align:center">
@@ -366,11 +335,6 @@ const DOCS = [
   { title: 'Выписка ЕГРН', desc: 'Подтверждает право собственности и отсутствие обременений.' },
 ];
 
-const TESTIMONIALS = [
-  { avatarId: 'review-1', name: 'Марина К.', role: 'собственник участка, Самара', quote: '«Провели межевание быстро и понятно объяснили каждый шаг. Споров с соседями по границе больше нет.»' },
-  { avatarId: 'review-2', name: 'Игорь П.', role: 'частный дом, Самарская область', quote: '«Оформили дом по дачной амнистии без моих визитов в инстанции — всё сделали сами, я только подписал.»' },
-  { avatarId: 'review-3', name: 'ООО «СтройГрад»', role: 'застройщик', quote: '«Ведём с ним все кадастровые вопросы по проекту — сроки соблюдаются, проблем с Росреестром не было.»' },
-];
 
 const AWARDS = [
   { img: 'assets/docs/vypiska-sro-attestat-2.jpg', title: 'Квалификационный аттестат', sub: 'Кадастровый инженер, № 02-13-942 (выдан 17.05.2013)' },
@@ -383,7 +347,6 @@ const AWARDS = [
 const STATS = [
   { value: '12+ лет', label: 'опыта в кадастровой сфере' },
   { value: '500+', label: 'объектов поставлено на кадастровый учёт' },
-  { value: '2 региона', label: 'Самарская область и Башкортостан' },
 ];
 
 const PRICE_ROWS = [
@@ -435,7 +398,6 @@ class Component extends DCLogic {
       lightboxTitle: lb ? (lb.title + ' — ' + lb.sub) : '',
       closeLightbox: () => this.setState({ lightbox: null }),
       docs: DOCS,
-      testimonials: TESTIMONIALS,
       priceRows: PRICE_ROWS,
       faqItems,
     };
