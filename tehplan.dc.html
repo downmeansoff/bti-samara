@@ -8,8 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<title>Технические планы — Кадастровый инженер в Самаре</title>
-<meta name="description" content="Технический план дома, квартиры, нежилого помещения. Самара, Самарская область, Республика Башкортостан. Опыт более 12 лет." />
+<title>Технический план объекта недвижимости — Кадастровый инженер в Самаре</title>
+<meta name="description" content="Технический план объекта недвижимости. Самара, Самарская область, Республика Башкортостан. Опыт более 12 лет." />
 <link rel="icon" type="image/png" href="assets/logo-mark.png" />
 <link rel="apple-touch-icon" href="assets/logo-mark.png" />
 <meta name="theme-color" content="#0e1e35" />
@@ -26,15 +26,15 @@
   </svg>
   <div style="max-width:1240px;margin:0 auto;padding:32px 0 56px;position:relative;z-index:2;box-sizing:border-box">
     <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:#8a96ab;margin-bottom:30px">
-      <a href="index.dc.html" style="color:#8a96ab;text-decoration:none">Главная</a><span>/</span><a href="index.dc.html#services" style="color:#8a96ab;text-decoration:none">Услуги</a><span>/</span><span style="color:#ffffff">Технические планы</span>
+      <a href="index.dc.html" style="color:#8a96ab;text-decoration:none">Главная</a><span>/</span><a href="index.dc.html#services" style="color:#8a96ab;text-decoration:none">Услуги</a><span>/</span><span style="color:#ffffff">Технический план объекта недвижимости</span>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:44px;align-items:center">
       <div style="flex:1 1 460px;min-width:300px">
-        <h1 style="font-family:'Unbounded',sans-serif;font-size:clamp(28px,4vw,44px);font-weight:800;color:#ffffff;line-height:1.12;margin:0 0 14px;letter-spacing:-0.01em">Технические планы домов, квартир и нежилых помещений</h1>
+        <h1 style="font-family:'Unbounded',sans-serif;font-size:clamp(28px,4vw,44px);font-weight:800;color:#ffffff;line-height:1.12;margin:0 0 14px;letter-spacing:-0.01em">Технический план объекта недвижимости</h1>
         <div style="font-family:'Unbounded',sans-serif;font-size:clamp(13px,1.4vw,16px);font-weight:700;color:#3fc972;letter-spacing:0.04em;margin-bottom:18px">ДОКУМЕНТ, БЕЗ КОТОРОГО ОБЪЕКТ НЕ ПОСТАВИТЬ НА УЧЁТ</div>
         <p style="font-size:16px;line-height:1.6;color:#b9c3d4;max-width:560px;margin:0 0 28px">Построили дом, а он нигде не зарегистрирован? Сделали перепланировку в квартире, и она не узаконена? Без технического плана Росреестр откажет в постановке на учёт.</p>
         <div style="display:flex;flex-wrap:wrap;gap:14px">
-          <dc-import name="LeadModal" service="Технические планы" label="Оставить заявку" variant="solid" size="lg" hint-size="220px,58px"></dc-import>
+          <dc-import name="LeadModal" service="Технический план объекта недвижимости" label="Оставить заявку" variant="solid" size="lg" hint-size="220px,58px"></dc-import>
           <a href="tel:+79177696119" style="display:inline-flex;align-items:center;gap:10px;padding:18px 30px;border-radius:999px;border:1.5px solid rgba(255,255,255,0.4);color:#ffffff;text-decoration:none;font-weight:700;font-size:15.5px;font-family:'Manrope',sans-serif;box-sizing:border-box">8 917 769-61-19</a>
         </div>
       </div>
@@ -121,7 +121,7 @@
     <h2 style="font-family:'Unbounded',sans-serif;font-size:clamp(24px,3.2vw,36px);font-weight:800;color:#ffffff;margin:0 0 14px;line-height:1.2">Нужен технический план?</h2>
     <p style="font-size:15.5px;color:#b9c3d4;line-height:1.6;margin:0 0 30px">Оставьте заявку — подскажем, какой вид плана нужен именно вам.</p>
     <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
-      <dc-import name="LeadModal" service="Технические планы" label="Оставить заявку" variant="solid" size="lg" hint-size="230px,58px"></dc-import>
+      <dc-import name="LeadModal" service="Технический план объекта недвижимости" label="Оставить заявку" variant="solid" size="lg" hint-size="230px,58px"></dc-import>
       <a href="tel:+79177696119" style="display:inline-flex;align-items:center;gap:10px;padding:18px 30px;border-radius:999px;border:1.5px solid rgba(255,255,255,0.4);color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;font-family:'Manrope',sans-serif;box-sizing:border-box">8 917 769-61-19</a>
     </div>
   </div>
@@ -139,8 +139,6 @@ const WHEN_ITEMS = [
 const CHECKLIST = [
   { text: 'Выезд и обмеры объекта на месте' },
   { text: 'Технический план дома или дачи' },
-  { text: 'Технический план квартиры после перепланировки' },
-  { text: 'Технический план нежилого помещения' },
   { text: 'Формирование плана в электронном виде (XML + ЭЦП)' },
   { text: 'Полное соответствие требованиям Росреестра' },
 ];
@@ -148,7 +146,7 @@ const PROCESS_STEPS = [
   { n: '01', title: 'Заявка', desc: 'Разбираемся, какой вид технического плана нужен и какие документы уже есть.' },
   { n: '02', title: 'Выезд и обмеры', desc: 'Проводим точные обмеры дома, квартиры или помещения.' },
   { n: '03', title: 'Подготовка плана', desc: 'Формируем технический план в электронном виде с электронной подписью.' },
-  { n: '04', title: 'Передача документа', desc: 'Передаём готовый план вам или сразу подаём в Росреестр.' },
+  { n: '04', title: 'По договорённости с заказчиком', desc: 'Передаём вам готовый технический план. Дальнейшие действия согласуем отдельно — по договорённости с заказчиком.' },
 ];
 const FAQ_BASE = [
   { q: 'Чем технический план отличается от технического паспорта?', a: 'Технический план — документ для кадастрового учёта в Росреестре, паспорт — справочный документ БТИ.' },
@@ -157,8 +155,7 @@ const FAQ_BASE = [
 ];
 const RELATED = [
   { title: 'Межевание земельных участков', href: 'mezhevanie.dc.html', blurb: 'Определяем и закрепляем границы участка официально — без споров с соседями.', icon: 'boundary' },
-  { title: 'Уточнение границ участка', href: 'granicy-uchastka.dc.html', blurb: 'Устраняем несовпадения фактических границ с данными реестра.', icon: 'target' },
-  { title: 'Раздел и объединение участков', href: 'razdel-obedinenie.dc.html', blurb: 'Делим один участок на несколько или объединяем несколько в один — законно.', icon: 'split' },
+  { title: 'Перераспределение, раздел и объединение участков', href: 'razdel-obedinenie.dc.html', blurb: 'Делим, объединяем и перераспределяем участки — законно и с внесением в реестр.', icon: 'split' },
 ];
 
 class Component extends DCLogic {

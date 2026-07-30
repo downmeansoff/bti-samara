@@ -9,13 +9,13 @@
 <x-dc>
 <helmet>
 <title>Кадастровый инженер в Самаре — ИП Баймурзин А.Р.</title>
-<meta name="description" content="Межевание, технические планы, уточнение границ, раздел и объединение участков. Самара, Самарская область, Республика Башкортостан. Аттестованный кадастровый инженер, более 500 объектов на кадастровом учёте, опыт более 12 лет." />
+<meta name="description" content="Межевание, технические планы, перераспределение, раздел и объединение участков. Самара, Самарская область, Республика Башкортостан. Аттестованный кадастровый инженер, более 1000 объектов на кадастровом учёте, опыт более 12 лет." />
 <link rel="icon" type="image/png" href="assets/logo-mark.png" />
 <link rel="apple-touch-icon" href="assets/logo-mark.png" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Кадастровый инженер · ИП Баймурзин А.Р." />
 <meta property="og:title" content="Кадастровый инженер в Самаре — ИП Баймурзин А.Р." />
-<meta property="og:description" content="Межевание, технические планы, уточнение границ участка. Аттестованный кадастровый инженер, опыт более 12 лет, 500+ объектов на кадастровом учёте. Консультация — бесплатно." />
+<meta property="og:description" content="Межевание, технические планы, раздел и объединение участков. Аттестованный кадастровый инженер, опыт более 12 лет, 1000+ объектов на кадастровом учёте. Консультация — бесплатно." />
 <meta property="og:image" content="https://downmeansoff.github.io/bti-samara/assets/og-cover.jpg" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -47,7 +47,7 @@ a:hover { color: #167a3b; }
       <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(63,201,114,0.14);border:1px solid rgba(63,201,114,0.4);color:#3fc972;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;margin-bottom:22px">Кадастровый инженер · Самара и Башкортостан</div>
       <h1 style="font-family:'Unbounded',sans-serif;font-size:clamp(32px,4.4vw,52px);font-weight:800;color:#ffffff;line-height:1.1;margin:0 0 16px;letter-spacing:-0.01em">Кадастровые документы без лишних нервов и задержек</h1>
       <div style="font-family:'Unbounded',sans-serif;font-size:clamp(15px,1.6vw,19px);font-weight:700;color:#3fc972;letter-spacing:0.05em;margin-bottom:20px">БЫСТРО. ТОЧНО. НАДЁЖНО.</div>
-      <p style="font-size:16.5px;line-height:1.6;color:#b9c3d4;max-width:520px;margin:0 0 30px">Межевание, технические планы, уточнение границ, раздел и объединение участков. Аттестованный кадастровый инженер с опытом более 12 лет — более 500 объектов поставлено на кадастровый учёт.</p>
+      <p style="font-size:16.5px;line-height:1.6;color:#b9c3d4;max-width:520px;margin:0 0 30px">Межевание, технические планы, перераспределение, раздел и объединение участков. Аттестованный кадастровый инженер с опытом более 12 лет — более 1000 объектов поставлено на кадастровый учёт.</p>
       <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:28px">
         <dc-import name="LeadModal" label="Оставить заявку" variant="solid" size="lg" hint-size="230px,58px"></dc-import>
         <a href="tel:+79177696119" style="display:inline-flex;align-items:center;gap:10px;padding:18px 30px;border-radius:999px;border:1.5px solid rgba(255,255,255,0.4);color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;font-family:'Manrope',sans-serif;box-sizing:border-box">
@@ -66,7 +66,7 @@ a:hover { color: #167a3b; }
         <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-home" shape="rect" placeholder="Фото: специалист с тахеометром на объекте" hint-size="100%,100%" style="width:100%;height:100%"></x-import>
       </div>
       <div style="position:absolute;bottom:-18px;left:-18px;background:#ffffff;border-radius:16px;padding:14px 20px;box-shadow:0 16px 40px rgba(10,20,40,0.2);display:flex;align-items:center;gap:12px">
-        <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:800;color:#1f9d4c">500+</div>
+        <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:800;color:#1f9d4c">1000+</div>
         <div style="font-size:12px;color:#5c6670;line-height:1.3;font-weight:700">объектов на<br/>кадастровом учёте</div>
       </div>
     </div>
@@ -297,9 +297,8 @@ a:hover { color: #167a3b; }
 <script type="text/x-dc" data-dc-script>
 const HOME_SERVICES = [
   { slug: 'mezhevanie', href: 'mezhevanie.dc.html', title: 'Межевание земельных участков', blurb: 'Определяем и закрепляем границы участка официально — без споров с соседями.', icon: 'boundary' },
-  { slug: 'tehplan', href: 'tehplan.dc.html', title: 'Технические планы', blurb: 'Технический план дома, квартиры или нежилого помещения для кадастрового учёта.', icon: 'blueprint' },
-  { slug: 'granicy-uchastka', href: 'granicy-uchastka.dc.html', title: 'Уточнение границ участка', blurb: 'Устраняем несовпадения фактических границ с данными реестра.', icon: 'target' },
-  { slug: 'razdel-obedinenie', href: 'razdel-obedinenie.dc.html', title: 'Раздел и объединение участков', blurb: 'Делим один участок на несколько или объединяем несколько в один — законно.', icon: 'split' },
+  { slug: 'tehplan', href: 'tehplan.dc.html', title: 'Технический план объекта недвижимости', blurb: 'Технический план объекта недвижимости для постановки на кадастровый учёт.', icon: 'blueprint' },
+  { slug: 'razdel-obedinenie', href: 'razdel-obedinenie.dc.html', title: 'Перераспределение, раздел и объединение участков', blurb: 'Делим, объединяем и перераспределяем участки — законно и с внесением в реестр.', icon: 'split' },
 ];
 
 const TRUST_ITEMS = [
@@ -313,13 +312,13 @@ const PROCESS_STEPS = [
   { n: '01', title: 'Заявка', desc: 'Оставляете заявку на сайте, по телефону или в Telegram — коротко расскажите о задаче.' },
   { n: '02', title: 'Консультация и выезд', desc: 'Бесплатно оцениваем объём работ, при необходимости выезжаем на объект и проводим замеры.' },
   { n: '03', title: 'Подготовка документов', desc: 'Готовим межевой, технический план или другой документ строго по действующим регламентам.' },
-  { n: '04', title: 'Сдача и результат', desc: 'Подаём документы в Росреестр, контролируем срок рассмотрения и передаём вам готовый результат.' },
+  { n: '04', title: 'По договорённости с заказчиком', desc: 'Передаём вам готовый документ. Дальнейшие действия согласуем отдельно — по договорённости с заказчиком.' },
 ];
 
 const ABOUT_POINTS = [
   { text: 'Квалификационный аттестат кадастрового инженера с 2013 года' },
   { text: 'Член СРО «Ассоциация кадастровых инженеров «Содружество», рег. № 704' },
-  { text: 'Более 500 объектов поставлено на кадастровый учёт' },
+  { text: 'Более 1000 объектов поставлено на кадастровый учёт' },
   { text: 'Работаем по Самарской области и Республике Башкортостан' },
   { text: 'Работаем с физическими и юридическими лицами' },
   { text: 'Все сроки фиксируем в договоре' },
@@ -344,16 +343,16 @@ const AWARDS = [
 
 const STATS = [
   { value: '12+ лет', label: 'опыта в кадастровой сфере' },
-  { value: '500+', label: 'объектов поставлено на кадастровый учёт' },
+  { value: '1000+', label: 'объектов поставлено на кадастровый учёт' },
 ];
 
 const PRICE_ROWS = [
   { label: 'Межевание земельного участка', price: 'от 8 350 ₽' },
-  { label: 'Уточнение границ участка', price: 'по запросу' },
-  { label: 'Раздел и объединение участков', price: 'по запросу' },
-  { label: 'Технический план', price: 'по запросу' },
+  { label: 'Перераспределение, раздел и объединение участков', price: 'по запросу' },
+  { label: 'Технический план объекта недвижимости', price: 'по запросу' },
+  { label: 'Акт обследования (снятие с кадастрового учёта и прекращение права собственности)', price: 'по запросу' },
+  { label: 'Акт осмотра объекта (отнесение к признакам объекта капитального строительства)', price: 'по запросу' },
   { label: 'Вынос точек в натуру', price: 'от 750 ₽ / точка' },
-  { label: 'Топографическая съёмка', price: 'от 4 500 ₽' },
 ];
 
 const FAQ_BASE = [
