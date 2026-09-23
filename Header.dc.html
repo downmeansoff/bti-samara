@@ -11,7 +11,7 @@
 <link href="assets/fonts/fonts.css" rel="stylesheet">
 <link href="assets/site.css" rel="stylesheet">
 </helmet>
-<div class="hdr">
+<div class="hdr" role="banner">
   <div class="hdr-row">
     <a class="hdr-logo" href="index.dc.html">
       <img src="assets/logo-mark.png" alt="Кадастровый инженер" />
@@ -31,7 +31,7 @@
       <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
         <div class="hdr-menu-overlay" onClick="{{ closeMenu }}"></div>
         <button type="button" class="close-x" onClick="{{ closeMenu }}" aria-label="Закрыть">✕</button>
-        <div class="hdr-menu-panel">
+        <div class="hdr-menu-panel" role="navigation">
           <div class="hdr-menu-label">Услуги</div>
           <div class="hdr-menu-grid">
             <sc-for list="{{ services }}" as="s" hint-placeholder-count="9">

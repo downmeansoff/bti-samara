@@ -132,7 +132,7 @@ input, select, textarea { font-family: inherit; }
 
 .hdr-phone {
   display: flex; align-items: center; gap: 8px;
-  color: var(--tx-on-dark); font-weight: 600; font-size: 14.5px;
+  color: var(--tx-on-dark); font-weight: 600; font-size: 15px;
   padding: 8px 2px; min-height: 44px;
 }
 .hdr-cta-slot .btn { white-space: nowrap; }
@@ -209,7 +209,7 @@ input, select, textarea { font-family: inherit; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   border-radius: 0; border: 1px solid transparent;
-  font-family: var(--font-body); font-weight: 700; font-size: 14.5px;
+  font-family: var(--font-body); font-weight: 700; font-size: 15px;
   letter-spacing: .02em;
   padding: 0 26px; min-height: 48px;
   transition: background-color .2s ease, color .2s ease, border-color .2s ease;
@@ -262,14 +262,6 @@ input, select, textarea { font-family: inherit; }
 .boundary-node:nth-child(7) { animation-delay: 1.6s; }
 @keyframes boundaryDraw { to { stroke-dashoffset: 0; } }
 @keyframes boundaryNode { to { opacity: 1; } }
-.hero-media-badge {
-  position: absolute; left: 0; top: 0; z-index: 2;
-  background: var(--ink); color: var(--tx-on-dark);
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--line-on-dark); border-right: 1px solid var(--line-on-dark);
-  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--tx-on-dark-lo);
-}
-
 .hero-badge {
   display: inline-block;
   font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
@@ -313,37 +305,6 @@ input, select, textarea { font-family: inherit; }
   padding: 9px 14px;
 }
 
-/* filmstrip — full bleed, no frame, caption only under active */
-.filmstrip {
-  display: flex; align-items: stretch; gap: 2px;
-  width: 100vw; margin-left: calc(50% - 50vw);
-  overflow-x: auto; scroll-snap-type: x proximity;
-  scrollbar-width: none;
-}
-.filmstrip::-webkit-scrollbar { display: none; }
-.film-frame {
-  position: relative; min-width: 0; height: 340px;
-  scroll-snap-align: start;
-  overflow: hidden;
-}
-.film-frame img, .film-frame :is(x-import, [component-from-global-scope]) { width: 100%; height: 100%; object-fit: cover; display: block; }
-/* flex-grow on every frame (not just flex-basis) so the strip always fills
-   the full 100vw with zero gaps, regardless of exact viewport width. */
-.film-frame--xl { flex: 1.5 1 420px; }
-.film-frame--lg { flex: 1.15 1 320px; }
-.film-frame--md { flex: .95 1 250px; }
-.film-frame--sm { flex: .85 1 210px; }
-.film-frame--xs { flex: .75 1 190px; }
-.film-cap {
-  position: absolute; left: 0; right: 0; bottom: 0;
-  padding: 14px 16px;
-  font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
-  color: #fff;
-  background: linear-gradient(to top, rgba(0,0,0,.72), transparent);
-  opacity: 0; transition: opacity .3s ease;
-}
-.film-frame:hover .film-cap, .film-frame:focus-within .film-cap { opacity: 1; }
-
 .film-badge {
   position: absolute; left: 0; bottom: 0; z-index: 2;
   background: var(--ink); color: var(--tx-on-dark);
@@ -351,7 +312,7 @@ input, select, textarea { font-family: inherit; }
   border-top: 1px solid var(--line-on-dark); border-right: 1px solid var(--line-on-dark);
 }
 .film-badge-num { font-family: var(--font-display); font-weight: 800; font-size: 26px; line-height: 1; }
-.film-badge-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--tx-on-dark-lo); max-width: 13ch; line-height: 1.35; }
+.film-badge-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--tx-on-dark-lo); max-width: 13ch; line-height: 1.35; }
 
 @media (max-width: 720px) {
   .hero { padding-top: 0; }
@@ -376,13 +337,6 @@ input, select, textarea { font-family: inherit; }
   .hero-actions { margin-bottom: 16px; gap: 8px; }
   .hero-actions .btn { flex: 1 1 auto; }
   .hero-chips { margin-bottom: 36px; }
-  /* fix r2: frames were shrinking to fit 100vw (min-width:0 + default flex-shrink:1)
-     instead of scrolling — the filmstrip must keep each frame at its flex-basis and
-     overflow-x:auto (base rule) does the scrolling. */
-  .film-frame { flex-shrink: 0; }
-  .film-frame--xl { flex-basis: 78vw; height: 240px; }
-  .film-frame--lg { flex-basis: 62vw; height: 240px; }
-  .film-frame--md, .film-frame--sm, .film-frame--xs { flex-basis: 52vw; height: 240px; }
 }
 
 /* =====================================================================
@@ -402,7 +356,7 @@ input, select, textarea { font-family: inherit; }
 }
 .trust-col:last-child { border-right: 0; }
 .trust-col svg { display: block; margin-bottom: 22px; }
-.trust-col span { display: block; font-size: 14.5px; font-weight: 500; color: var(--tx-on-dark-lo); line-height: 1.5; max-width: 24ch; }
+.trust-col span { display: block; font-size: 15px; font-weight: 500; color: var(--tx-on-dark-lo); line-height: 1.5; max-width: 24ch; }
 
 @media (max-width: 900px) {
   .trust-row { grid-template-columns: 1fr; padding: 0 var(--inset-mobile); }
@@ -586,7 +540,7 @@ a.row { cursor: pointer; }
 .about-points { display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; margin-bottom: 40px; }
 .about-point {
   padding: 18px 0; border-bottom: 1px solid var(--line-on-paper);
-  font-size: 14.5px; line-height: 1.55;
+  font-size: 15px; line-height: 1.55;
 }
 
 .about-link {
@@ -634,7 +588,7 @@ a.row { cursor: pointer; }
 .doc-tile--big img[src*="vypiska-sro-attestat-2"] { object-position: right center; }
 .doc-tile:hover img { transform: scale(1.035); }
 .doc-tile-caption { flex: 0 0 auto; padding: 16px 18px 18px; border-top: 1px solid var(--line-on-dark); }
-.doc-tile-caption-title { color: var(--tx-on-dark); font-weight: 800; font-size: 14.5px; line-height: 1.35; margin-bottom: 6px; }
+.doc-tile-caption-title { color: var(--tx-on-dark); font-weight: 800; font-size: 15px; line-height: 1.35; margin-bottom: 6px; }
 .doc-tile-caption-sub { color: var(--tx-on-dark-lo); font-size: 12px; font-weight: 500; line-height: 1.4; margin-bottom: 10px; }
 .doc-tile-caption-cta { font-weight: 700; font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--tx-on-dark-lo); transition: color .2s ease; }
 .doc-tile:hover .doc-tile-caption-cta { color: var(--stamp); }
@@ -734,7 +688,7 @@ a.row { cursor: pointer; }
 .ftr-logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
 .ftr-logo-row img { width: 32px; height: 32px; filter: brightness(0) invert(1); }
 .ftr-logo-text { display: flex; flex-direction: column; font-weight: 800; font-size: 12px; letter-spacing: .04em; }
-.ftr-tagline-p { font-size: 14.5px; color: var(--tx-on-dark-lo); line-height: 1.6; max-width: 34ch; margin: 0 0 14px; }
+.ftr-tagline-p { font-size: 15px; color: var(--tx-on-dark-lo); line-height: 1.6; max-width: 34ch; margin: 0 0 14px; }
 /* fix r2: was color:var(--stamp) — same AA failure as .hero-tagline (stamp-red on --ink
    measures ~3.16:1, needs 4.5:1 for 13px/700 text). Stamp stays hover/active-only per
    DESIGN-PLAN ("используется ТОЛЬКО на hover-состояниях... Никогда как заливка"). */
@@ -742,7 +696,7 @@ a.row { cursor: pointer; }
 
 .ftr-col-title { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--tx-on-dark-lo); margin-bottom: 18px; }
 .ftr-link-col { display: flex; flex-direction: column; }
-.ftr-link { position: relative; font-size: 14.5px; color: var(--tx-on-dark); padding: 10px 0; border-bottom: 1px solid var(--line-on-dark-soft); }
+.ftr-link { position: relative; font-size: 15px; color: var(--tx-on-dark); padding: 10px 0; border-bottom: 1px solid var(--line-on-dark-soft); }
 .ftr-link:hover { color: var(--stamp); }
 
 .ftr-contact-col { display: flex; flex-direction: column; gap: 14px; }
@@ -751,7 +705,7 @@ a.row { cursor: pointer; }
    hit-area technique as .about-link/.hdr-menu-jump: visible size unchanged. */
 .ftr-contact-strong { position: relative; font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 10px; }
 .ftr-contact-strong::before { content: ''; position: absolute; inset: -9px; }
-.ftr-contact { position: relative; font-size: 14.5px; color: var(--tx-on-dark-lo); display: flex; align-items: center; gap: 10px; }
+.ftr-contact { position: relative; font-size: 15px; color: var(--tx-on-dark-lo); display: flex; align-items: center; gap: 10px; }
 .ftr-contact::before { content: ''; position: absolute; inset: -11px; }
 .ftr-contact:hover, .ftr-contact-strong:hover { color: var(--stamp); }
 .ftr-note { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--tx-on-dark-lo); line-height: 1.5; }
@@ -789,7 +743,7 @@ a.row { cursor: pointer; }
   }
   .mob-cta-call, .mob-cta-tg {
     flex: 1 1 50%; display: flex; align-items: center; justify-content: center; gap: 8px;
-    min-height: 52px; font-weight: 700; font-size: 14.5px; color: var(--tx-on-dark);
+    min-height: 52px; font-weight: 700; font-size: 15px; color: var(--tx-on-dark);
   }
   .mob-cta-call { background: var(--stamp); color: #fff; }
   .mob-cta-tg { border-left: 1px solid var(--line-on-dark); }
@@ -889,7 +843,7 @@ a.row { cursor: pointer; }
 .when-col { display: flex; align-items: flex-start; gap: 16px; padding: 40px 28px 40px 0; border-right: 1px solid var(--line-on-paper); }
 .when-col:last-child { border-right: 0; }
 .when-col svg { flex: 0 0 auto; margin-top: 2px; color: var(--stamp); }
-.when-col span { display: block; font-size: 14.5px; font-weight: 500; color: var(--tx-on-paper-lo); line-height: 1.5; }
+.when-col span { display: block; font-size: 15px; font-weight: 500; color: var(--tx-on-paper-lo); line-height: 1.5; }
 @media (max-width: 900px) {
   .when-row { grid-template-columns: 1fr; padding: 0 var(--inset-mobile); }
   .when-col { border-right: 0; border-bottom: 1px solid var(--line-on-paper); padding: 26px 0; }
@@ -973,4 +927,16 @@ a.row { cursor: pointer; }
   .doc-tile:not(.doc-tile--big) img { object-position: center top; }
   /* landscape letter on a white sheet: show it whole instead of cutting its title */
   .doc-tile img[src*="blagodarstvennoe-sro"] { object-fit: contain; background: #fff; }
+}
+
+/* The filmstrip under the hero is gone: it re-showed the same five photos
+   that the hero, the service tiles and «О компании» already show. The 1000+
+   plate it carried now sits on the hero photo. */
+@media (min-width: 721px) { .hero:not(.hero--chapter) { padding-bottom: 88px; } }
+@media (max-width: 720px) {
+  /* the band is only 210px tall: one compact line instead of a two-line plate */
+  .hero-photo-frame .film-badge { padding: 7px 12px; gap: 8px; align-items: center; }
+  .hero-photo-frame .film-badge-num { font-size: 19px; }
+  .hero-photo-frame .film-badge-label { font-size: 11px; max-width: none; }
+  .hero-photo-frame .film-badge-label br { display: none; }
 }

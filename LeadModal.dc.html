@@ -13,7 +13,7 @@
 </helmet>
 <button type="button" class="{{ triggerClass }}" onClick="{{ openModal }}">{{ label }}</button>
 <sc-if value="{{ isOpen }}" hint-placeholder-val="{{ false }}">
-<div class="lead-overlay" onClick="{{ onOverlayClick }}">
+<div class="lead-overlay" onClick="{{ onOverlayClick }}" role="dialog" aria-modal="true">
   <button type="button" onClick="{{ closeModal }}" aria-label="Закрыть" class="close-x">✕</button>
   <div class="lead-modal">
     <div class="lead-title">Оставить заявку</div>
@@ -122,6 +122,10 @@ class Component extends DCLogic {
   componentDidMount() {
     if (this.props.service) this.setState({ service: this.props.service });
     this._wasOpen = this.state.isOpen;
+    this._onKeyDown = (e) => {
+      if (e.key === 'Escape' && this.state.isOpen) this.close();
+    };
+    window.addEventListener('keydown', this._onKeyDown);
   }
 
   componentDidUpdate(prevProps) {
@@ -136,6 +140,7 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     if (this._wasOpen) document.body.style.overflow = '';
+    if (this._onKeyDown) window.removeEventListener('keydown', this._onKeyDown);
   }
 
   open = () => this.setState({ isOpen: true, sent: false, showError: false });
