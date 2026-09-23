@@ -12,100 +12,95 @@
 <meta name="description" content="Технический план объекта недвижимости. Самара, Самарская область, Республика Башкортостан. Опыт более 12 лет." />
 <link rel="icon" type="image/png" href="assets/logo-mark.png" />
 <link rel="apple-touch-icon" href="assets/logo-mark.png" />
-<meta name="theme-color" content="#0e1e35" />
+<meta name="theme-color" content="#121212" />
 <link href="assets/fonts/fonts.css" rel="stylesheet">
 <link href="assets/site.css" rel="stylesheet">
 </helmet>
-<div class="page-shell">
+<div class="page-shell page-chapter">
 <dc-import name="Header" hint-size="100%,74px"></dc-import>
 
-<div class="inner-hero">
-  <svg class="topo-svg" viewBox="0 0 800 420" style="opacity:0.3" preserveAspectRatio="none">
-    <g stroke="#3fc972" stroke-width="1" fill="none" opacity="0.55"><line x1="60" y1="80" x2="180" y2="40"></line><line x1="180" y1="40" x2="300" y2="90"></line><line x1="300" y1="90" x2="420" y2="50"></line><line x1="420" y1="50" x2="560" y2="110"></line><line x1="560" y1="110" x2="680" y2="60"></line><line x1="680" y1="60" x2="720" y2="180"></line><line x1="720" y1="180" x2="600" y2="230"></line><line x1="600" y1="230" x2="460" y2="190"></line><line x1="460" y1="190" x2="340" y2="240"></line><line x1="340" y1="240" x2="200" y2="200"></line><line x1="200" y1="200" x2="90" y2="260"></line><line x1="90" y1="260" x2="230" y2="330"></line><line x1="230" y1="330" x2="400" y2="320"></line><line x1="400" y1="320" x2="540" y2="300"></line><line x1="540" y1="300" x2="650" y2="340"></line></g>
-    <g fill="#ffffff"><circle cx="60" cy="80" r="3.2"></circle><circle cx="300" cy="90" r="3.2"></circle><circle cx="560" cy="110" r="3.2"></circle><circle cx="720" cy="180" r="3.2"></circle><circle cx="460" cy="190" r="3.2"></circle><circle cx="200" cy="200" r="3.2"></circle><circle cx="400" cy="320" r="3.2"></circle><circle cx="650" cy="340" r="3.2"></circle></g>
-  </svg>
-  <div class="inner-hero-inner">
-    <div class="breadcrumb">
-      <a href="index.dc.html">Главная</a><span>/</span><a href="index.dc.html#services">Услуги</a><span>/</span><span aria-current="page">Технический план объекта недвижимости</span>
-    </div>
-    <div class="inner-hero-row">
-      <div class="inner-hero-copy">
-        <h1 class="inner-hero-title">Технический план объекта недвижимости</h1>
-        <div class="inner-hero-tagline">ДОКУМЕНТ, БЕЗ КОТОРОГО ОБЪЕКТ НЕ ПОСТАВИТЬ НА УЧЁТ</div>
-        <p class="inner-hero-desc">Построили дом, а он нигде не зарегистрирован? Сделали перепланировку в квартире, и она не узаконена? Без технического плана Росреестр откажет в постановке на учёт.</p>
-        <div class="inner-hero-actions">
-          <dc-import name="LeadModal" service="Технический план объекта недвижимости" label="Оставить заявку" variant="solid" size="lg" hint-size="220px,58px"></dc-import>
-          <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">8 917 769-61-19</a>
-        </div>
+<div class="hero hero--chapter">
+  <div class="hero-top">
+    <div class="hero-copy">
+      <div class="chapter-crumb">
+        <a href="index.dc.html">Главная</a><span>/</span><a href="index.dc.html#services">Услуги</a><span>/</span><span aria-current="page">Технический план объекта недвижимости</span>
       </div>
-      <div class="inner-hero-media">
-        <div class="inner-hero-photo">
-          <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-tehplan" shape="rect" placeholder="Фото: обмеры дома для технического плана" hint-size="100%,100%" style="width:100%;height:100%"></x-import>
-        </div>
+      <h1 class="hero-title">Технический план объекта недвижимости</h1>
+      <div class="hero-tagline">ДОКУМЕНТ, БЕЗ КОТОРОГО ОБЪЕКТ НЕ ПОСТАВИТЬ НА УЧЁТ</div>
+      <p class="hero-desc">Построили дом, а он нигде не зарегистрирован? Сделали перепланировку в квартире, и она не узаконена? Без технического плана Росреестр откажет в постановке на учёт.</p>
+      <div class="hero-actions">
+        <dc-import name="LeadModal" service="Технический план объекта недвижимости" label="Оставить заявку" variant="solid" size="lg" hint-size="220px,58px"></dc-import>
+        <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">8 917 769-61-19</a>
+      </div>
+    </div>
+    <div class="hero-media">
+      <div class="hero-photo-frame hero-photo-frame--sm">
+        <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-tehplan" shape="rect" placeholder="Фото: обмеры дома для технического плана" hint-size="100%,100%" style="width:100%;height:100%"></x-import>
       </div>
     </div>
   </div>
 </div>
 
-<div class="section--light paper-edge-start section--tight-top">
-  <div class="section-inner">
-    <div class="when-grid reveal">
-      <sc-for list="{{ whenItems }}" as="w" hint-placeholder-count="3">
-        <div class="paper-card when-card">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4.5"></path><circle cx="12" cy="16" r="0.6" fill="currentColor"></circle></svg>
-          <span>{{ w.text }}</span>
-        </div>
-      </sc-for>
-    </div>
+<div class="when-strip">
+  <div class="when-row reveal">
+    <sc-for list="{{ whenItems }}" as="w" hint-placeholder-count="3">
+      <div class="when-col">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4.5"></path><circle cx="12" cy="16" r="0.6" fill="currentColor"></circle></svg>
+        <span>{{ w.text }}</span>
+      </div>
+    </sc-for>
   </div>
 </div>
 
-<div class="section--light section--light--alt section">
+<div class="on-paper section" style="padding-bottom:72px">
   <div class="section-inner">
-    <h2 class="inner-h2 reveal">Что входит в услугу</h2>
-    <div class="checklist-grid reveal">
+    <h2 class="section-title reveal">Что входит в услугу</h2>
+    <div class="row-table reveal">
       <sc-for list="{{ checklist }}" as="c" hint-placeholder-count="4">
-        <div class="paper-card checklist-item">
+        <div class="row row--check">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"></path></svg>
-          <span>{{ c.text }}</span>
+          <div class="row-head">{{ c.text }}</div>
         </div>
       </sc-for>
     </div>
   </div>
 </div>
 
-<div class="section--light section">
+<div class="on-paper section" style="padding-top:72px;padding-bottom:72px">
   <div class="section-inner">
-    <h2 class="inner-h2 reveal">Как проходит работа</h2>
-    <div class="process-grid reveal">
+    <h2 class="section-title reveal" style="margin-bottom:48px">Как проходит работа</h2>
+    <div class="row-table reveal">
       <sc-for list="{{ processSteps }}" as="p" hint-placeholder-count="4">
-        <div class="process-step">
-          <div class="process-num">{{ p.n }}</div>
-          <div class="process-title">{{ p.title }}</div>
-          <div class="process-desc">{{ p.desc }}</div>
+        <div class="row">
+          <div class="row-num">{{ p.n }}</div>
+          <div>
+            <div class="row-head">{{ p.title }}</div>
+            <div class="row-body">{{ p.desc }}</div>
+          </div>
+          <span></span>
         </div>
       </sc-for>
     </div>
   </div>
 </div>
 
-<div class="section--light section--light--alt section">
-  <div class="section-inner section-inner--mid">
-    <h2 class="inner-h2 inner-h2--narrow reveal">Вопросы по услуге</h2>
-    <div class="reveal">
+<div class="on-paper section" style="padding-top:72px;padding-bottom:72px">
+  <div class="section-inner section-inner--narrow">
+    <h2 class="section-title reveal" style="margin-bottom:44px">Вопросы по услуге</h2>
+    <div class="row-table reveal">
       <sc-for list="{{ faqItems }}" as="item" hint-placeholder-count="3">
-        <div class="faq-item">
-          <div onClick="{{ item.toggle }}" class="faq-q">
-            <span class="faq-q-text">{{ item.q }}</span>
+        <div>
+          <div onClick="{{ item.toggle }}" class="row-q">
+            <span class="row-head" style="margin:0">{{ item.q }}</span>
             <sc-if value="{{ item.isOpen }}" hint-placeholder-val="{{ false }}">
-              <span class="faq-icon faq-icon--open">−</span>
+              <span class="row-toggle">−</span>
             </sc-if>
             <sc-if value="{{ item.isClosed }}" hint-placeholder-val="{{ true }}">
-              <span class="faq-icon faq-icon--closed">+</span>
+              <span class="row-toggle">+</span>
             </sc-if>
           </div>
           <sc-if value="{{ item.isOpen }}" hint-placeholder-val="{{ false }}">
-            <div class="faq-a">{{ item.a }}</div>
+            <div class="row-a">{{ item.a }}</div>
           </sc-if>
         </div>
       </sc-for>
@@ -113,20 +108,21 @@
   </div>
 </div>
 
-<div class="section--light paper-edge-end section">
+<div class="on-paper section" style="padding-top:72px">
   <div class="section-inner">
-    <h2 class="inner-h2 reveal">Похожие услуги</h2>
+    <h2 class="section-title reveal">Похожие услуги</h2>
     <div class="services-grid reveal">
       <sc-for list="{{ related }}" as="s" hint-placeholder-count="2">
-        <dc-import name="ServiceCard" title="{{ s.title }}" blurb="{{ s.blurb }}" href="{{ s.href }}" icon="{{ s.icon }}" hint-size="100%,320px"></dc-import>
+        <dc-import name="ServiceCard" title="{{ s.title }}" blurb="{{ s.blurb }}" href="{{ s.href }}" icon="{{ s.icon }}" hint-size="100%,380px"></dc-import>
       </sc-for>
     </div>
   </div>
 </div>
 
-<div class="cta-band bg-grid section">
-  <div class="cta-inner reveal">
-    <h2 class="section-title">Нужен технический план?</h2>
+<div class="cta-band on-dark">
+  <div class="section-inner reveal" style="padding:0">
+    <div class="kicker">ДОКУМЕНТ, БЕЗ КОТОРОГО ОБЪЕКТ НЕ ПОСТАВИТЬ НА УЧЁТ</div>
+    <h2 class="cta-title">Нужен технический план?</h2>
     <p class="section-desc" style="margin-bottom:30px">Оставьте заявку — подскажем, какой вид плана нужен именно вам.</p>
     <div class="cta-actions">
       <dc-import name="LeadModal" service="Технический план объекта недвижимости" label="Оставить заявку" variant="solid" size="lg" hint-size="230px,58px"></dc-import>

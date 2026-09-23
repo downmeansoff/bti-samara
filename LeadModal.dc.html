@@ -14,8 +14,8 @@
 <button type="button" class="{{ triggerClass }}" onClick="{{ openModal }}">{{ label }}</button>
 <sc-if value="{{ isOpen }}" hint-placeholder-val="{{ false }}">
 <div class="lead-overlay" onClick="{{ onOverlayClick }}">
+  <button type="button" onClick="{{ closeModal }}" aria-label="Закрыть" class="close-x">✕</button>
   <div class="lead-modal">
-    <button type="button" onClick="{{ closeModal }}" aria-label="Закрыть" class="lead-close">✕</button>
     <div class="lead-title">Оставить заявку</div>
     <div class="lead-sub">Ответим в течение рабочего дня. Консультация — бесплатно.</div>
     <div class="lead-badges">
@@ -60,6 +60,12 @@
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 3 10.5l6.2 2.3M21 3l-3.4 17-6.2-4.9M21 3 9.9 13.9m0 0-.7 5.6 3.3-3.4"></path></svg>
         Отправить в Telegram
       </button>
+
+      <div class="lead-quiet-alt">
+        <a href="{{ telHref }}">{{ phoneDisplay }}</a>
+        <span aria-hidden="true">·</span>
+        <a href="{{ telegramHref }}" target="_blank" rel="noreferrer">Telegram</a>
+      </div>
 
       <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
         <div class="lead-success">Открыли Telegram — отправьте готовое сообщение ↗</div>
