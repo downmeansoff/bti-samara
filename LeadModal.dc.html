@@ -8,35 +8,33 @@
 <body>
 <x-dc>
 <helmet>
-<style>
-@keyframes leadOverlayIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes leadModalIn { from { opacity: 0; transform: translateY(14px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-</style>
+<link href="assets/fonts/fonts.css" rel="stylesheet">
+<link href="assets/site.css" rel="stylesheet">
 </helmet>
-<button type="button" onClick="{{ openModal }}" style="{{ triggerStyle }}" style-hover="filter:brightness(1.06)">{{ label }}</button>
+<button type="button" class="{{ triggerClass }}" onClick="{{ openModal }}">{{ label }}</button>
 <sc-if value="{{ isOpen }}" hint-placeholder-val="{{ false }}">
-<div onClick="{{ onOverlayClick }}" style="position:fixed;inset:0;background:rgba(9,16,30,0.62);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9999;animation:leadOverlayIn 0.2s ease">
-  <div style="width:100%;max-width:460px;max-height:90vh;overflow-y:auto;background:#ffffff;border-radius:22px;padding:34px;position:relative;box-shadow:0 30px 80px rgba(10,20,40,0.35);animation:leadModalIn 0.25s cubic-bezier(.2,.8,.2,1);box-sizing:border-box">
-    <button type="button" onClick="{{ closeModal }}" aria-label="Закрыть" style="position:absolute;top:18px;right:18px;width:36px;height:36px;min-width:36px;border-radius:999px;border:none;background:#f1f2ee;color:#5c6670;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">✕</button>
-    <div style="font-family:'Unbounded',sans-serif;font-size:21px;font-weight:600;color:#0e1e35;margin-bottom:6px;padding-right:30px;line-height:1.25">Оставить заявку</div>
-    <div style="font-size:14.5px;color:#5c6670;margin-bottom:14px;line-height:1.5">Ответим в течение рабочего дня. Консультация — бесплатно.</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
-      <span style="background:#eaf7ee;color:#1f9d4c;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px">Без предоплаты</span>
-      <span style="background:#eaf7ee;color:#1f9d4c;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px">Ни к чему не обязывает</span>
+<div class="lead-overlay" onClick="{{ onOverlayClick }}">
+  <div class="lead-modal">
+    <button type="button" onClick="{{ closeModal }}" aria-label="Закрыть" class="lead-close">✕</button>
+    <div class="lead-title">Оставить заявку</div>
+    <div class="lead-sub">Ответим в течение рабочего дня. Консультация — бесплатно.</div>
+    <div class="lead-badges">
+      <span class="lead-badge">Без предоплаты</span>
+      <span class="lead-badge">Ни к чему не обязывает</span>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:13px">
+    <div class="lead-fields">
       <div>
-        <label style="display:block;font-size:12.5px;font-weight:700;color:#0e1e35;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.03em">Ваше имя</label>
-        <input value="{{ name }}" onChange="{{ onName }}" placeholder="Как к вам обращаться" style="width:100%;box-sizing:border-box;padding:13px 14px;border-radius:10px;border:1.5px solid #e3e6e0;font-size:15px;font-family:'Manrope',sans-serif;color:#0e1e35;outline:none" />
+        <label class="lead-label">Ваше имя</label>
+        <input class="lead-input" value="{{ name }}" onChange="{{ onName }}" placeholder="Как к вам обращаться" />
       </div>
       <div>
-        <label style="display:block;font-size:12.5px;font-weight:700;color:#0e1e35;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.03em">Телефон</label>
-        <input value="{{ phone }}" onChange="{{ onPhone }}" placeholder="+7 ___ ___-__-__" style="width:100%;box-sizing:border-box;padding:13px 14px;border-radius:10px;border:1.5px solid #e3e6e0;font-size:15px;font-family:'Manrope',sans-serif;color:#0e1e35;outline:none" />
+        <label class="lead-label">Телефон</label>
+        <input class="lead-input" value="{{ phone }}" onChange="{{ onPhone }}" placeholder="+7 ___ ___-__-__" />
       </div>
       <div>
-        <label style="display:block;font-size:12.5px;font-weight:700;color:#0e1e35;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.03em">Услуга</label>
-        <select value="{{ service }}" onChange="{{ onServiceChange }}" style="width:100%;box-sizing:border-box;padding:13px 14px;border-radius:10px;border:1.5px solid #e3e6e0;font-size:15px;font-family:'Manrope',sans-serif;color:#0e1e35;outline:none;background:#ffffff">
+        <label class="lead-label">Услуга</label>
+        <select class="lead-select" value="{{ service }}" onChange="{{ onServiceChange }}">
           <option value="">Выберите услугу</option>
           <sc-for list="{{ services }}" as="s" hint-placeholder-count="9">
             <option value="{{ s }}">{{ s }}</option>
@@ -44,42 +42,42 @@
         </select>
       </div>
       <div>
-        <label style="display:block;font-size:12.5px;font-weight:700;color:#0e1e35;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.03em">Комментарий (необязательно)</label>
-        <textarea value="{{ comment }}" onChange="{{ onComment }}" placeholder="Кратко опишите ситуацию" rows="3" style="width:100%;box-sizing:border-box;padding:13px 14px;border-radius:10px;border:1.5px solid #e3e6e0;font-size:15px;font-family:'Manrope',sans-serif;color:#0e1e35;outline:none;resize:vertical"></textarea>
-        <div style="font-size:12.5px;color:#9aa0a6;margin-top:6px;line-height:1.4">Есть скан выписки ЕГРН или документов на объект? Приложите их в Telegram или на почту после заявки.</div>
+        <label class="lead-label">Комментарий (необязательно)</label>
+        <textarea class="lead-textarea" value="{{ comment }}" onChange="{{ onComment }}" placeholder="Кратко опишите ситуацию" rows="3"></textarea>
+        <div style="font-size:12.5px;color:var(--tx-lo);margin-top:6px;line-height:1.4">Есть скан выписки ЕГРН или документов на объект? Приложите их в Telegram или на почту после заявки.</div>
       </div>
 
-      <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;margin-top:2px">
-        <input type="checkbox" checked="{{ consent }}" onChange="{{ onConsent }}" style="width:17px;height:17px;margin:2px 0 0;flex:0 0 auto;accent-color:#1f9d4c;cursor:pointer" />
-        <span style="font-size:12.5px;color:#5c6670;line-height:1.5">Я согласен на обработку персональных данных и принимаю <a href="politika.dc.html" target="_blank" rel="noreferrer" style="color:#1f9d4c;text-decoration:underline">политику конфиденциальности</a></span>
+      <label class="lead-consent">
+        <input type="checkbox" checked="{{ consent }}" onChange="{{ onConsent }}" />
+        <span>Я согласен на обработку персональных данных и принимаю <a href="politika.dc.html" target="_blank" rel="noreferrer">политику конфиденциальности</a></span>
       </label>
 
       <sc-if value="{{ showError }}" hint-placeholder-val="{{ false }}">
-        <div style="font-size:13px;color:#c0392b;font-weight:600">{{ errorText }}</div>
+        <div class="lead-error">{{ errorText }}</div>
       </sc-if>
 
-      <button type="button" onClick="{{ submit }}" style="margin-top:2px;width:100%;padding:15px;border-radius:12px;border:none;background:#1f9d4c;color:#ffffff;font-size:15.5px;font-weight:700;font-family:'Manrope',sans-serif;letter-spacing:0.01em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;box-sizing:border-box" style-hover="background:#188040">
+      <button type="button" onClick="{{ submit }}" class="lead-submit">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 3 10.5l6.2 2.3M21 3l-3.4 17-6.2-4.9M21 3 9.9 13.9m0 0-.7 5.6 3.3-3.4"></path></svg>
         Отправить в Telegram
       </button>
 
       <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
-        <div style="font-size:13px;color:#1f9d4c;text-align:center;font-weight:700">Открыли Telegram — отправьте готовое сообщение ↗</div>
+        <div class="lead-success">Открыли Telegram — отправьте готовое сообщение ↗</div>
       </sc-if>
     </div>
 
-    <div style="margin-top:22px;padding-top:20px;border-top:1px solid #ece9e0;display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12.5px;font-weight:700;color:#9aa0a6;text-transform:uppercase;letter-spacing:0.04em">Или свяжитесь напрямую</div>
-      <div style="display:flex;flex-wrap:wrap;gap:10px">
-        <a href="{{ telHref }}" style="display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:#0e1e35;text-decoration:none;background:#f6f7f4;padding:9px 13px;border-radius:10px">
+    <div class="lead-footer">
+      <div class="lead-footer-label">Или свяжитесь напрямую</div>
+      <div class="lead-footer-contacts">
+        <a href="{{ telHref }}" class="hdr-chip">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.9 21 3 13.1 3 3.6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8Z"></path></svg>
           {{ phoneDisplay }}
         </a>
-        <a href="{{ telegramHref }}" target="_blank" rel="noreferrer" style="display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:#0e1e35;text-decoration:none;background:#f6f7f4;padding:9px 13px;border-radius:10px">
+        <a href="{{ telegramHref }}" target="_blank" rel="noreferrer" class="hdr-chip">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 3 10.5l6.2 2.3M21 3l-3.4 17-6.2-4.9M21 3 9.9 13.9m0 0-.7 5.6 3.3-3.4"></path></svg>
           Telegram
         </a>
-        <a href="{{ emailHref }}" style="display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:#0e1e35;text-decoration:none;background:#f6f7f4;padding:9px 13px;border-radius:10px">
+        <a href="{{ emailHref }}" class="hdr-chip">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
           Email
         </a>
@@ -113,17 +111,25 @@ class Component extends DCLogic {
     sent: false,
   };
 
+  _wasOpen = false;
+
   componentDidMount() {
     if (this.props.service) this.setState({ service: this.props.service });
+    this._wasOpen = this.state.isOpen;
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.isOpen !== this.state.isOpen) {
+  componentDidUpdate(prevProps) {
+    if (this._wasOpen !== this.state.isOpen) {
       document.body.style.overflow = this.state.isOpen ? 'hidden' : '';
+      this._wasOpen = this.state.isOpen;
     }
     if (prevProps.service !== this.props.service && this.props.service) {
       this.setState({ service: this.props.service });
     }
+  }
+
+  componentWillUnmount() {
+    if (this._wasOpen) document.body.style.overflow = '';
   }
 
   open = () => this.setState({ isOpen: true, sent: false, showError: false });
@@ -132,16 +138,12 @@ class Component extends DCLogic {
   renderVals() {
     const variant = this.props.variant || 'solid';
     const size = this.props.size || 'md';
-    const pad = size === 'lg' ? '18px 32px' : '14px 26px';
-    const fontSize = size === 'lg' ? '17px' : '15px';
-    let triggerStyle;
-    if (variant === 'outline-light') {
-      triggerStyle = `padding:${pad};border-radius:999px;border:1.5px solid rgba(255,255,255,0.55);background:transparent;color:#ffffff;font-family:'Manrope',sans-serif;font-weight:700;font-size:${fontSize};cursor:pointer;white-space:nowrap;box-sizing:border-box`;
-    } else if (variant === 'outline-dark') {
-      triggerStyle = `padding:${pad};border-radius:999px;border:1.5px solid #0e1e35;background:transparent;color:#0e1e35;font-family:'Manrope',sans-serif;font-weight:700;font-size:${fontSize};cursor:pointer;white-space:nowrap;box-sizing:border-box`;
-    } else {
-      triggerStyle = `padding:${pad};border-radius:999px;border:none;background:#1f9d4c;color:#ffffff;font-family:'Manrope',sans-serif;font-weight:700;font-size:${fontSize};cursor:pointer;white-space:nowrap;box-shadow:0 10px 24px rgba(31,157,76,0.28);box-sizing:border-box`;
-    }
+    const sizeClass = size === 'lg' ? 'btn--lg' : 'btn--md';
+    let variantClass;
+    if (variant === 'outline-light') variantClass = 'btn--outline-light';
+    else if (variant === 'outline-dark') variantClass = 'btn--outline-dark';
+    else variantClass = 'btn--solid';
+    const triggerClass = `btn ${variantClass} ${sizeClass}`;
 
     const hasContacts = this.state.name.trim().length > 0 && this.state.phone.trim().length > 0;
     const canSubmit = hasContacts && this.state.consent;
@@ -184,7 +186,7 @@ class Component extends DCLogic {
       sent: this.state.sent,
       submit,
       label: this.props.label || 'Оставить заявку',
-      triggerStyle,
+      triggerClass,
       phoneDisplay: '8 917 769-61-19',
       telHref: 'tel:+79177696119',
       emailHref: 'mailto:info@bti-samara.ru',
