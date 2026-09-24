@@ -19,6 +19,9 @@
 <meta property="og:locale" content="ru_RU" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="theme-color" content="#121212" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ProfessionalService","name":"ИП Баймурзин Азат Ринатович","description":"Межевание, технические планы, перераспределение, раздел и объединение участков. Самара, Самарская область, Республика Башкортостан.","url":"https://downmeansoff.github.io/bti-samara/index.dc.html","image":"https://downmeansoff.github.io/bti-samara/assets/og-cover.jpg","logo":"https://downmeansoff.github.io/bti-samara/assets/logo-mark.png","telephone":"+7 917 769-61-19","openingHours":"Mo-Fr 09:00-18:00","areaServed":[{"@type":"AdministrativeArea","name":"Самарская область"},{"@type":"AdministrativeArea","name":"Республика Башкортостан"}],"sameAs":["https://t.me/bti_samara63"]}
+</script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -48,7 +51,7 @@
       <div class="hero-chips">
         <span class="chip">Сроки — по договору</span>
         <span class="chip">Консультация — бесплатно</span>
-        <span class="chip">Аттестат с 2013 года</span>
+        <a class="chip chip--link" href="https://www.ski-pk.ru/sro/members/41ef022f-7d44-42b1-9f89-ad0900971a41" target="_blank" rel="noreferrer">Аттестат с 2013 года<span class="chip-arrow" aria-hidden="true">↗</span></a>
       </div>
     </div>
 
@@ -202,7 +205,12 @@
   <div class="section-inner">
     <div class="kicker reveal">О компании</div>
     <div class="about-top reveal">
-      <div class="about-portrait-tile">
+      <!-- Стоковое лицо рядом с «ИП Баймурзин Азат Ринатович» читалось как его портрет.
+           Слот спрятан до настоящего фото владельца; вместо него — его аттестат. -->
+      <button type="button" class="about-doc" onClick="{{ openAttestat }}">
+        <img src="assets/docs/attestat-detail.jpg" alt="Квалификационный аттестат" width="755" height="335" />
+      </button>
+      <div class="about-portrait-tile about-portrait-tile--off">
         <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="about-portrait" shape="rect" placeholder="Фото: кадастровый инженер на объекте" hint-size="100%,100%" style="width:100%;height:100%"></x-import>
       </div>
       <div class="about-quote-panel">
@@ -241,7 +249,7 @@
     <div class="docs-mosaic reveal">
       <sc-for list="{{ awards }}" as="a" hint-placeholder-count="5">
         <button type="button" onClick="{{ a.onOpen }}" class="{{ a.tileClass }}">
-          <img src="{{ a.img }}" alt="{{ a.title }}" loading="lazy" />
+          <img src="{{ a.img }}" alt="{{ a.title }}" width="{{ a.w }}" height="{{ a.h }}" loading="lazy" />
           <div class="doc-tile-caption">
             <div class="doc-tile-caption-title">{{ a.title }}</div>
             <div class="doc-tile-caption-sub">{{ a.sub }}</div>
@@ -310,7 +318,7 @@
       <sc-for list="{{ priceRows }}" as="row" hint-placeholder-count="6">
         <div class="row row--nonum">
           <div class="row-head" style="margin:0">{{ row.label }}</div>
-          <div class="row-price">{{ row.price }}</div>
+          <div class="{{ row.priceClass }}">{{ row.price }}</div>
         </div>
       </sc-for>
     </div>
@@ -401,11 +409,11 @@ const DOCS = [
 
 
 const AWARDS = [
-  { img: 'assets/docs/vypiska-sro-attestat-2.jpg', title: 'Квалификационный аттестат', sub: 'Кадастровый инженер, № 02-13-942 (выдан 17.05.2013)' },
-  { img: 'assets/docs/vypiska-sro-attestat-1.jpg', title: 'Выписка из реестра СРО', sub: 'Ассоциация кадастровых инженеров «Содружество», рег. № 704' },
-  { img: 'assets/docs/pochetnaya-rosreestr.jpg', title: 'Почётная грамота', sub: 'Управление Росреестра по Республике Башкортостан, 2021' },
-  { img: 'assets/docs/blagodarstvennoe-sro.jpg', title: 'Благодарственное письмо', sub: 'Национальная палата кадастровых инженеров, Москва, 2025' },
-  { img: 'assets/docs/blagodarstvennoe-bti.jpg', title: 'Благодарственное письмо', sub: 'ГБУ РБ «Госкадоценка и техническая инвентаризация», 2019' },
+  { img: 'assets/docs/vypiska-sro-attestat-2.jpg', w: 1743, h: 1347, title: 'Квалификационный аттестат', sub: 'Кадастровый инженер, № 02-13-942 (выдан 17.05.2013)' },
+  { img: 'assets/docs/vypiska-sro-attestat-1.jpg', w: 1347, h: 1743, title: 'Выписка из реестра СРО', sub: 'Ассоциация кадастровых инженеров «Содружество», рег. № 704' },
+  { img: 'assets/docs/pochetnaya-rosreestr.jpg', w: 1309, h: 1853, title: 'Почётная грамота', sub: 'Управление Росреестра по Республике Башкортостан, 2021' },
+  { img: 'assets/docs/blagodarstvennoe-sro.jpg', w: 1853, h: 1309, title: 'Благодарственное письмо', sub: 'Национальная палата кадастровых инженеров, Москва, 2025' },
+  { img: 'assets/docs/blagodarstvennoe-bti.jpg', w: 1309, h: 1853, title: 'Благодарственное письмо', sub: 'ГБУ РБ «Госкадоценка и техническая инвентаризация», 2019' },
 ];
 
 const STATS = [
@@ -509,6 +517,7 @@ class Component extends DCLogic {
       processSteps: PROCESS_STEPS,
       aboutPoints: ABOUT_POINTS,
       awards,
+      openAttestat: () => this.setState({ lightboxIdx: 0 }),
       lightboxOpen: !!lb,
       lightboxImg: lb ? lb.img : '',
       lightboxTitle: lb ? (lb.title + ' — ' + lb.sub) : '',
@@ -516,7 +525,8 @@ class Component extends DCLogic {
       prevLightbox: this.prevLightbox,
       nextLightbox: this.nextLightbox,
       docs: DOCS,
-      priceRows: PRICE_ROWS,
+      // «по запросу» тише настоящих цифр — цена с числом должна читаться первой.
+      priceRows: PRICE_ROWS.map(r => ({ ...r, priceClass: r.price === 'по запросу' ? 'row-price row-price--ask' : 'row-price' })),
       faqItems,
     };
   }

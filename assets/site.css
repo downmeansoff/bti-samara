@@ -940,3 +940,72 @@ a.row { cursor: pointer; }
   .hero-photo-frame .film-badge-label { font-size: 11px; max-width: none; }
   .hero-photo-frame .film-badge-label br { display: none; }
 }
+
+/* =====================================================================
+   24.09 — after the competitor review (13 sites in Samara/Ufa + category
+   leaders). Nothing here adds words; it moves proof forward and removes
+   the one thing that could read as a fake.
+   ===================================================================== */
+
+/* Anchors land below the sticky header instead of under it. */
+[id] { scroll-margin-top: 88px; }
+@media (max-width: 720px) { [id] { scroll-margin-top: 76px; } }
+
+/* Wide screens: the four footer sections sit in the header, same labels.
+   Below 1240px the header has no room — the Меню overlay covers it. */
+.hdr-nav { display: none; }
+@media (min-width: 1240px) {
+  .hdr-nav { display: flex; align-items: center; gap: 26px; }
+  .hdr-nav-link {
+    position: relative; font-size: 14px; font-weight: 600; white-space: nowrap;
+    color: var(--tx-on-dark-lo); padding: 12px 0; transition: color .2s ease;
+  }
+  .hdr-nav-link::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 6px; height: 1px;
+    background: var(--stamp); transform: scaleX(0); transform-origin: left; transition: transform .25s ease;
+  }
+  .hdr-nav-link:hover, .hdr-nav-link:focus-visible { color: var(--tx-on-dark); }
+  .hdr-nav-link:hover::after, .hdr-nav-link:focus-visible::after { transform: scaleX(1); }
+}
+
+/* Hero chip «Аттестат с 2013 года» opens the SRO registry — the one claim on
+   the first screen a client can check in one click. Brighter than its two
+   static neighbours so it reads as a link. */
+.chip--link {
+  position: relative; color: var(--tx-on-dark); border-color: rgba(238,240,236,.34);
+  background: rgba(238,240,236,.07);
+  transition: border-color .2s ease, color .2s ease;
+}
+.chip--link::before { content: ''; position: absolute; inset: -4px 0; }
+.chip--link:hover, .chip--link:focus-visible { border-color: var(--stamp); color: #fff; }
+
+/* About: the stock face is gone; his own attestat (title + his name, cropped
+   above the redacted birth date) stands next to «12+ лет». Click opens the
+   whole document in the same lightbox as the mosaic. */
+.about-portrait-tile--off { display: none; }
+.about-doc {
+  display: block; padding: 0; border: 0; overflow: hidden; cursor: zoom-in;
+  background: #F4ECE6;
+}
+.about-doc img {
+  display: block; width: 100%; height: 100%; aspect-ratio: 755 / 335;
+  object-fit: cover; object-position: left center; transition: transform .5s ease;
+}
+.about-doc:hover img { transform: scale(1.02); }
+
+/* Pricing: «по запросу» is not a price — set it quieter so the two real
+   figures read first. */
+.row-price--ask {
+  font-family: var(--font-body); font-weight: 600; font-size: 15px;
+  color: var(--tx-on-paper-lo); letter-spacing: 0;
+}
+
+/* Scans carry width/height, so the mosaic has its final height before the
+   lazy images arrive (it used to grow ~940px on load at 1440). */
+.doc-tile img { height: auto; }
+.chip-arrow { margin-left: 8px; }
+
+/* The header never actually stuck: .hdr lives inside the Header component
+   host, which is exactly as tall as the header, so sticky had no room to
+   move. The host sticks instead (same z-index the header always had). */
+.sc-host[data-sc-name="Header"] { position: sticky; top: 0; z-index: 60; }
