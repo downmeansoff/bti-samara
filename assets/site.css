@@ -1009,3 +1009,50 @@ a.row { cursor: pointer; }
    host, which is exactly as tall as the header, so sticky had no room to
    move. The host sticks instead (same z-index the header always had). */
 .sc-host[data-sc-name="Header"] { position: sticky; top: 0; z-index: 60; }
+
+/* Reviews — the owner's real Yandex Maps reviews, quoted verbatim. Two dark
+   panels on the ink section, same tile language as the about quote panel. */
+.review-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; margin-top: 48px; }
+.review {
+  margin: 0; background: var(--ink-panel); padding: 44px 44px 32px;
+  display: flex; flex-direction: column; gap: 28px;
+}
+.review-stars { display: flex; gap: 4px; color: var(--tx-on-dark); }
+.review-stars--4 svg:nth-child(n+5),
+.review-stars--3 svg:nth-child(n+4),
+.review-stars--2 svg:nth-child(n+3),
+.review-stars--1 svg:nth-child(n+2) { opacity: .22; }
+.review-text {
+  margin: 0; flex: 1;
+  font-size: 21px; line-height: 1.5; font-weight: 500; color: var(--tx-on-dark);
+  max-width: 44ch;
+}
+.review-meta {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px;
+  padding-top: 22px; border-top: 1px solid var(--line-on-dark);
+  font-size: 14px; color: var(--tx-on-dark-lo);
+}
+.review-author { font-weight: 700; font-size: 15px; color: var(--tx-on-dark); }
+.review-date { margin-left: auto; }
+.review-date::after { content: '·'; margin-left: 12px; }
+.review-src { white-space: nowrap; }
+.review-src { position: relative; transition: color .2s ease; }
+.review-src::before { content: ''; position: absolute; inset: -14px -8px; }
+.review-src:hover { color: var(--stamp); }
+.review-all { margin-top: 40px; border-bottom-color: var(--tx-on-dark); }
+@media (max-width: 900px) {
+  .review-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .review-grid { margin-top: 32px; }
+  .review { padding: 30px var(--inset-mobile) 24px; gap: 22px; }
+  .review-text { font-size: 18px; }
+  /* at 360 author + date + source wrapped mid-phrase; one item per line instead */
+  .review-meta { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .review-date { margin-left: 0; }
+  .review-date::after { content: none; }
+  .review-all { margin-top: 32px; }
+}
+
+.ftr-legal { display: flex; flex-direction: column; gap: 4px; }
+.ftr-nw { white-space: nowrap; }
