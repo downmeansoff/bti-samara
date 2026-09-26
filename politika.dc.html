@@ -20,6 +20,8 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="theme-color" content="#121212" />
 <script src="./support.js"></script>
+<!-- Режим правок: только по ссылке с ?review=1, посетителям не грузится -->
+<script>try{if(/[?&]review(=|&|$)/.test(location.search)||sessionStorage.getItem('bti_review')==='1'){var s=document.createElement('script');s.src='assets/review.js?v=1';document.head.appendChild(s)}}catch(e){}</script>
 </head>
 <body>
 <x-dc>

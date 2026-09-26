@@ -31,16 +31,18 @@ function contentType(p) {
 }
 
 const server = http.createServer((req, res) => {
-  let urlPath;
+  let urlPath, search;
   try {
-    urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+    const u = new URL(req.url, 'http://x');
+    urlPath = decodeURIComponent(u.pathname);
+    search = u.search;
   } catch {
     res.writeHead(400).end('Bad Request');
     return;
   }
 
   if (urlPath === '/' || urlPath === '') {
-    res.writeHead(302, { Location: '/index.dc.html' }).end();
+    res.writeHead(302, { Location: '/index.dc.html' + search }).end();
     return;
   }
 
