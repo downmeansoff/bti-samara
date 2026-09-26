@@ -883,8 +883,19 @@
     let pending = null;
     try { pending = sessionStorage.getItem(GOTO); sessionStorage.removeItem(GOTO); } catch {}
     if (pending) {
-      const go = () => setTimeout(() => reveal(pending), 800);
-      if (document.readyState === 'complete') go(); else addEventListener('load', go, { once: true });
+      // Страница дорисовывается после load (компоненты, картинки): ждём, пока метка
+      // перестанет двигаться, и только тогда прокручиваем к ней.
+      let last = null, tries = 0;
+      const tick = () => {
+        if (!alive) return;
+        render();
+        const b = boxOf(pending);
+        const y = b ? Math.round(b.y) : null;
+        if ((y !== null && y === last) || ++tries > 25) { reveal(pending); return; }
+        last = y;
+        setTimeout(tick, 300);
+      };
+      if (document.readyState === 'complete') tick(); else addEventListener('load', tick, { once: true });
     }
     let seen = false;
     try { seen = localStorage.getItem(HINT_KEY) === '1'; } catch {}
