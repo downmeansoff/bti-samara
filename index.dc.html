@@ -20,8 +20,10 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="theme-color" content="#121212" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"ProfessionalService","name":"ИП Баймурзин Азат Ринатович","description":"Межевание, технические планы, перераспределение, раздел и объединение участков. Самара, Самарская область, Республика Башкортостан.","url":"https://downmeansoff.github.io/bti-samara/index.dc.html","image":"https://downmeansoff.github.io/bti-samara/assets/og-cover.jpg","logo":"https://downmeansoff.github.io/bti-samara/assets/logo-mark.png","telephone":"+7 917 769-61-19","email":"baymurzin.86@bk.ru","taxID":"026802515953","openingHours":"Mo-Fr 09:00-18:00","areaServed":[{"@type":"AdministrativeArea","name":"Самарская область"},{"@type":"AdministrativeArea","name":"Республика Башкортостан"}],"sameAs":["https://t.me/bti_samara63","https://yandex.ru/maps/org/159032999200/"]}
+{"@context":"https://schema.org","@type":"ProfessionalService","name":"ИП Баймурзин Азат Ринатович","description":"Межевание, технические планы, перераспределение, раздел и объединение участков. Самара, Самарская область, Республика Башкортостан.","url":"https://downmeansoff.github.io/bti-samara/index.dc.html","image":"https://downmeansoff.github.io/bti-samara/assets/og-cover.jpg","logo":"https://downmeansoff.github.io/bti-samara/assets/logo-mark.png","telephone":"+7 902 749-28-01","email":"baymurzin.86@bk.ru","taxID":"026802515953","openingHours":"Mo-Fr 09:00-18:00","areaServed":[{"@type":"AdministrativeArea","name":"Самарская область"},{"@type":"AdministrativeArea","name":"Республика Башкортостан"}],"contactPoint":[{"@type":"ContactPoint","telephone":"+7 902 749-28-01","contactType":"customer service","areaServed":"Самарская область"},{"@type":"ContactPoint","telephone":"+7 917 769-61-19","contactType":"customer service","areaServed":"Республика Башкортостан"}],"sameAs":["https://t.me/kadastricom_bot","https://yandex.ru/maps/org/159032999200/"]}
 </script>
+<!-- Телефоны/Telegram выше — синхронно с assets/contacts.js, JSON-LD статический и его не читает. -->
+<script src="assets/contacts.js?v=1"></script>
 <script src="./support.js"></script>
 <!-- Режим правок: только по ссылке с ?review=1, посетителям не грузится -->
 <script>try{if(/[?&]review(=|&|$)/.test(location.search)||sessionStorage.getItem('bti_review')==='1'){var s=document.createElement('script');s.src='assets/review.js?v=2';document.head.appendChild(s)}}catch(e){}</script>
@@ -45,10 +47,22 @@
       <p class="hero-desc">Межевание, технические планы, перераспределение, раздел и объединение участков. Аттестованный кадастровый инженер с опытом более 12 лет — более 1000 объектов поставлено на кадастровый учёт.</p>
       <div class="hero-actions">
         <dc-import name="LeadModal" label="Оставить заявку" variant="solid" size="lg" hint-size="230px,58px"></dc-import>
-        <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.9 21 3 13.1 3 3.6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8Z"></path></svg>
-          8 917 769-61-19
-        </a>
+        <div class="phone-group">
+          <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
+            <div class="phone-item">
+              <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.region }}: {{ ph.display }}">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.9 21 3 13.1 3 3.6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8Z"></path></svg>
+                <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
+              </a>
+              <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+              </sc-if>
+              <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+                <span class="phone-max-note">также в MAX</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
       </div>
       <div class="hero-chips">
         <span class="chip">Сроки — по договору</span>
@@ -222,7 +236,7 @@
     </div>
 
     <h2 class="section-title reveal">Кадастровый инженер с опытом более 12 лет</h2>
-    <p class="about-lead reveal">ИП Баймурзин Азат Ринатович — практикующий кадастровый инженер с квалификационным аттестатом с 2013 года и общим профессиональным стажем 17 лет. Беру на себя все технические и юридические сложности: от выезда и замеров до получения готовых документов в Росреестре.</p>
+    <p class="about-lead reveal">ИП Баймурзин Азат Ринатович — практикующий кадастровый инженер с квалификационным аттестатом с 2013 года и общим профессиональным стажем 17 лет, из них 13 лет — на руководящей должности в БТИ. Беру на себя все технические и юридические сложности: от выезда и замеров до получения готовых документов в Росреестре.</p>
 
     <div class="about-points reveal">
       <sc-for list="{{ aboutPoints }}" as="pt" hint-placeholder-count="8">
@@ -284,7 +298,7 @@
 <div class="pullquote reveal">
   <div class="pullquote-panel">
     <div>
-      <p class="pullquote-text">Юридически полная защита на каждом этапе — от замеров до записи в ЕГРН.</p>
+      <p class="pullquote-text">Полное сопровождение на каждом этапе — от замеров до записи в ЕГРН.</p>
       <div class="pullquote-attr">БЫСТРО. ТОЧНО. НАДЁЖНО.</div>
     </div>
   </div>
@@ -387,9 +401,21 @@
     <p class="section-desc">Оставьте заявку или позвоните — расскажем, какие документы нужны именно в вашем случае.</p>
     <div class="cta-actions">
       <dc-import name="LeadModal" label="Оставить заявку" variant="solid" size="lg" hint-size="230px,58px"></dc-import>
-      <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">
-        8 917 769-61-19
-      </a>
+      <div class="phone-group">
+        <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
+          <div class="phone-item">
+            <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.region }}: {{ ph.display }}">
+              <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
+            </a>
+            <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+              <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+            </sc-if>
+            <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+              <span class="phone-max-note">также в MAX</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
     </div>
   </div>
 </div>
@@ -413,7 +439,7 @@ const TRUST_ITEMS = [
 ];
 
 const PROCESS_STEPS = [
-  { n: '01', title: 'Заявка', desc: 'Оставляете заявку на сайте, по телефону или в Telegram — коротко расскажите о задаче.' },
+  { n: '01', title: 'Заявка', desc: 'Оставляете заявку на сайте, по телефону, в Telegram или MAX — коротко расскажите о задаче.' },
   { n: '02', title: 'Консультация и выезд', desc: 'Бесплатно оцениваем объём работ, при необходимости выезжаем на объект и проводим замеры.' },
   { n: '03', title: 'Подготовка документов', desc: 'Готовим межевой, технический план или другой документ строго по действующим регламентам.' },
   { n: '04', title: 'Сопровождение в Росреестре (по договорённости с заказчиком)', desc: 'Готовый результат — выписка из ЕГРН и технические документы.' },
@@ -426,14 +452,14 @@ const ABOUT_POINTS = [
   { text: 'Работаем по Самарской области и Республике Башкортостан' },
   { text: 'Работаем с физическими и юридическими лицами' },
   { text: 'Все сроки фиксируем в договоре' },
-  { text: 'Полное сопровождение — от замеров до выписки ЕГРН' },
+  { text: 'Полное сопровождение — от замеров до выписки из ЕГРН' },
   { text: 'Работаете напрямую с инженером — без очередей и передачи дела между сотрудниками' },
 ];
 
 const DOCS = [
   { title: 'Межевой план', desc: 'Фиксирует точные границы земельного участка для внесения в ЕГРН.' },
   { title: 'Технический план', desc: 'Описывает объект капитального строительства — дом, квартиру, нежилое помещение.' },
-  { title: 'Выписка ЕГРН', desc: 'Подтверждает право собственности и отсутствие обременений.' },
+  { title: 'Выписка из ЕГРН (по согласованию)', desc: 'Подтверждает право собственности.' },
 ];
 
 
@@ -451,10 +477,10 @@ const STATS = [
 ];
 
 const PRICE_ROWS = [
-  { label: 'Межевание земельного участка', price: 'от 8 350 ₽' },
   { label: 'Межевой план на уточнение границ земельного участка', price: 'от 7 000 ₽' },
   { label: 'Перераспределение, раздел и объединение участков', price: 'от 8 500 ₽' },
-  { label: 'Технический план объекта недвижимости', price: 'от 7 500 ₽' },
+  { label: 'Технический план — ИЖС и нежилые строения', price: 'от 7 500 ₽' },
+  { label: 'Технический план — помещения', price: 'от 5 000 ₽' },
   { label: 'Акт обследования (снятие с кадастрового учёта и прекращение права собственности)', price: 'от 4 500 ₽' },
   { label: 'Акт осмотра объекта (отнесение к признакам объекта капитального строительства)', price: 'от 4 500 ₽' },
   { label: 'Вынос точек в натуру', price: 'от 750 ₽ / точка' },
@@ -469,9 +495,9 @@ const REVIEWS = [
 ];
 
 const FAQ_BASE = [
-  { q: 'Сколько по времени занимает межевание или технический план?', a: 'В среднем от 5 до 15 рабочих дней в зависимости от объекта. Точный срок фиксируем в договоре после оценки задачи.' },
+  { q: 'Сколько по времени занимает межевание или технический план?', a: 'В среднем от 5 до 15 рабочих дней в зависимости от объекта и сложности. Точный срок фиксируем в договоре после оценки задачи.' },
   { q: 'Вы работаете только в Самаре?', a: 'Нет, работаем по Самаре, Самарской области и Республике Башкортостан.' },
-  { q: 'Нужно ли мне присутствовать при замерах?', a: 'Нет, присутствие собственника не обязательно. Согласуем удобное время выезда и сообщим о результатах.' },
+  { q: 'Нужно ли мне присутствовать при замерах?', a: 'Нет, присутствие собственника не обязательно, достаточно представителя. Согласуем удобное время выезда и сообщим о результатах.' },
   { q: 'Что делать, если Росреестр приостановил регистрацию?', a: 'Разбираемся в причине приостановки, донесём недостающие документы и доводим дело до положительного решения — это часть сопровождения.' },
   { q: 'Работаете ли с юридическими лицами и застройщиками?', a: 'Да, работаем и с физическими, и с юридическими лицами, заключаем официальный договор.' },
   { q: 'Сколько стоит услуга?', a: 'Стоимость зависит от площади объекта, региона и срочности задачи. Точную цену назовём на бесплатной консультации.' },
@@ -537,6 +563,8 @@ class Component extends DCLogic {
   nextLightbox = () => this.setState(s => ({ lightboxIdx: s.lightboxIdx === null ? null : (s.lightboxIdx + 1) % AWARDS.length }));
 
   renderVals() {
+    const C = window.BTI_CONTACTS;
+    const phones = C.phones.map(ph => ({ ...ph, hasMax: !!ph.max, noMax: !ph.max }));
     const openIdx = this.state.faqOpen;
     const faqItems = FAQ_BASE.map((it, i) => ({
       q: it.q,
@@ -555,6 +583,7 @@ class Component extends DCLogic {
     const lb = idx === null || idx === undefined ? null : AWARDS[idx];
 
     return {
+      phones,
       trustItems: TRUST_ITEMS.map(t => ({
         label: t.label,
         isReticle: t.mark === 'reticle',

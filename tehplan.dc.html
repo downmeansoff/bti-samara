@@ -18,6 +18,7 @@
 <meta property="og:locale" content="ru_RU" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="theme-color" content="#121212" />
+<script src="assets/contacts.js?v=1"></script>
 <script src="./support.js"></script>
 <!-- Режим правок: только по ссылке с ?review=1, посетителям не грузится -->
 <script>try{if(/[?&]review(=|&|$)/.test(location.search)||sessionStorage.getItem('bti_review')==='1'){var s=document.createElement('script');s.src='assets/review.js?v=2';document.head.appendChild(s)}}catch(e){}</script>
@@ -41,13 +42,33 @@
       <h1 class="hero-title">Технический план объекта недвижимости</h1>
       <div class="hero-tagline">ДОКУМЕНТ, БЕЗ КОТОРОГО ОБЪЕКТ НЕ ПОСТАВИТЬ НА УЧЁТ</div>
       <p class="hero-desc">Построили дом, а он нигде не зарегистрирован? Сделали перепланировку в квартире, и она не узаконена? Без технического плана Росреестр откажет в постановке на учёт.</p>
-      <div class="hero-price">
-        <div class="hero-price-cap">Стоимость</div>
-        <div class="hero-price-num">от 7 500 ₽</div>
+      <div class="hero-price hero-price--rows">
+        <div class="hero-price-row">
+          <span class="hero-price-cap">ИЖС и нежилые строения</span>
+          <span class="hero-price-num">от 7 500 ₽</span>
+        </div>
+        <div class="hero-price-row">
+          <span class="hero-price-cap">Помещения</span>
+          <span class="hero-price-num">от 5 000 ₽</span>
+        </div>
       </div>
       <div class="hero-actions">
         <dc-import name="LeadModal" service="Технический план объекта недвижимости" label="Оставить заявку" variant="solid" size="lg" hint-size="220px,58px"></dc-import>
-        <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">8 917 769-61-19</a>
+        <div class="phone-group">
+          <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
+            <div class="phone-item">
+              <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.region }}: {{ ph.display }}">
+                <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
+              </a>
+              <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+              </sc-if>
+              <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+                <span class="phone-max-note">также в MAX</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
       </div>
     </div>
     <div class="hero-media">
@@ -143,7 +164,21 @@
     <p class="section-desc" style="margin-bottom:30px">Оставьте заявку — подскажем, какой вид плана нужен именно вам.</p>
     <div class="cta-actions">
       <dc-import name="LeadModal" service="Технический план объекта недвижимости" label="Оставить заявку" variant="solid" size="lg" hint-size="230px,58px"></dc-import>
-      <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">8 917 769-61-19</a>
+      <div class="phone-group">
+        <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
+          <div class="phone-item">
+            <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.region }}: {{ ph.display }}">
+              <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
+            </a>
+            <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+              <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+            </sc-if>
+            <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+              <span class="phone-max-note">также в MAX</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
     </div>
   </div>
 </div>
@@ -160,7 +195,7 @@ const WHEN_ITEMS = [
 ];
 const CHECKLIST = [
   { text: 'Выезд и обмеры объекта на месте' },
-  { text: 'Технический план дома или дачи' },
+  { text: 'Технический план объекта капитального строительства' },
   { text: 'Формирование плана в электронном виде (XML + ЭЦП)' },
   { text: 'Полное соответствие требованиям Росреестра' },
 ];
@@ -208,12 +243,14 @@ class Component extends DCLogic {
   }
 
   renderVals() {
+    const C = window.BTI_CONTACTS;
+    const phones = C.phones.map(ph => ({ ...ph, hasMax: !!ph.max, noMax: !ph.max }));
     const openIdx = this.state.faqOpen;
     const faqItems = FAQ_BASE.map((it, i) => ({
       q: it.q, a: it.a, isOpen: i === openIdx, isClosed: i !== openIdx,
       toggle: () => this.setState(s => ({ faqOpen: s.faqOpen === i ? null : i })),
     }));
-    return { whenItems: WHEN_ITEMS, checklist: CHECKLIST, processSteps: PROCESS_STEPS, faqItems, related: RELATED };
+    return { whenItems: WHEN_ITEMS, checklist: CHECKLIST, processSteps: PROCESS_STEPS, faqItems, related: RELATED, phones };
   }
 }
 </script>

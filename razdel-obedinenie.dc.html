@@ -18,6 +18,7 @@
 <meta property="og:locale" content="ru_RU" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="theme-color" content="#121212" />
+<script src="assets/contacts.js?v=1"></script>
 <script src="./support.js"></script>
 <!-- Режим правок: только по ссылке с ?review=1, посетителям не грузится -->
 <script>try{if(/[?&]review(=|&|$)/.test(location.search)||sessionStorage.getItem('bti_review')==='1'){var s=document.createElement('script');s.src='assets/review.js?v=2';document.head.appendChild(s)}}catch(e){}</script>
@@ -47,7 +48,21 @@
       </div>
       <div class="hero-actions">
         <dc-import name="LeadModal" service="Перераспределение, раздел и объединение участков" label="Оставить заявку" variant="solid" size="lg" hint-size="220px,58px"></dc-import>
-        <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">8 917 769-61-19</a>
+        <div class="phone-group">
+          <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
+            <div class="phone-item">
+              <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.region }}: {{ ph.display }}">
+                <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
+              </a>
+              <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+              </sc-if>
+              <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+                <span class="phone-max-note">также в MAX</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
       </div>
     </div>
     <div class="hero-media">
@@ -73,7 +88,7 @@
   <div class="section-inner">
     <h2 class="section-title reveal">Что входит в услугу</h2>
     <div class="row-table reveal">
-      <sc-for list="{{ checklist }}" as="c" hint-placeholder-count="4">
+      <sc-for list="{{ checklist }}" as="c" hint-placeholder-count="3">
         <div class="row row--check">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"></path></svg>
           <div class="row-head">{{ c.text }}</div>
@@ -87,7 +102,7 @@
   <div class="section-inner">
     <h2 class="section-title reveal" style="margin-bottom:48px">Как проходит работа</h2>
     <div class="row-table reveal">
-      <sc-for list="{{ processSteps }}" as="p" hint-placeholder-count="4">
+      <sc-for list="{{ processSteps }}" as="p" hint-placeholder-count="3">
         <div class="row">
           <div class="row-num">{{ p.n }}</div>
           <div>
@@ -95,30 +110,6 @@
             <div class="row-body">{{ p.desc }}</div>
           </div>
           <span></span>
-        </div>
-      </sc-for>
-    </div>
-  </div>
-</div>
-
-<div class="on-paper section" style="padding-top:72px;padding-bottom:72px">
-  <div class="section-inner section-inner--narrow">
-    <h2 class="section-title reveal" style="margin-bottom:44px">Вопросы по услуге</h2>
-    <div class="row-table reveal">
-      <sc-for list="{{ faqItems }}" as="item" hint-placeholder-count="3">
-        <div>
-          <button type="button" class="row-q" aria-expanded="{{ item.isOpen }}" onClick="{{ item.toggle }}">
-            <span class="row-head" style="margin:0">{{ item.q }}</span>
-            <sc-if value="{{ item.isOpen }}" hint-placeholder-val="{{ false }}">
-              <span class="row-toggle">−</span>
-            </sc-if>
-            <sc-if value="{{ item.isClosed }}" hint-placeholder-val="{{ true }}">
-              <span class="row-toggle">+</span>
-            </sc-if>
-          </button>
-          <sc-if value="{{ item.isOpen }}" hint-placeholder-val="{{ false }}">
-            <div class="row-a">{{ item.a }}</div>
-          </sc-if>
         </div>
       </sc-for>
     </div>
@@ -143,7 +134,21 @@
     <p class="section-desc" style="margin-bottom:30px">Оставьте заявку — оценим ситуацию и предложим решение бесплатно.</p>
     <div class="cta-actions">
       <dc-import name="LeadModal" service="Перераспределение, раздел и объединение участков" label="Оставить заявку" variant="solid" size="lg" hint-size="230px,58px"></dc-import>
-      <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">8 917 769-61-19</a>
+      <div class="phone-group">
+        <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
+          <div class="phone-item">
+            <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.region }}: {{ ph.display }}">
+              <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
+            </a>
+            <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+              <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+            </sc-if>
+            <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+              <span class="phone-max-note">также в MAX</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
     </div>
   </div>
 </div>
@@ -154,26 +159,19 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 const WHEN_ITEMS = [
-  { text: 'Делите участок между наследниками' },
+  { text: 'Раздел земельного участка' },
   { text: 'Объединяете два смежных участка' },
-  { text: 'Перераспределяете границы с соседом' },
+  { text: 'Перераспределение границ' },
 ];
 const CHECKLIST = [
   { text: 'Анализ исходных правоустанавливающих документов' },
   { text: 'Проект раздела, объединения или перераспределения' },
-  { text: 'Межевой план на новые участки' },
-  { text: 'Согласование с собственниками смежных участков' },
+  { text: 'Межевой план на образуемые участки' },
 ];
 const PROCESS_STEPS = [
   { n: '01', title: 'Заявка и анализ', desc: 'Изучаем правоустанавливающие документы на исходные участки.' },
   { n: '02', title: 'Проект раздела', desc: 'Разрабатываем проект раздела, объединения или перераспределения.' },
   { n: '03', title: 'Межевой план', desc: 'Готовим межевой план и согласовываем границы новых участков.' },
-  { n: '04', title: 'Сопровождение в Росреестре (по договорённости с заказчиком)', desc: 'Готовый результат — выписки из ЕГРН и межевой план на новые участки.' },
-];
-const FAQ_BASE = [
-  { q: 'Можно ли разделить участок на любое количество частей?', a: 'Только если каждая часть соответствует минимальным нормам площади по регламенту муниципалитета.' },
-  { q: 'Нужно ли согласие всех собственников?', a: 'Да, при объединении и перераспределении требуется согласие всех участников.' },
-  { q: 'Сколько появится новых кадастровых номеров?', a: 'По одному на каждый образованный участок.' },
 ];
 const RELATED = [
   { title: 'Межевание земельных участков', href: 'mezhevanie.dc.html', blurb: 'Определяем и закрепляем границы участка официально — без споров с соседями.', icon: 'boundary' },
@@ -181,8 +179,6 @@ const RELATED = [
 ];
 
 class Component extends DCLogic {
-  state = { faqOpen: 0 };
-
   componentDidMount() {
     const root = document.documentElement;
     root.classList.add('reveal-armed');
@@ -208,12 +204,9 @@ class Component extends DCLogic {
   }
 
   renderVals() {
-    const openIdx = this.state.faqOpen;
-    const faqItems = FAQ_BASE.map((it, i) => ({
-      q: it.q, a: it.a, isOpen: i === openIdx, isClosed: i !== openIdx,
-      toggle: () => this.setState(s => ({ faqOpen: s.faqOpen === i ? null : i })),
-    }));
-    return { whenItems: WHEN_ITEMS, checklist: CHECKLIST, processSteps: PROCESS_STEPS, faqItems, related: RELATED };
+    const C = window.BTI_CONTACTS;
+    const phones = C.phones.map(ph => ({ ...ph, hasMax: !!ph.max, noMax: !ph.max }));
+    return { whenItems: WHEN_ITEMS, checklist: CHECKLIST, processSteps: PROCESS_STEPS, related: RELATED, phones };
   }
 }
 </script>

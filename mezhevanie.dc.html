@@ -18,6 +18,7 @@
 <meta property="og:locale" content="ru_RU" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="theme-color" content="#121212" />
+<script src="assets/contacts.js?v=1"></script>
 <script src="./support.js"></script>
 <!-- Режим правок: только по ссылке с ?review=1, посетителям не грузится -->
 <script>try{if(/[?&]review(=|&|$)/.test(location.search)||sessionStorage.getItem('bti_review')==='1'){var s=document.createElement('script');s.src='assets/review.js?v=2';document.head.appendChild(s)}}catch(e){}</script>
@@ -43,17 +44,27 @@
       <p class="hero-desc">Соседи уже «подвинули» забор? Продаёте участок, а границы «гуляют» в документах? Пока нет межевания — ваша земля юридически не защищена.</p>
       <div class="hero-price hero-price--rows">
         <div class="hero-price-row">
-          <span class="hero-price-cap">Межевание земельного участка</span>
-          <span class="hero-price-num">от 8 350 ₽</span>
-        </div>
-        <div class="hero-price-row">
           <span class="hero-price-cap">Межевой план на уточнение границ земельного участка</span>
           <span class="hero-price-num">от 7 000 ₽</span>
         </div>
       </div>
       <div class="hero-actions">
         <dc-import name="LeadModal" service="Межевание земельных участков" label="Оставить заявку" variant="solid" size="lg" hint-size="220px,58px"></dc-import>
-        <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">8 917 769-61-19</a>
+        <div class="phone-group">
+          <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
+            <div class="phone-item">
+              <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.region }}: {{ ph.display }}">
+                <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
+              </a>
+              <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+              </sc-if>
+              <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+                <span class="phone-max-note">также в MAX</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
       </div>
     </div>
     <div class="hero-media">
@@ -163,7 +174,21 @@
     <p class="section-desc" style="margin-bottom:30px">Оставьте заявку — оценим объём работ и назовём точный срок бесплатно.</p>
     <div class="cta-actions">
       <dc-import name="LeadModal" service="Межевание земельных участков" label="Оставить заявку" variant="solid" size="lg" hint-size="230px,58px"></dc-import>
-      <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">8 917 769-61-19</a>
+      <div class="phone-group">
+        <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
+          <div class="phone-item">
+            <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.region }}: {{ ph.display }}">
+              <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
+            </a>
+            <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+              <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+            </sc-if>
+            <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+              <span class="phone-max-note">также в MAX</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
     </div>
   </div>
 </div>
@@ -191,7 +216,7 @@ const PROCESS_STEPS = [
   { n: '04', title: 'Сопровождение в Росреестре (по договорённости с заказчиком)', desc: 'Готовый результат — выписка из ЕГРН и межевой план.' },
 ];
 const FAQ_BASE = [
-  { q: 'Сколько длится межевание?', a: 'В среднем 10–20 рабочих дней в зависимости от объекта. Точный срок фиксируем в договоре.' },
+  { q: 'Сколько длится межевание?', a: 'В среднем 10–20 рабочих дней в зависимости от объекта и сложности. Точный срок фиксируем в договоре.' },
   { q: 'Нужно ли уведомлять соседей?', a: 'Да, требуется согласование границ со смежными землепользователями — берём эту процедуру на себя.' },
   { q: 'Что если сосед не согласен с границей?', a: 'Фиксируем возражение официально и решаем вопрос в правовом поле, вплоть до суда при необходимости.' },
 ];
@@ -228,12 +253,14 @@ class Component extends DCLogic {
   }
 
   renderVals() {
+    const C = window.BTI_CONTACTS;
+    const phones = C.phones.map(ph => ({ ...ph, hasMax: !!ph.max, noMax: !ph.max }));
     const openIdx = this.state.faqOpen;
     const faqItems = FAQ_BASE.map((it, i) => ({
       q: it.q, a: it.a, isOpen: i === openIdx, isClosed: i !== openIdx,
       toggle: () => this.setState(s => ({ faqOpen: s.faqOpen === i ? null : i })),
     }));
-    return { whenItems: WHEN_ITEMS, checklist: CHECKLIST, processSteps: PROCESS_STEPS, faqItems, related: RELATED };
+    return { whenItems: WHEN_ITEMS, checklist: CHECKLIST, processSteps: PROCESS_STEPS, faqItems, related: RELATED, phones };
   }
 }
 </script>
