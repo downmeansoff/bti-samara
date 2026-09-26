@@ -8,8 +8,6 @@
 <body>
 <x-dc>
 <helmet>
-<link href="assets/fonts/fonts.css" rel="stylesheet">
-<link href="assets/site.css" rel="stylesheet">
 </helmet>
 <button type="button" class="{{ triggerClass }}" onClick="{{ openModal }}">{{ label }}</button>
 <sc-if value="{{ isOpen }}" hint-placeholder-val="{{ false }}">
@@ -26,11 +24,11 @@
     <div class="lead-fields">
       <div>
         <label class="lead-label">Ваше имя</label>
-        <input class="lead-input" value="{{ name }}" onChange="{{ onName }}" placeholder="Как к вам обращаться" />
+        <input class="lead-input" value="{{ name }}" onChange="{{ onName }}" placeholder="Как к вам обращаться" autocomplete="name" />
       </div>
       <div>
         <label class="lead-label">Телефон</label>
-        <input class="lead-input" value="{{ phone }}" onChange="{{ onPhone }}" placeholder="+7 ___ ___-__-__" />
+        <input class="lead-input" type="tel" inputmode="tel" value="{{ phone }}" onChange="{{ onPhone }}" placeholder="+7 ___ ___-__-__" autocomplete="tel" />
       </div>
       <div>
         <label class="lead-label">Услуга</label>
@@ -104,6 +102,7 @@ const LM_SERVICES = [
   'Другое / не знаю точно',
 ];
 const LM_TELEGRAM = 'https://t.me/bti_samara63';
+const LM_DRAFT_KEY = 'bti_lead_draft';
 
 class Component extends DCLogic {
   state = {
@@ -143,8 +142,42 @@ class Component extends DCLogic {
     if (this._onKeyDown) window.removeEventListener('keydown', this._onKeyDown);
   }
 
-  open = () => this.setState({ isOpen: true, sent: false, showError: false });
+  open = () => {
+    let draft = null;
+    try { draft = JSON.parse(sessionStorage.getItem(LM_DRAFT_KEY) || 'null'); } catch {}
+    const patch = { isOpen: true, sent: false, showError: false };
+    if (draft && typeof draft === 'object') {
+      if (typeof draft.name === 'string') patch.name = draft.name;
+      if (typeof draft.phone === 'string') patch.phone = draft.phone;
+      if (typeof draft.comment === 'string') patch.comment = draft.comment;
+    }
+    this.setState(patch);
+  };
   close = () => this.setState({ isOpen: false });
+
+  messageLines = () => [
+    'Заявка с сайта БТИ Самара',
+    `Имя: ${this.state.name}`,
+    `Телефон: ${this.state.phone}`,
+    this.state.service ? `Услуга: ${this.state.service}` : '',
+    this.state.comment ? `Комментарий: ${this.state.comment}` : '',
+  ].filter(Boolean);
+
+  saveDraft = (patch) => {
+    try {
+      const next = {
+        name: this.state.name,
+        phone: this.state.phone,
+        comment: this.state.comment,
+        ...patch,
+      };
+      sessionStorage.setItem(LM_DRAFT_KEY, JSON.stringify({ name: next.name, phone: next.phone, comment: next.comment }));
+    } catch {}
+  };
+
+  clearDraft = () => {
+    try { sessionStorage.removeItem(LM_DRAFT_KEY); } catch {}
+  };
 
   renderVals() {
     const variant = this.props.variant || 'solid';
@@ -164,17 +197,18 @@ class Component extends DCLogic {
 
     const submit = () => {
       if (!canSubmit) { this.setState({ showError: true }); return; }
-      const lines = [
-        'Заявка с сайта БТИ Самара',
-        `Имя: ${this.state.name}`,
-        `Телефон: ${this.state.phone}`,
-        this.state.service ? `Услуга: ${this.state.service}` : '',
-        this.state.comment ? `Комментарий: ${this.state.comment}` : '',
-      ].filter(Boolean).join('\n');
-      const url = `${LM_TELEGRAM}?text=${encodeURIComponent(lines)}`;
-      window.open(url, '_blank');
-      this.setState({ sent: true, showError: false });
+      const url = `${LM_TELEGRAM}?text=${encodeURIComponent(this.messageLines().join('\n'))}`;
+      const win = window.open(url, '_blank');
+      if (win) {
+        this.clearDraft();
+        this.setState({ sent: true, showError: false });
+      }
     };
+
+    const hasNameOrPhone = this.state.name.trim().length > 0 || this.state.phone.trim().length > 0;
+    const emailHref = hasNameOrPhone
+      ? `mailto:baymurzin.86@bk.ru?subject=${encodeURIComponent('Заявка с сайта БТИ Самара')}&body=${encodeURIComponent(this.messageLines().join('\n'))}`
+      : 'mailto:baymurzin.86@bk.ru';
 
     return {
       isOpen: this.state.isOpen,
@@ -186,9 +220,9 @@ class Component extends DCLogic {
       comment: this.state.comment,
       service: this.state.service,
       services: LM_SERVICES,
-      onName: (e) => this.setState({ name: e.target.value }),
-      onPhone: (e) => this.setState({ phone: e.target.value }),
-      onComment: (e) => this.setState({ comment: e.target.value }),
+      onName: (e) => { const name = e.target.value; this.setState({ name }); this.saveDraft({ name }); },
+      onPhone: (e) => { const phone = e.target.value; this.setState({ phone }); this.saveDraft({ phone }); },
+      onComment: (e) => { const comment = e.target.value; this.setState({ comment }); this.saveDraft({ comment }); },
       onServiceChange: (e) => this.setState({ service: e.target.value }),
       consent: this.state.consent,
       onConsent: (e) => this.setState({ consent: e.target.checked, showError: false }),
@@ -200,7 +234,7 @@ class Component extends DCLogic {
       triggerClass,
       phoneDisplay: '8 917 769-61-19',
       telHref: 'tel:+79177696119',
-      emailHref: 'mailto:baymurzin.86@bk.ru',
+      emailHref,
       telegramHref: LM_TELEGRAM,
     };
   }

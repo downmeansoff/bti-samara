@@ -9,6 +9,14 @@
 <link rel="apple-touch-icon" href="assets/logo-mark.png" />
 <link rel="canonical" href="https://downmeansoff.github.io/bti-samara/mezhevanie.dc.html" />
 <meta property="og:url" content="https://downmeansoff.github.io/bti-samara/mezhevanie.dc.html" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Межевание земельных участков — Кадастровый инженер в Самаре" />
+<meta property="og:description" content="Межевание земельных участков в Самаре и Башкортостане. Межевой план, согласование границ, подача в Росреестр. Опыт более 12 лет." />
+<meta property="og:image" content="https://downmeansoff.github.io/bti-samara/assets/og-cover.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="ru_RU" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="theme-color" content="#121212" />
 <script src="./support.js"></script>
 </head>
@@ -20,7 +28,7 @@
 </helmet>
 <div class="page-shell page-chapter">
 <dc-import name="Header" hint-size="100%,74px"></dc-import>
-<div role="main">
+<div role="main" id="main">
 
 <div class="hero hero--chapter">
   <div class="hero-top">
@@ -31,6 +39,16 @@
       <h1 class="hero-title">Межевание земельных участков</h1>
       <div class="hero-tagline">ГРАНИЦЫ — ЭТО ДЕНЬГИ. МЫ ДЕЛАЕМ ИХ ТОЧНЫМИ.</div>
       <p class="hero-desc">Соседи уже «подвинули» забор? Продаёте участок, а границы «гуляют» в документах? Пока нет межевания — ваша земля юридически не защищена.</p>
+      <div class="hero-price hero-price--rows">
+        <div class="hero-price-row">
+          <span class="hero-price-cap">Межевание земельного участка</span>
+          <span class="hero-price-num">от 8 350 ₽</span>
+        </div>
+        <div class="hero-price-row">
+          <span class="hero-price-cap">Межевой план на уточнение границ земельного участка</span>
+          <span class="hero-price-num">от 7 000 ₽</span>
+        </div>
+      </div>
       <div class="hero-actions">
         <dc-import name="LeadModal" service="Межевание земельных участков" label="Оставить заявку" variant="solid" size="lg" hint-size="220px,58px"></dc-import>
         <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">8 917 769-61-19</a>
@@ -107,7 +125,7 @@
     <div class="row-table reveal">
       <sc-for list="{{ faqItems }}" as="item" hint-placeholder-count="3">
         <div>
-          <div onClick="{{ item.toggle }}" class="row-q">
+          <button type="button" class="row-q" aria-expanded="{{ item.isOpen }}" onClick="{{ item.toggle }}">
             <span class="row-head" style="margin:0">{{ item.q }}</span>
             <sc-if value="{{ item.isOpen }}" hint-placeholder-val="{{ false }}">
               <span class="row-toggle">−</span>
@@ -115,7 +133,7 @@
             <sc-if value="{{ item.isClosed }}" hint-placeholder-val="{{ true }}">
               <span class="row-toggle">+</span>
             </sc-if>
-          </div>
+          </button>
           <sc-if value="{{ item.isOpen }}" hint-placeholder-val="{{ false }}">
             <div class="row-a">{{ item.a }}</div>
           </sc-if>

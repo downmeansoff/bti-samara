@@ -9,6 +9,14 @@
 <link rel="apple-touch-icon" href="assets/logo-mark.png" />
 <link rel="canonical" href="https://downmeansoff.github.io/bti-samara/razdel-obedinenie.dc.html" />
 <meta property="og:url" content="https://downmeansoff.github.io/bti-samara/razdel-obedinenie.dc.html" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Перераспределение, раздел и объединение участков — Кадастровый инженер в Самаре" />
+<meta property="og:description" content="Раздел, объединение и перераспределение земельных участков в Самаре и Башкортостане. Опыт более 12 лет." />
+<meta property="og:image" content="https://downmeansoff.github.io/bti-samara/assets/og-cover.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="ru_RU" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="theme-color" content="#121212" />
 <script src="./support.js"></script>
 </head>
@@ -20,7 +28,7 @@
 </helmet>
 <div class="page-shell page-chapter">
 <dc-import name="Header" hint-size="100%,74px"></dc-import>
-<div role="main">
+<div role="main" id="main">
 
 <div class="hero hero--chapter">
   <div class="hero-top">
@@ -31,6 +39,10 @@
       <h1 class="hero-title" style="font-size:clamp(22px, 4.4vw, 53px); max-width:none">Перераспределение, раздел и объединение участков</h1>
       <div class="hero-tagline">ОДИН УЧАСТОК СТАЛ ДВУМЯ. ИЛИ ДВА — ОДНИМ.</div>
       <p class="hero-desc">Хотите разделить участок между детьми? Объединить два соседних участка в один? Без правильно оформленных документов Росреестр откажет.</p>
+      <div class="hero-price">
+        <div class="hero-price-cap">Стоимость</div>
+        <div class="hero-price-num">от 8 500 ₽</div>
+      </div>
       <div class="hero-actions">
         <dc-import name="LeadModal" service="Перераспределение, раздел и объединение участков" label="Оставить заявку" variant="solid" size="lg" hint-size="220px,58px"></dc-import>
         <a href="tel:+79177696119" class="btn btn--outline-light btn--lg">8 917 769-61-19</a>
@@ -38,21 +50,7 @@
     </div>
     <div class="hero-media">
       <div class="hero-photo-frame hero-photo-frame--sm">
-        <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-razdel-obedinenie" shape="rect" placeholder="Фото: план раздела земельного участка" hint-size="100%,100%" style="width:100%;height:100%"></x-import>
-        <svg class="boundary-svg boundary-svg--photo" viewBox="0 0 796 531" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="transform:translateX(.5%)">
-          <g class="boundary-parcels">
-          </g>
-          <path class="boundary-path boundary-path--open" pathLength="1" d="M72,340 L86,130 L238,128 L393,139 L404,344 L240,343 Z"></path>
-          <path class="boundary-path boundary-path--split" pathLength="1" d="M238,128 L240,343"></path>
-          <g class="boundary-nodes">
-            <circle class="boundary-node" cx="72" cy="340" r="7"></circle>
-            <circle class="boundary-node" cx="86" cy="130" r="7"></circle>
-            <circle class="boundary-node" cx="238" cy="128" r="7"></circle>
-            <circle class="boundary-node" cx="393" cy="139" r="7"></circle>
-            <circle class="boundary-node" cx="404" cy="344" r="7"></circle>
-            <circle class="boundary-node" cx="240" cy="343" r="7"></circle>
-          </g>
-        </svg>
+        <img src="assets/drawings/razdel.svg" alt="" />
       </div>
     </div>
   </div>
@@ -107,7 +105,7 @@
     <div class="row-table reveal">
       <sc-for list="{{ faqItems }}" as="item" hint-placeholder-count="3">
         <div>
-          <div onClick="{{ item.toggle }}" class="row-q">
+          <button type="button" class="row-q" aria-expanded="{{ item.isOpen }}" onClick="{{ item.toggle }}">
             <span class="row-head" style="margin:0">{{ item.q }}</span>
             <sc-if value="{{ item.isOpen }}" hint-placeholder-val="{{ false }}">
               <span class="row-toggle">−</span>
@@ -115,7 +113,7 @@
             <sc-if value="{{ item.isClosed }}" hint-placeholder-val="{{ true }}">
               <span class="row-toggle">+</span>
             </sc-if>
-          </div>
+          </button>
           <sc-if value="{{ item.isOpen }}" hint-placeholder-val="{{ false }}">
             <div class="row-a">{{ item.a }}</div>
           </sc-if>

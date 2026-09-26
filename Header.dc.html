@@ -8,10 +8,9 @@
 <body>
 <x-dc>
 <helmet>
-<link href="assets/fonts/fonts.css" rel="stylesheet">
-<link href="assets/site.css" rel="stylesheet">
 </helmet>
 <div class="hdr" role="banner">
+  <a href="#main" class="skip-link">Перейти к содержимому</a>
   <div class="hdr-row">
     <a class="hdr-logo" href="index.dc.html">
       <img src="assets/logo-mark.png" alt="Кадастровый инженер" />
@@ -26,20 +25,22 @@
     <!-- На широком экране разделы видны сразу; подписи те же, что в подвале. -->
     <nav class="hdr-nav">
       <a href="index.dc.html#services" class="hdr-nav-link">Услуги</a>
+      <a href="index.dc.html#pricing" class="hdr-nav-link">Цены</a>
+      <a href="index.dc.html#reviews" class="hdr-nav-link">Отзывы</a>
       <a href="index.dc.html#about" class="hdr-nav-link">О компании</a>
       <a href="index.dc.html#faq" class="hdr-nav-link">Частые вопросы</a>
       <a href="index.dc.html#contacts" class="hdr-nav-link">Контакты</a>
     </nav>
 
     <div class="hdr-menu-wrap">
-      <button type="button" class="hdr-menu-btn" onClick="{{ toggleMenu }}">
+      <button type="button" class="hdr-menu-btn" onClick="{{ toggleMenu }}" aria-expanded="{{ menuOpen }}" aria-controls="hdr-menu-panel">
         Меню
       </button>
 
       <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
         <div class="hdr-menu-overlay" onClick="{{ closeMenu }}"></div>
         <button type="button" class="close-x" onClick="{{ closeMenu }}" aria-label="Закрыть">✕</button>
-        <div class="hdr-menu-panel" role="navigation">
+        <div class="hdr-menu-panel" id="hdr-menu-panel" role="navigation">
           <div class="hdr-menu-label">Услуги</div>
           <div class="hdr-menu-grid">
             <sc-for list="{{ services }}" as="s" hint-placeholder-count="9">
@@ -51,6 +52,8 @@
             <a href="index.dc.html#about" onClick="{{ closeMenu }}" class="hdr-menu-jump">О компании</a>
             <a href="index.dc.html#awards" onClick="{{ closeMenu }}" class="hdr-menu-jump">Документы и награды</a>
             <a href="index.dc.html#process" onClick="{{ closeMenu }}" class="hdr-menu-jump">Как работаем</a>
+            <a href="index.dc.html#reviews" onClick="{{ closeMenu }}" class="hdr-menu-jump">Отзывы</a>
+            <a href="index.dc.html#pricing" onClick="{{ closeMenu }}" class="hdr-menu-jump">Цены</a>
             <a href="index.dc.html#faq" onClick="{{ closeMenu }}" class="hdr-menu-jump">Вопросы</a>
             <a href="index.dc.html#contacts" onClick="{{ closeMenu }}" class="hdr-menu-jump">Контакты</a>
           </div>
@@ -94,7 +97,10 @@ const HEADER_SERVICES = [
 class Component extends DCLogic {
   state = { menuOpen: false };
 
+  _wasMenuOpen = false;
+
   componentDidMount() {
+    this._wasMenuOpen = this.state.menuOpen;
     this._onKeyDown = (e) => {
       if (e.key === 'Escape' && this.state.menuOpen) this.setState({ menuOpen: false });
     };
@@ -103,6 +109,20 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     if (this._onKeyDown) window.removeEventListener('keydown', this._onKeyDown);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this._wasMenuOpen !== this.state.menuOpen) {
+      this._wasMenuOpen = this.state.menuOpen;
+      if (this.state.menuOpen) {
+        const panel = document.getElementById('hdr-menu-panel');
+        const firstLink = panel && panel.querySelector('a, button');
+        if (firstLink) firstLink.focus();
+      } else {
+        const btn = document.querySelector('.hdr-menu-btn');
+        if (btn) btn.focus();
+      }
+    }
   }
 
   renderVals() {

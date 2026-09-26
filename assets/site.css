@@ -133,7 +133,7 @@ input, select, textarea { font-family: inherit; }
 .hdr-phone {
   display: flex; align-items: center; gap: 8px;
   color: var(--tx-on-dark); font-weight: 600; font-size: 15px;
-  padding: 8px 2px; min-height: 44px;
+  padding: 8px 2px; min-height: 44px; white-space: nowrap;
 }
 .hdr-cta-slot .btn { white-space: nowrap; }
 
@@ -402,11 +402,6 @@ input, select, textarea { font-family: inherit; }
 }
 .svc-tile { position: relative; overflow: hidden; display: block; background: var(--paper-ink); }
 .svc-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
-/* the раздел/объединение tile photo is a document scan, not a field photo —
-   center-crop (default) sliced its title/address rows mid-word on both
-   edges. Anchor left so the full title + address + diagram show intact,
-   only the far-right table sliver (a box edge, not a sentence) is cut. */
-.svc-tile img[src*="hero-razdel-obedinenie"] { object-position: left center; }
 .svc-tile:hover img { transform: scale(1.035); }
 .svc-tile-scrim {
   position: absolute; inset: 0;
@@ -488,7 +483,10 @@ a.row { cursor: pointer; }
   align-self: center; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display); font-size: 20px; color: var(--tx-on-paper-lo);
 }
-.row-q { cursor: pointer; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 28px; padding: 26px 0; transition: padding-left .2s ease; }
+.row-q {
+  cursor: pointer; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 28px; padding: 26px 0; transition: padding-left .2s ease;
+  background: none; border: 0; font: inherit; color: inherit; text-align: left; width: 100%;
+}
 .row-q:hover { padding-left: 14px; }
 .row-a {
   padding-bottom: 26px; max-width: 60ch;
@@ -780,7 +778,7 @@ a.row { cursor: pointer; }
 .lead-consent input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--stamp); flex: 0 0 auto; }
 .lead-consent a { text-decoration: underline; color: var(--tx-on-dark); }
 
-.lead-error { border: 1px solid var(--stamp); color: var(--stamp); padding: 12px 14px; font-size: 13.5px; }
+.lead-error { border: 1px solid var(--stamp); color: var(--tx-on-dark); padding: 12px 14px; font-size: 13.5px; }
 .lead-submit {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   background: var(--stamp); border: 1px solid var(--stamp); color: #fff;
@@ -862,6 +860,11 @@ a.row { cursor: pointer; }
 .services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; }
 .svc-related .svc-tile { height: 280px; margin-bottom: 22px; }
 .svc-related .svc-meta-blurb { margin: 0 0 18px; max-width: 46ch; }
+/* This tile's aspect ratio only exposes ~48% of a square drawing's height via
+   cover-crop, but razdel.svg's four corner nodes span ~55% — no object-position
+   can fit both ends in frame at once. Show the whole drawing instead; its own
+   #1C1C1C background reads flush against the tile's --paper-ink. */
+.svc-related .svc-tile img[src*="assets/drawings/"] { object-fit: contain; background: var(--paper-ink); }
 @media (max-width: 720px) {
   .services-grid { grid-template-columns: 1fr; gap: 36px; }
 }
@@ -909,14 +912,16 @@ a.row { cursor: pointer; }
   .boundary-svg--desk { display: none; }
   .boundary-svg--mob { display: block; }
 }
-/* Chapter heroes: the viewBox is the photo's own pixel grid and slices like
+/* Chapter hero: the viewBox is the photo's own pixel grid and slices like
    the slot's cover fit, so vertices sit on real things — the survey stakes
-   on межевание, the numbered points of the plan on раздел. */
+   on межевание. (Раздел/объединение used to run this same overlay over a
+   photo, with vertices hand-placed on that photo's plan; the photo is now
+   assets/drawings/razdel.svg, a different, non-matching coordinate space —
+   the overlay was removed there rather than redrawn misaligned, since the
+   drawing already bakes in its own outline and split line.) */
 .boundary-svg--photo .boundary-path { stroke-width: 3.5; }
 .boundary-svg--photo .boundary-node { stroke-width: 2; }
 .boundary-svg--photo .boundary-parcels { stroke-width: 1.4; }
-.boundary-path--open { fill: none; stroke-width: 3 !important; opacity: .85; }
-.boundary-path--split { fill: none; stroke-width: 5 !important; animation-delay: 1.5s; }
 /* The attestat is a landscape scan: as a tall two-row tile any crop cut its
    words in half. It now spans two columns of the first row at its natural
    proportions; the SRO extract sits beside it, the three letters below. */
@@ -1056,3 +1061,102 @@ a.row { cursor: pointer; }
 
 .ftr-legal { display: flex; flex-direction: column; gap: 4px; }
 .ftr-nw { white-space: nowrap; }
+
+
+/* =====================================================================
+   25.09/26.09 — второй проход после аудита: свои чертежи вместо чужого
+   фото и брендированной спецовки, порядок навигации, цены на страницах
+   услуг, мобильная карусель документов, доступность, robots/sitemap/404.
+   ===================================================================== */
+
+/* Skip-link — первый фокусируемый элемент в Header, невидим до фокуса. */
+.skip-link {
+  position: fixed; top: 0; left: 0; z-index: 100;
+  transform: translateY(-100%);
+  background: var(--ink); color: var(--tx-on-dark);
+  padding: 14px 22px; font-weight: 700; font-size: 14px;
+  transition: transform .15s ease;
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--stamp); outline-offset: -2px;
+}
+
+/* Service-page hero price block — right before .hero-actions. */
+.hero-price {
+  border-top: 1px solid var(--line-on-dark);
+  padding-top: 20px;
+  margin: 0 0 28px;
+  max-width: 560px;
+}
+.hero-price-cap {
+  font-family: var(--font-body); font-weight: 700; font-size: 12px;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--tx-on-dark-lo);
+  margin-bottom: 8px;
+}
+.hero-price-num {
+  font-family: var(--font-display); font-weight: 700; font-size: 28px; color: var(--tx-on-dark);
+}
+.hero-price--rows { display: flex; flex-direction: column; gap: 16px; }
+.hero-price-row { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; }
+.hero-price--rows .hero-price-cap {
+  font-family: var(--font-body); font-weight: 500; font-size: 14px;
+  text-transform: none; letter-spacing: 0; color: var(--tx-on-dark-lo);
+  margin-bottom: 0; max-width: 34ch;
+}
+.hero-price--rows .hero-price-num { font-size: 20px; white-space: nowrap; }
+@media (max-width: 720px) {
+  .hero-price { padding-top: 16px; margin-bottom: 16px; }
+  .hero-price-num { font-size: 22px; }
+  .hero-price--rows { gap: 12px; }
+  .hero-price-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .hero-price--rows .hero-price-num { font-size: 18px; }
+}
+
+/* Mobile: .section-inner used the 48px desktop inset on phones while header
+   and footer already switch to --inset-mobile (22px) below 720px. */
+@media (max-width: 720px) {
+  .section-inner { padding-left: var(--inset-mobile); padding-right: var(--inset-mobile); }
+}
+
+/* .close-x sat at the 48px desktop inset even on phones. */
+@media (max-width: 720px) {
+  .close-x { right: var(--inset-mobile); }
+}
+
+/* Lead modal at narrow phones: a sticky .lead-submit (position:sticky; bottom:0)
+   was tried here, but on tall forms its normal-flow position starts below the
+   fold, so the browser pins it at the viewport bottom from the very first
+   frame — painting it directly on top of the comment hint text/consent
+   checkbox as the user scrolls (repro: elementFromPoint on those fields
+   resolves to .lead-submit at several scroll offsets on 360x740). Reverted to
+   normal flow: the button is still the very next thing after the fields, one
+   scroll away — reachable without hunting — with zero risk of covering a
+   sibling field. */
+
+/* Documents mosaic on phones: ~3400px of vertical scroll becomes one
+   horizontal scroll-snap row, next card peeking at the edge. Same full-bleed
+   technique already used by .hero-media above. Desktop/tablet mosaic (>720px,
+   including the (min-width:721px) object-fit rules for .doc-tile--big) is
+   untouched. */
+@media (max-width: 720px) {
+  .docs-mosaic {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 78vw;
+    grid-template-columns: none;
+    align-items: start;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    padding: 0 var(--inset-mobile);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: var(--inset-mobile);
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .docs-mosaic::-webkit-scrollbar { display: none; }
+  .doc-tile { scroll-snap-align: start; }
+  .doc-tile--big { grid-column: auto; grid-row: auto; }
+}

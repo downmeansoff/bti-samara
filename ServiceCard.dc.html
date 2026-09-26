@@ -8,8 +8,6 @@
 <body>
 <x-dc>
 <helmet>
-<link href="assets/fonts/fonts.css" rel="stylesheet">
-<link href="assets/site.css" rel="stylesheet">
 </helmet>
 <div class="svc-related">
   <a href="{{ href }}" class="svc-tile">
@@ -28,8 +26,8 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 320, &quot;height&quot;: 340}, &quot;title&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Услуга&quot;, &quot;tsType&quot;: &quot;string&quot;}, &quot;blurb&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Краткое описание услуги&quot;, &quot;tsType&quot;: &quot;string&quot;}, &quot;href&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;#&quot;, &quot;tsType&quot;: &quot;string&quot;}, &quot;icon&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;boundary&quot;, &quot;options&quot;: [&quot;boundary&quot;, &quot;blueprint&quot;, &quot;check-doc&quot;, &quot;target&quot;, &quot;split&quot;, &quot;house&quot;, &quot;passport&quot;, &quot;building&quot;, &quot;shield&quot;], &quot;tsType&quot;: &quot;string&quot;}}">
 const ICON_PHOTO = {
   boundary: 'assets/photos/hero-mezhevanie.webp',
-  blueprint: 'assets/photos/hero-tehplan.webp',
-  split: 'assets/photos/hero-razdel-obedinenie.webp',
+  blueprint: 'assets/drawings/tehplan.svg',
+  split: 'assets/drawings/razdel.svg',
 };
 
 class Component extends DCLogic {
