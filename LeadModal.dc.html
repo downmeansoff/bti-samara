@@ -50,13 +50,23 @@
         <span>Я согласен на обработку персональных данных и принимаю <a href="politika.dc.html" target="_blank" rel="noreferrer">политику конфиденциальности</a></span>
       </label>
 
+      <!-- Honeypot: hidden from real visitors (off-screen, unfocusable, unlabelled
+           to AT), bots that fill every field still catch this one. Server drops
+           anything with a non-empty value here without sending it. -->
+      <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true">
+        <label>
+          Не заполняйте это поле
+          <input type="text" value="{{ website }}" onChange="{{ onWebsite }}" tabindex="-1" autocomplete="off" />
+        </label>
+      </div>
+
       <sc-if value="{{ showError }}" hint-placeholder-val="{{ false }}">
-        <div class="lead-error">{{ errorText }}</div>
+        <div class="lead-error" role="alert">{{ errorText }}</div>
       </sc-if>
 
-      <button type="button" onClick="{{ submit }}" class="lead-submit">
+      <button type="button" onClick="{{ submit }}" class="lead-submit" disabled="{{ submitDisabled }}">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 3 10.5l6.2 2.3M21 3l-3.4 17-6.2-4.9M21 3 9.9 13.9m0 0-.7 5.6 3.3-3.4"></path></svg>
-        Отправить в Telegram
+        {{ submitLabel }}
       </button>
 
       <div class="lead-quiet-alt">
@@ -70,8 +80,15 @@
       </div>
 
       <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
-        <div class="lead-success">
-          <div>Открыли Telegram — отправьте готовое сообщение ↗</div>
+        <div class="lead-success" role="status" aria-live="polite">
+          <div>Заявка отправлена. Кадастровый инженер свяжется с вами.</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ fallback }}" hint-placeholder-val="{{ false }}">
+        <div class="lead-fallback" role="status" aria-live="polite">
+          <div>Не получилось отправить заявку через сайт. Отправьте её в Telegram — мы подготовили сообщение.</div>
+          <a href="{{ fallbackHref }}" target="_blank" rel="noreferrer" class="btn btn--solid btn--md lead-fallback-btn">Отправить через Telegram</a>
           <div class="lead-success-hint">Текст заявки также скопирован в буфер обмена. Если поле сообщения в Telegram пустое — нажмите «Запустить» и вставьте текст заявки.</div>
         </div>
       </sc-if>
@@ -117,6 +134,17 @@ const LM_SERVICES = [
   'Другое / не знаю точно',
 ];
 const LM_DRAFT_KEY = 'bti_lead_draft';
+// On its own Railway domain (or any local server.js instance — dev/testing
+// on localhost:*/127.0.0.1:* always has the same-origin API too) the site
+// calls the API by relative path, no CORS involved. Everywhere else
+// (kadastrhelp.ru, the GitHub Pages mirror, which are static-only hosts with
+// no server.js behind them) it calls the absolute URL from contacts.js —
+// that's what the CORS allow-list in server.js exists for.
+const LM_RAILWAY_ORIGIN = 'https://bti-samara-landing-production.up.railway.app';
+const LM_SUBMIT_TIMEOUT_MS = 8000;
+function lmIsSameOriginApi() {
+  return location.origin === LM_RAILWAY_ORIGIN || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+}
 
 class Component extends DCLogic {
   state = {
@@ -125,9 +153,12 @@ class Component extends DCLogic {
     phone: '',
     service: '',
     comment: '',
+    website: '',
     consent: false,
     showError: false,
+    sending: false,
     sent: false,
+    fallback: false,
   };
 
   _wasOpen = false;
@@ -182,10 +213,12 @@ class Component extends DCLogic {
     if (this._onKeyDown) window.removeEventListener('keydown', this._onKeyDown);
   }
 
+  _submitController = null;
+
   open = () => {
     let draft = null;
     try { draft = JSON.parse(sessionStorage.getItem(LM_DRAFT_KEY) || 'null'); } catch {}
-    const patch = { isOpen: true, sent: false, showError: false };
+    const patch = { isOpen: true, sent: false, fallback: false, sending: false, showError: false };
     if (draft && typeof draft === 'object') {
       if (typeof draft.name === 'string') patch.name = draft.name;
       if (typeof draft.phone === 'string') patch.phone = draft.phone;
@@ -193,7 +226,18 @@ class Component extends DCLogic {
     }
     this.setState(patch);
   };
-  close = () => this.setState({ isOpen: false });
+  close = () => {
+    // A submit can still be in flight when the user hits the close (✕) button.
+    // Left alone, it can succeed in the background while the modal is closed;
+    // reopening then reset sent/fallback to false (see open() above) and showed
+    // a blank-looking form, inviting a second, duplicate submission. Abort the
+    // request on close so it can't silently land after the UI has moved on.
+    if (this._submitController) {
+      this._submitController.abort();
+      this._submitController = null;
+    }
+    this.setState({ isOpen: false });
+  };
 
   messageLines = () => [
     'Заявка с сайта БТИ Самара',
@@ -237,18 +281,65 @@ class Component extends DCLogic {
 
     const C = window.BTI_CONTACTS;
 
-    const submit = () => {
+    const fallbackText = this.messageLines().join('\n');
+    const fallbackHref = `${C.telegram.url}?text=${encodeURIComponent(fallbackText)}`;
+
+    // Best-effort clipboard copy for the fallback path — ignore errors silently
+    // (clipboard can be unavailable without HTTPS/focus).
+    const copyFallbackText = () => {
+      try { navigator.clipboard && navigator.clipboard.writeText(fallbackText).catch(() => {}); } catch {}
+    };
+
+    const submit = async () => {
+      // Belt and braces alongside the disabled attribute on the button (which
+      // covers real clicks): a resubmit after success would send a second,
+      // duplicate lead with the same unsent-cleared form data.
+      if (this.state.sent) return;
       if (!canSubmit) { this.setState({ showError: true }); return; }
-      const text = this.messageLines().join('\n');
-      const url = `${C.telegram.url}?text=${encodeURIComponent(text)}`;
-      const win = window.open(url, '_blank');
-      if (win) {
-        // У ботов ?text= подставляется не во всех клиентах Telegram (сначала нужно
-        // нажать «Запустить») — копируем текст заявки в буфер как подстраховку,
-        // ошибку молча игнорируем (clipboard может быть недоступен без HTTPS/фокуса).
-        try { navigator.clipboard && navigator.clipboard.writeText(text).catch(() => {}); } catch {}
+      if (this.state.sending) return;
+      this.setState({ sending: true, showError: false });
+
+      const apiUrl = lmIsSameOriginApi() ? '/api/lead' : C.leadApi;
+      const payload = {
+        name: this.state.name,
+        phone: this.state.phone,
+        service: this.state.service,
+        message: this.state.comment,
+        page: location.pathname,
+        consent: this.state.consent,
+        website: this.state.website,
+      };
+
+      const controller = new AbortController();
+      this._submitController = controller;
+      const timer = setTimeout(() => controller.abort(), LM_SUBMIT_TIMEOUT_MS);
+      let ok = false;
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+        let json = null;
+        try { json = await res.json(); } catch {}
+        ok = res.ok && !!(json && json.ok);
+      } catch {
+        ok = false;
+      } finally {
+        clearTimeout(timer);
+        if (this._submitController === controller) this._submitController = null;
+      }
+
+      if (ok) {
         this.clearDraft();
-        this.setState({ sent: true, showError: false });
+        this.setState({ sending: false, sent: true, fallback: false, showError: false });
+      } else {
+        // Network/timeout/server failure. This runs after an await, so it's no
+        // longer inside a user gesture — window.open() would get blocked by the
+        // popup blocker. Show a real link instead and copy the text as backup.
+        copyFallbackText();
+        this.setState({ sending: false, sent: false, fallback: true });
       }
     };
 
@@ -271,11 +362,18 @@ class Component extends DCLogic {
       onPhone: (e) => { const phone = e.target.value; this.setState({ phone }); this.saveDraft({ phone }); },
       onComment: (e) => { const comment = e.target.value; this.setState({ comment }); this.saveDraft({ comment }); },
       onServiceChange: (e) => this.setState({ service: e.target.value }),
+      website: this.state.website,
+      onWebsite: (e) => this.setState({ website: e.target.value }),
       consent: this.state.consent,
       onConsent: (e) => this.setState({ consent: e.target.checked, showError: false }),
       errorText,
       showError: this.state.showError,
+      sending: this.state.sending,
+      submitDisabled: this.state.sending || this.state.sent,
+      submitLabel: this.state.sending ? 'Отправляем…' : (this.state.sent ? 'Заявка отправлена' : 'Отправить в Telegram'),
       sent: this.state.sent,
+      fallback: this.state.fallback,
+      fallbackHref,
       submit,
       label: this.props.label || 'Оставить заявку',
       triggerClass,

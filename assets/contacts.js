@@ -32,4 +32,8 @@ window.BTI_CONTACTS = {
     url: 'https://t.me/kadastricom_bot',
   },
   email: 'baymurzin.86@bk.ru',
+  // LeadModal posts here. On the Railway domain itself it uses the relative
+  // '/api/lead' instead (see LeadModal.dc.html) — this absolute URL is for
+  // every other host (kadastrhelp.ru, the GitHub Pages mirror).
+  leadApi: 'https://bti-samara-landing-production.up.railway.app/api/lead',
 };

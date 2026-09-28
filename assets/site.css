@@ -882,12 +882,16 @@ a.row { cursor: pointer; }
   font-weight: 700; font-size: 15px; min-height: 54px; border-radius: 0;
 }
 .lead-submit:hover { background: transparent; color: var(--stamp); }
+.lead-submit:disabled { opacity: .6; cursor: not-allowed; }
+.lead-submit:disabled:hover { background: var(--stamp); color: #fff; }
 .lead-quiet-alt { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 15px; color: var(--tx-on-dark-lo); margin-top: -8px; }
 .lead-quiet-alt a { text-decoration: underline; text-underline-offset: 3px; color: var(--tx-on-dark-lo); }
 .lead-quiet-alt a:hover { color: var(--stamp); }
 .lead-quiet-phone { white-space: nowrap; }
 .lead-success { color: var(--tx-on-dark); font-size: 14px; border: 1px solid var(--line-on-dark); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
 .lead-success-hint { font-size: 12.5px; color: var(--tx-on-dark-lo); font-weight: 400; }
+.lead-fallback { color: var(--tx-on-dark); font-size: 14px; border: 1px solid var(--stamp); padding: 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.lead-fallback-btn { text-decoration: none; }
 
 .lead-footer { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--line-on-dark); }
 .lead-footer-label { font-size: 12.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--tx-on-dark-lo); margin-bottom: 14px; }
