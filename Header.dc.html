@@ -40,7 +40,7 @@
       <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
         <div class="hdr-menu-overlay" onClick="{{ closeMenu }}"></div>
         <button type="button" class="close-x" onClick="{{ closeMenu }}" aria-label="Закрыть">✕</button>
-        <div class="hdr-menu-panel" id="hdr-menu-panel" role="navigation">
+        <div class="hdr-menu-panel" id="hdr-menu-panel" role="navigation" onClick="{{ onPanelClick }}">
           <div class="hdr-menu-label">Услуги</div>
           <div class="hdr-menu-grid">
             <sc-for list="{{ services }}" as="s" hint-placeholder-count="9">
@@ -60,7 +60,7 @@
           <div class="hdr-menu-divider"></div>
           <div class="hdr-menu-contacts">
             <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
-              <a href="{{ ph.tel }}" class="hdr-chip" aria-label="{{ ph.region }}: {{ ph.display }}">
+              <a href="{{ ph.tel }}" class="hdr-chip" aria-label="{{ ph.ariaLabel }}">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.9 21 3 13.1 3 3.6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8Z"></path></svg>
                 {{ ph.display }}
               </a>
@@ -80,7 +80,7 @@
 
     <div class="hdr-phone-group">
       <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
-        <a class="hdr-phone" href="{{ ph.tel }}" aria-label="{{ ph.region }}: {{ ph.display }}">
+        <a class="hdr-phone" href="{{ ph.tel }}" aria-label="{{ ph.ariaLabel }}">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.9 21 3 13.1 3 3.6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8Z"></path></svg>
           {{ ph.display }}
         </a>
@@ -137,8 +137,24 @@ class Component extends DCLogic {
       menuOpen: this.state.menuOpen,
       toggleMenu: () => this.setState(s => ({ menuOpen: !s.menuOpen })),
       closeMenu: () => this.setState({ menuOpen: false }),
+      // .hdr-menu-overlay sits behind .hdr-menu-panel (z-index 70 vs 71) and is
+      // therefore unreachable by tap/click on every viewport — the panel is
+      // position:fixed;inset:0 same as the overlay, so it always fully covers it.
+      // Close on a tap that lands on the panel's own empty background instead.
+      // r2 review found e.target===e.currentTarget (the LeadModal onOverlayClick
+      // pattern) doesn't work here: .hdr-menu-jumps/.hdr-menu-contacts/.hdr-menu-grid
+      // are nested flex containers with their own `gap`, so a tap in THEIR empty gap
+      // sets e.target to that wrapper div, never to .hdr-menu-panel itself — closing
+      // never fires. Check "not a real link/button" instead, which covers every
+      // wrapper's background uniformly; taps on actual links/buttons keep their own
+      // behaviour untouched (closeMenu / navigation).
+      onPanelClick: (e) => { if (!e.target.closest('a, button')) this.setState({ menuOpen: false }); },
       services: HEADER_SERVICES,
-      phones: C.phones,
+      // Multi-var interpolation in one attribute ("{{ ph.region }}: {{ ph.display }}")
+      // renders as no attribute at all (support.js limitation) — pre-compute the
+      // string and use a single-var {{ ph.ariaLabel }} instead (same pattern as
+      // .mob-cta-call's working "Позвонить: {{ ph.region }}" in Footer.dc.html).
+      phones: C.phones.map(ph => ({ ...ph, ariaLabel: ph.region + ': ' + ph.display })),
       telegramUrl: C.telegram.url,
       telegramHandle: C.telegram.handle,
       email: C.email,

@@ -184,8 +184,12 @@ input, select, textarea { font-family: inherit; }
   padding: 10px 16px; font-size: 13.5px; font-weight: 600; min-height: 44px;
 }
 .hdr-chip:hover { border-color: var(--stamp); color: var(--stamp); }
-.hdr-chip--static { color: var(--tx-on-dark-lo); cursor: default; }
-.hdr-chip--static:hover { border-color: var(--line-on-dark); color: var(--tx-on-dark-lo); }
+/* Non-interactive "также в MAX" note — was inheriting .hdr-chip's full pill geometry
+   (border/padding/min-height), reading as a clickable chip identical to the real
+   phone/Telegram/Email chips next to it. Strip the chip shape, keep it as plain text
+   (same treatment as the equivalent .ftr-contact-max note in the footer). */
+.hdr-chip--static { border-color: transparent; color: var(--tx-on-dark-lo); cursor: default; padding: 10px 0; min-height: auto; }
+.hdr-chip--static:hover { border-color: transparent; color: var(--tx-on-dark-lo); }
 
 /* close control — shared across menu / lightbox / modal */
 .close-x {
@@ -338,7 +342,7 @@ input, select, textarea { font-family: inherit; }
   .phone-btn { min-height: 44px; padding: 8px 10px; gap: 6px; }
   .phone-btn svg { width: 15px; height: 15px; }
   .phone-btn-text { flex-direction: column; align-items: flex-start; gap: 0; line-height: 1.22; }
-  .phone-btn-region { font-size: 9px; }
+  .phone-btn-region { font-size: 11px; }
   .phone-btn-num { font-size: 12.5px; }
   .phone-max-note { font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
@@ -815,6 +819,10 @@ a.row { cursor: pointer; }
   .mob-cta-call { background: var(--stamp); color: #fff; }
   .mob-cta-call--alt { background: transparent; color: var(--tx-on-dark); border-left: 1px solid var(--line-on-dark); }
   .mob-cta-tg { border-left: 1px solid var(--line-on-dark); }
+  /* Hidden while the hero buttons are on screen (Footer.dc.html, IntersectionObserver).
+     visibility drops the links from Tab order and the accessibility tree too. */
+  .mob-cta { transition: transform .2s ease, visibility 0s linear 0s; }
+  .mob-cta--off { transform: translateY(100%); visibility: hidden; transition: transform .2s ease, visibility 0s linear .2s; }
 }
 
 /* =====================================================================
@@ -1028,6 +1036,12 @@ a.row { cursor: pointer; }
 [id] { scroll-margin-top: 88px; }
 @media (max-width: 720px) { [id] { scroll-margin-top: 76px; } }
 
+/* Keyboard/anchor scroll-into-view landed elements under the fixed .mob-cta bar
+   (min-height:52px + 1px border) with no bottom counterpart to the scroll-margin-top
+   above — real Tab-navigation on 390x844 found footer links and end-of-section
+   buttons scrolled fully behind it, with no visible focus ring at all. */
+@media (max-width: 720px) { html { scroll-padding-bottom: 64px; } }
+
 /* Wide screens: the four footer sections sit in the header, same labels.
    Below 1240px the header has no room — the Меню overlay covers it. */
 .hdr-nav { display: none; }
@@ -1184,7 +1198,6 @@ a.row { cursor: pointer; }
   .hero-price-row { flex-direction: column; align-items: flex-start; gap: 4px; }
   .hero-price--rows .hero-price-num { font-size: 18px; }
 }
-
 /* Mobile: .section-inner used the 48px desktop inset on phones while header
    and footer already switch to --inset-mobile (22px) below 720px. */
 @media (max-width: 720px) {

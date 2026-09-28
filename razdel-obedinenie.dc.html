@@ -31,7 +31,7 @@
 </helmet>
 <div class="page-shell page-chapter">
 <dc-import name="Header" hint-size="100%,74px"></dc-import>
-<div role="main" id="main">
+<div role="main" id="main" tabindex="-1">
 
 <div class="hero hero--chapter">
   <div class="hero-top">
@@ -51,7 +51,7 @@
         <div class="phone-group">
           <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
             <div class="phone-item">
-              <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.region }}: {{ ph.display }}">
+              <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.ariaLabel }}">
                 <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
               </a>
               <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
@@ -137,7 +137,7 @@
       <div class="phone-group">
         <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
           <div class="phone-item">
-            <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.region }}: {{ ph.display }}">
+            <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.ariaLabel }}">
               <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
             </a>
             <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
@@ -160,7 +160,7 @@
 <script type="text/x-dc" data-dc-script>
 const WHEN_ITEMS = [
   { text: 'Раздел земельного участка' },
-  { text: 'Объединяете два смежных участка' },
+  { text: 'Объединение смежных участков' },
   { text: 'Перераспределение границ' },
 ];
 const CHECKLIST = [
@@ -205,7 +205,7 @@ class Component extends DCLogic {
 
   renderVals() {
     const C = window.BTI_CONTACTS;
-    const phones = C.phones.map(ph => ({ ...ph, hasMax: !!ph.max, noMax: !ph.max }));
+    const phones = C.phones.map(ph => ({ ...ph, hasMax: !!ph.max, noMax: !ph.max, ariaLabel: ph.region + ': ' + ph.display }));
     return { whenItems: WHEN_ITEMS, checklist: CHECKLIST, processSteps: PROCESS_STEPS, related: RELATED, phones };
   }
 }
