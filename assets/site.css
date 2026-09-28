@@ -298,6 +298,20 @@ input, select, textarea { font-family: inherit; }
      again. No manual hyphen: an overflow-wrap break never inserts a "-" glyph. */
   overflow-wrap: break-word;
 }
+/* The display face is wide, and the size used to follow the viewport only, so the
+   longest word overran its column and broke mid-word without a hyphen:
+   «недвижимост/и» at 1280, «Перераспределени/е» at 1366, «Кадастровы/е» at 768.
+   .hero-copy is a size container; each page caps its h1 at 100cqi divided by the em
+   width of its longest word (minus 3%), so that word always fits on one line at any
+   width. These are font measurements, not viewport guesses: re-measure only when a
+   heading's text changes (bti-lab/marks-audit/measure-words.mjs). Browsers without
+   container units drop the min() declaration and keep the plain clamp above. */
+.hero-copy { container-type: inline-size; }
+.hero-title--index { font-size: min(clamp(38px, 5.4vw, 68px), 11.1cqi); } /* «Кадастровые» 8.744em */
+.hero-title--mezh { font-size: min(clamp(38px, 5.4vw, 68px), 12.7cqi); } /* «Межевание» 7.642em */
+.hero-title--tehplan { font-size: min(clamp(38px, 5.4vw, 68px), 9.8cqi); } /* «недвижимости» 9.937em */
+.hero-title--razdel { font-size: min(clamp(38px, 5.4vw, 68px), 7.1cqi); } /* «Перераспределение,» 13.59em */
+.hero-title--politika { font-size: min(clamp(38px, 5.4vw, 68px), 10.3cqi); } /* «персональных» 9.419em */
 
 .hero-tagline {
   font-family: var(--font-body); font-weight: 700; font-size: 14px;
@@ -396,6 +410,11 @@ input, select, textarea { font-family: inherit; }
   .hero-badge { margin-bottom: 6px; padding: 6px 12px; }
   .chapter-crumb { margin-bottom: 10px; }
   .hero-title { max-width: 100%; font-size: clamp(28px, 8vw, 36px); line-height: 1.08; margin-bottom: 8px; }
+  .hero-title--index { font-size: min(clamp(28px, 8vw, 36px), 11.1cqi); }
+  .hero-title--mezh { font-size: min(clamp(28px, 8vw, 36px), 12.7cqi); }
+  .hero-title--tehplan { font-size: min(clamp(28px, 8vw, 36px), 9.8cqi); }
+  .hero-title--razdel { font-size: min(clamp(28px, 8vw, 36px), 7.1cqi); }
+  .hero-title--politika { font-size: min(clamp(28px, 8vw, 36px), 10.3cqi); }
   .hero-tagline { margin-bottom: 2px; }
   .hero-desc { font-size: 15px; line-height: 1.55; margin-bottom: 4px; }
   .hero-actions { margin-bottom: 16px; gap: 6px; }
