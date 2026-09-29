@@ -42,11 +42,19 @@
   }
   a.home:hover { background: var(--stamp); border-color: var(--stamp); color: #fff; }
 </style>
+<script>
+// The GitHub Pages mirror has no rewrites, so the clean page addresses the
+// site links to land here: forward them to the page file.
+(function () {
+  var m = /^(\/bti-samara)\/(mezhevanie|tehplan|razdel-obedinenie|politika)\/?$/.exec(location.pathname);
+  if (m) location.replace(m[1] + '/' + m[2] + '.dc.html' + location.search + location.hash);
+})();
+</script>
 </head>
 <body>
 <img src="/bti-samara/assets/logo-mark.png" alt="Кадастровый инженер">
 <div class="code">404</div>
 <h1>Страница не найдена</h1>
-<a class="home" href="/bti-samara/index.dc.html">На главную</a>
+<a class="home" href="/bti-samara/">На главную</a>
 </body>
 </html>

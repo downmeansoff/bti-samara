@@ -64,9 +64,21 @@ const ROOT_HTACCESS = `<IfModule mod_rewrite.c>
   RewriteRule .* https://%1%{REQUEST_URI} [R=301,L]
   RewriteCond %{SERVER_PORT} !^443$
   RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
+
+  # Clean page addresses. The old file-name ones (what the visitor typed, hence
+  # THE_REQUEST — internal rewrites below must not loop back here) answer 301,
+  # so bookmarks and the search index follow; the query string carries over.
+  RewriteCond %{THE_REQUEST} \\s/+index(?:\\.dc)?\\.html[\\s?] [NC]
+  RewriteRule ^ / [R=301,L]
+  RewriteCond %{THE_REQUEST} \\s/+(mezhevanie|tehplan|razdel-obedinenie|politika)(?:\\.dc)?\\.html[\\s?] [NC]
+  RewriteRule ^ /%1 [R=301,L]
+  # A trailing slash would make the pages' relative asset links resolve
+  # under /mezhevanie/.
+  RewriteRule ^(mezhevanie|tehplan|razdel-obedinenie|politika)/$ /$1 [R=301,L]
+  RewriteRule ^(mezhevanie|tehplan|razdel-obedinenie|politika)$ /$1.dc.html [L]
 </IfModule>
 
-DirectoryIndex index.html
+DirectoryIndex index.dc.html
 ErrorDocument 404 /404.html
 AddDefaultCharset utf-8
 
@@ -105,8 +117,10 @@ const ASSETS_HTACCESS = `# Images/fonts/CSS/JS under assets/ cache for 7 days; t
 rmrf(DEST);
 fs.mkdirSync(DEST, { recursive: true });
 
+// index.html is only the GitHub Pages root stub (redirect to index.dc.html);
+// here DirectoryIndex serves the home page at "/" directly.
 for (const entry of fs.readdirSync(SRC, { withFileTypes: true })) {
-  if (entry.isFile() && entry.name.toLowerCase().endsWith('.html')) {
+  if (entry.isFile() && entry.name.toLowerCase().endsWith('.html') && entry.name !== 'index.html') {
     copyFile(entry.name);
   }
 }

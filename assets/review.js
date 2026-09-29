@@ -23,7 +23,11 @@
   const NS = 'http://www.w3.org/2000/svg';
   const RENDER_ONLY = /[?&]rv_render=1/.test(location.search);
   const COARSE = matchMedia('(pointer: coarse)').matches;
-  const PAGE = decodeURIComponent(location.pathname.split('/').pop() || '') || 'index.dc.html';
+  // Pages live at clean addresses (/, /mezhevanie); notes stay keyed by the
+  // page file name, as they were saved before the switch.
+  const RAW_PAGE = decodeURIComponent(location.pathname.split('/').pop() || '');
+  const PAGE = !RAW_PAGE || RAW_PAGE === 'index.html' ? 'index.dc.html'
+    : RAW_PAGE.endsWith('.dc.html') ? RAW_PAGE : RAW_PAGE + '.dc.html';
   const PAGE_NAMES = {
     'index.dc.html': 'Главная',
     'mezhevanie.dc.html': 'Межевание',

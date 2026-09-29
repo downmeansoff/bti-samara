@@ -433,10 +433,13 @@ input, select, textarea { font-family: inherit; }
   max-width: 1440px; margin: 0 auto; padding: 0 var(--inset-desktop);
   display: grid; grid-template-columns: repeat(4, 1fr);
 }
+/* Columns 2-4 start at the previous column's hairline, so they need their own
+   left padding; the first one lines up with the page inset. */
 .trust-col {
-  padding: 40px 28px 40px 0;
+  padding: 40px 28px;
   border-right: 1px solid var(--line-on-dark);
 }
+.trust-col:first-child { padding-left: 0; }
 .trust-col:last-child { border-right: 0; }
 .trust-col svg { display: block; margin-bottom: 22px; }
 .trust-col span { display: block; font-size: 15px; font-weight: 500; color: var(--tx-on-dark-lo); line-height: 1.5; max-width: 24ch; }

@@ -12,7 +12,7 @@
 <div class="hdr" role="banner">
   <a href="#main" class="skip-link">Перейти к содержимому</a>
   <div class="hdr-row">
-    <a class="hdr-logo" href="index.dc.html">
+    <a class="hdr-logo" href="./">
       <img src="assets/logo-mark.png" alt="Кадастровый инженер" />
       <div class="hdr-logo-text">
         <span>КАДАСТРОВЫЙ</span>
@@ -24,12 +24,12 @@
 
     <!-- На широком экране разделы видны сразу; подписи те же, что в подвале. -->
     <nav class="hdr-nav">
-      <a href="index.dc.html#services" class="hdr-nav-link">Услуги</a>
-      <a href="index.dc.html#pricing" class="hdr-nav-link">Цены</a>
-      <a href="index.dc.html#reviews" class="hdr-nav-link">Отзывы</a>
-      <a href="index.dc.html#about" class="hdr-nav-link">О компании</a>
-      <a href="index.dc.html#faq" class="hdr-nav-link">Частые вопросы</a>
-      <a href="index.dc.html#contacts" class="hdr-nav-link">Контакты</a>
+      <a href="./#services" class="hdr-nav-link">Услуги</a>
+      <a href="./#pricing" class="hdr-nav-link">Цены</a>
+      <a href="./#reviews" class="hdr-nav-link">Отзывы</a>
+      <a href="./#about" class="hdr-nav-link">О компании</a>
+      <a href="./#faq" class="hdr-nav-link">Частые вопросы</a>
+      <a href="./#contacts" class="hdr-nav-link">Контакты</a>
     </nav>
 
     <div class="hdr-menu-wrap">
@@ -44,18 +44,18 @@
           <div class="hdr-menu-label">Услуги</div>
           <div class="hdr-menu-grid">
             <sc-for list="{{ services }}" as="s" hint-placeholder-count="9">
-              <a href="{{ s.slug }}.dc.html" class="hdr-menu-link">{{ s.title }}</a>
+              <a href="{{ s.slug }}" class="hdr-menu-link">{{ s.title }}</a>
             </sc-for>
           </div>
           <div class="hdr-menu-divider"></div>
           <div class="hdr-menu-jumps">
-            <a href="index.dc.html#about" onClick="{{ closeMenu }}" class="hdr-menu-jump">О компании</a>
-            <a href="index.dc.html#awards" onClick="{{ closeMenu }}" class="hdr-menu-jump">Документы и награды</a>
-            <a href="index.dc.html#process" onClick="{{ closeMenu }}" class="hdr-menu-jump">Как работаем</a>
-            <a href="index.dc.html#reviews" onClick="{{ closeMenu }}" class="hdr-menu-jump">Отзывы</a>
-            <a href="index.dc.html#pricing" onClick="{{ closeMenu }}" class="hdr-menu-jump">Цены</a>
-            <a href="index.dc.html#faq" onClick="{{ closeMenu }}" class="hdr-menu-jump">Вопросы</a>
-            <a href="index.dc.html#contacts" onClick="{{ closeMenu }}" class="hdr-menu-jump">Контакты</a>
+            <a href="./#about" onClick="{{ closeMenu }}" class="hdr-menu-jump">О компании</a>
+            <a href="./#awards" onClick="{{ closeMenu }}" class="hdr-menu-jump">Документы и награды</a>
+            <a href="./#process" onClick="{{ closeMenu }}" class="hdr-menu-jump">Как работаем</a>
+            <a href="./#reviews" onClick="{{ closeMenu }}" class="hdr-menu-jump">Отзывы</a>
+            <a href="./#pricing" onClick="{{ closeMenu }}" class="hdr-menu-jump">Цены</a>
+            <a href="./#faq" onClick="{{ closeMenu }}" class="hdr-menu-jump">Вопросы</a>
+            <a href="./#contacts" onClick="{{ closeMenu }}" class="hdr-menu-jump">Контакты</a>
           </div>
           <div class="hdr-menu-divider"></div>
           <div class="hdr-menu-contacts">

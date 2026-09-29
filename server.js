@@ -1,7 +1,7 @@
 'use strict';
 // Zero-dependency static server for the dc-runtime landing page.
-// Serves .dc.html, the .image-slots.state.json sidecar (a dotfile), and
-// redirects "/" to index.dc.html (internal nav links point at *.dc.html).
+// Serves .dc.html, the .image-slots.state.json sidecar (a dotfile), and the
+// pages at clean addresses ("/", "/mezhevanie"; old *.dc.html ones 301 there).
 //
 // Also serves the lead API (POST /api/lead) and the Telegram bot webhook
 // (POST /tg/<TG_WEBHOOK_SECRET>) so requests from the lead form actually
@@ -48,6 +48,10 @@ const PUBLIC_TOP_FILES = new Set([
   'support.js', 'image-slot.js', 'favicon.ico', 'robots.txt', 'sitemap.xml',
   '.image-slots.state.json',
 ]);
+
+// Pages reachable at a clean address (/mezhevanie -> mezhevanie.dc.html);
+// the home page is "/".
+const PAGE_SLUGS = new Set(['mezhevanie', 'tehplan', 'razdel-obedinenie', 'politika']);
 
 function isPubliclyServable(relPath) {
   const parts = relPath.split(path.sep).filter(Boolean);
@@ -570,10 +574,18 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (urlPath === '/' || urlPath === '') {
-    res.writeHead(302, { Location: '/index.dc.html' + search }).end();
+  // Clean page addresses: "/" and "/mezhevanie" serve the page files; the old
+  // file-name addresses (and a trailing slash) answer 301 to them, so bookmarks
+  // and the search index follow. Same rules as the reg.ru .htaccess written by
+  // pack-hosting.mjs.
+  const oldPage = /^\/(index|mezhevanie|tehplan|razdel-obedinenie|politika)(?:\.dc)?\.html$/.exec(urlPath)
+    || /^\/(mezhevanie|tehplan|razdel-obedinenie|politika)\/$/.exec(urlPath);
+  if (oldPage) {
+    res.writeHead(301, { Location: (oldPage[1] === 'index' ? '/' : '/' + oldPage[1]) + search }).end();
     return;
   }
+  if (urlPath === '/' || urlPath === '') urlPath = '/index.dc.html';
+  else if (PAGE_SLUGS.has(urlPath.slice(1))) urlPath += '.dc.html';
 
   // Resolve safely inside ROOT (block path traversal).
   const target = path.normalize(path.join(ROOT, urlPath));
@@ -584,14 +596,14 @@ const server = http.createServer((req, res) => {
 
   if (!isPubliclyServable(path.relative(ROOT, target))) {
     res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' })
-      .end('<!doctype html><meta charset=utf-8><h1>404</h1><a href="/index.dc.html">На главную</a>');
+      .end('<!doctype html><meta charset=utf-8><h1>404</h1><a href="/">На главную</a>');
     return;
   }
 
   fs.stat(target, (err, st) => {
     if (err || !st.isFile()) {
       res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' })
-        .end('<!doctype html><meta charset=utf-8><h1>404</h1><a href="/index.dc.html">На главную</a>');
+        .end('<!doctype html><meta charset=utf-8><h1>404</h1><a href="/">На главную</a>');
       return;
     }
     const ext = path.extname(target).toLowerCase();

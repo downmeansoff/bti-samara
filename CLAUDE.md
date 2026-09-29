@@ -36,7 +36,7 @@ kadastrhelp.ru по SSH (основной сайт, секунды).
 хостинга в кабинете reg.ru. Заглушка reg.ru сохранена в `~/placeholder-backup-20260929`.
 
 `pack-hosting.mjs` кладёт только публичные файлы и пишет `.htaccess`: редиректы
-http→https и www→без www (301), 404, `no-cache` на HTML, запрет dotfile-ов кроме
+http→https и www→без www (301), чистые адреса страниц, 404, `no-cache` на HTML, запрет dotfile-ов кроме
 `.image-slots.state.json`. ⚠️ `.css`/`.js` отдаёт сам nginx reg.ru с `max-age` 45 суток,
 `.htaccess` на это не влияет — поэтому сборка дописывает `?v=<хеш содержимого>` к
 `site.css`, `fonts.css`, `support.js`, `contacts.js` в HTML. Новый JS/CSS-файл, который
@@ -49,8 +49,8 @@ Client-rendered на **dc-runtime**: `support.js` разворачивает `<x
 `sc-for`, `sc-if`. Компоненты — `*.dc.html`, логика в `class Component extends DCLogic`.
 Картинки-слоты — `image-slot.js` + `.image-slots.state.json` (dotfile с base64).
 
-Раздаётся `server.js` — Node без зависимостей: слушает `$PORT`, `/` редиректит на
-`index.dc.html`, HTML/JS отдаёт с `no-cache`, картинки на сутки. Отдаёт только файлы из
+Раздаётся `server.js` — Node без зависимостей: слушает `$PORT`, страницы отдаёт по
+чистым адресам (см. «Адреса страниц»), HTML/JS с `no-cache`, картинки на сутки. Отдаёт только файлы из
 явного списка (`isPubliclyServable`) — `server.js`, `package.json`, `CLAUDE.md` и прочее
 служебное дают 404. Он же принимает заявки — см. «Заявки с сайта» ниже.
 
@@ -77,7 +77,25 @@ PORT=3999 node server.js
 `<helmet>`. Helmet вставляет теги JavaScript-ом, а боты превью ссылок (Telegram, WhatsApp,
 ВК) JS не запускают — до 24.09.2026 из-за этого обложка в превью не показывалась.
 В `<helmet>` остались только стили. У корневого `index.html` (редирект) свой набор og-тегов —
-это его ссылку раздают. Canonical главной — `index.dc.html`, корень ведёт на него.
+это его ссылку раздают. Canonical главной — `https://kadastrhelp.ru/`.
+
+### Адреса страниц (с 30.09.2026)
+
+Владелец попросил убрать `index.dc.html` и подобное из адресной строки. Страницы
+открываются как `/`, `/mezhevanie`, `/tehplan`, `/razdel-obedinenie`, `/politika`;
+файлы остались `*.dc.html`. Все ссылки внутри сайта относительные и без расширения
+(`./`, `./#faq`, `mezhevanie`), canonical/og:url/JSON-LD/sitemap — чистые адреса.
+Старые адреса (`index.dc.html`, `index.html`, `mezhevanie.dc.html`, `mezhevanie.html`,
+`/mezhevanie/`) отвечают 301 на чистые, строка запроса сохраняется.
+- kadastrhelp.ru: правила в `.htaccess` из `pack-hosting.mjs` (`THE_REQUEST` для 301,
+  внутренний rewrite `/mezhevanie` → `mezhevanie.dc.html`, `DirectoryIndex index.dc.html`;
+  `index.html` на хостинг не кладётся). Проверено на Apache 2.4 в Docker.
+- Railway: те же правила в `server.js` (`PAGE_SLUGS`), тесты в `tests/lead-e2e.mjs`.
+- github.io: переписываний нет — `index.html` уводит на `index.dc.html`, а чистые
+  адреса разделов попадают в `404.html`, который скриптом отправляет на `*.dc.html`.
+- Новая страница = добавить слаг в оба регэкспа `.htaccess`, в `PAGE_SLUGS`
+  `server.js` и в `404.html`. Слаг с `/` на конце ломает относительные пути к
+  `assets/`, поэтому такие адреса уводятся 301 на вариант без слеша.
 
 Дизайн (23.09.2026, второй заход — первый владелец назвал «очень слабым») сделан по образцу
 сайтов архбюро Snøhetta и Foster + Partners: огромный заголовок Unbounded, строки-таблицы с тонкими линиями (этапы, «что вы получите», цены, вопросы), плитки

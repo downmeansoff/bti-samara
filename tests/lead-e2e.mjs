@@ -133,7 +133,7 @@ function validPayload(overrides) {
     phone: '+7 999 123-45-67',
     service: 'Межевание земельных участков',
     message: 'Нужна консультация по границам участка.',
-    page: '/index.dc.html',
+    page: '/',
     consent: true,
     website: '',
   }, overrides || {});
@@ -431,11 +431,31 @@ try {
       const r = await fetch(MAIN + p);
       assertTrue(`static allowlist blocks ${p} -> 404`, r.status === 404, r.status);
     }
-    const allowed = ['/index.dc.html', '/robots.txt', '/favicon.ico', '/support.js', '/image-slot.js', '/.image-slots.state.json'];
+    const allowed = ['/', '/mezhevanie', '/tehplan', '/razdel-obedinenie', '/politika', '/Header.dc.html', '/robots.txt', '/favicon.ico', '/support.js', '/image-slot.js', '/.image-slots.state.json'];
     for (const p of allowed) {
-      const r = await fetch(MAIN + p);
+      const r = await fetch(MAIN + p, { redirect: 'manual' });
       assertTrue(`static allowlist still serves ${p} -> 200`, r.status === 200, r.status);
     }
+  }
+
+  // ---------------- Clean page addresses: old file names answer 301 ----------------
+  {
+    const home = await (await fetch(MAIN + '/')).text();
+    assertTrue('"/" serves the home page itself', home.includes('https://kadastrhelp.ru/"') && home.includes('support.js'), home.slice(0, 80));
+    const mezh = await (await fetch(MAIN + '/mezhevanie')).text();
+    assertTrue('"/mezhevanie" serves mezhevanie.dc.html', mezh.includes('https://kadastrhelp.ru/mezhevanie"'), mezh.slice(0, 80));
+    const redirects = [
+      ['/index.dc.html', '/'], ['/index.html', '/'], ['/index.dc.html?review=1', '/?review=1'],
+      ['/mezhevanie.dc.html', '/mezhevanie'], ['/tehplan.dc.html?x=1', '/tehplan?x=1'],
+      ['/razdel-obedinenie.dc.html', '/razdel-obedinenie'], ['/politika.dc.html', '/politika'],
+      ['/politika/', '/politika'], ['/tehplan.html', '/tehplan'],
+    ];
+    for (const [from, to] of redirects) {
+      const r = await fetch(MAIN + from, { redirect: 'manual' });
+      assertTrue(`${from} -> 301 ${to}`, r.status === 301 && r.headers.get('location') === to, `${r.status} ${r.headers.get('location')}`);
+    }
+    const r404 = await fetch(MAIN + '/nope', { redirect: 'manual' });
+    assertTrue('unknown address -> 404', r404.status === 404, r404.status);
   }
 } finally {
   stopServer(main);
