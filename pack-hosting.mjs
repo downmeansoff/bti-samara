@@ -12,6 +12,7 @@
 // .image-slots.state.json — that one holds the hero and about photos that
 // image-slot.js fills in at runtime, so the pages are missing them without it.
 
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -54,7 +55,18 @@ function listFiles(dir, base = dir) {
   return out;
 }
 
-const ROOT_HTACCESS = `DirectoryIndex index.html
+// The redirects replace the http -> https rule reg.ru writes when it issues
+// the free certificate (this file overwrites theirs), plus www -> bare domain
+// so there is one address, matching canonical/og:url.
+const ROOT_HTACCESS = `<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP_HOST} ^www\\.(.+)$ [NC]
+  RewriteRule .* https://%1%{REQUEST_URI} [R=301,L]
+  RewriteCond %{SERVER_PORT} !^443$
+  RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+DirectoryIndex index.html
 ErrorDocument 404 /404.html
 AddDefaultCharset utf-8
 
@@ -112,6 +124,25 @@ for (const rel of TOP_LEVEL_FILES) {
   } else {
     console.warn(`pack-hosting: expected file missing, skipped: ${rel}`);
   }
+}
+
+// reg.ru's nginx serves .css/.js itself with a 45-day max-age that .htaccess
+// cannot override, so an edited site.css would reach returning visitors only
+// weeks later, next to fresh HTML. Stamp the page-level CSS/JS links with a
+// content hash so every change is a new URL. image-slot.js and review.js are
+// left alone: the first is an x-import component URL, the second owner-only.
+const VERSIONED = ['assets/site.css', 'assets/fonts/fonts.css', 'support.js', 'assets/contacts.js'];
+const versionOf = {};
+for (const rel of VERSIONED) {
+  const p = path.join(DEST, rel);
+  if (fs.existsSync(p)) versionOf[rel] = crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex').slice(0, 10);
+}
+for (const name of fs.readdirSync(DEST)) {
+  if (!name.endsWith('.html')) continue;
+  const p = path.join(DEST, name);
+  const html = fs.readFileSync(p, 'utf8').replace(/(\s(?:href|src)=")((?:\.\/)?)([^"?#]+)(\?[^"]*)?"/g, (m, attr, dot, rel) =>
+    versionOf[rel] ? `${attr}${dot}${rel}?v=${versionOf[rel]}"` : m);
+  fs.writeFileSync(p, html);
 }
 
 // 404.html is served at whatever path was missing, so its links are absolute.
