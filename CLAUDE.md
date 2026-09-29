@@ -5,8 +5,9 @@
 
 ## Как выкладывать
 
-Двойной клик по `DEPLOY.bat` в корне: делает `git push origin main` (основная ссылка,
-сборка GitHub Pages ~40 секунд) и `railway up --ci` (резервная, ~1 минута).
+Двойной клик по `DEPLOY.bat` в корне: `git push origin main` (зеркало GitHub Pages,
+~40 секунд), `railway up --ci` (API заявок и зеркало, ~1 минута) и заливка на
+kadastrhelp.ru по SSH (основной сайт, секунды).
 Из сессии Claude, запущенной в репозитории Fortune VPN, деплой блокирует его защитный хук —
 выкладывает владелец батником.
 
@@ -17,24 +18,32 @@
 
 | Ссылка | Что это |
 |---|---|
-| https://downmeansoff.github.io/bti-samara/ | **Основная**, её раздаём клиентам. GitHub Pages, repo `downmeansoff/bti-samara`, ветка `main`. Бесплатно бессрочно |
-| https://bti-samara-landing-production.up.railway.app | Резервная. Railway, проект `bti-samara-landing` |
+| https://kadastrhelp.ru/ | **Основная с 29.09.2026**, её раздаём клиентам. reg.ru, хостинг Host-0 (оплачен до 26.10.2026), ISPmanager-пользователь `u3661432`, сервер `server244.hosting.reg.ru` |
+| https://downmeansoff.github.io/bti-samara/ | Зеркало. GitHub Pages, repo `downmeansoff/bti-samara`, ветка `main`. Бесплатно бессрочно |
+| https://bti-samara-landing-production.up.railway.app | Зеркало и API заявок (`server.js`). Railway, проект `bti-samara-landing` |
 
 ⚠️ `*.up.railway.app` у части российских провайдеров режет РКН — посетитель видит
-«не открывается». Поэтому основной раздаём github.io.
+«не открывается». Поэтому клиентам раздаём kadastrhelp.ru (до 29.09.2026 — github.io).
 
-**Свой домен `kadastrhelp.ru`** куплен на reg.ru (до 26.09.2027, аккаунт владельца
-`baymurzin.86@bk.ru`) вместе с хостингом: сервер `server244.hosting.reg.ru`, Apache за
-nginx, `.htaccess` работает, HTTPS уже выдан. На 29.09.2026 там заглушка reg.ru «Почти
-готово» — сайт ещё не залит. Сборка для хостинга: `node pack-hosting.mjs` кладёт в
-`C:/Users/glebo/bti-lab/hosting-dist` только публичные файлы плюс сгенерированные
-`.htaccess` (404, кодировка, `no-cache` на HTML, запрет dotfile-ов кроме
-`.image-slots.state.json`, ассеты на 7 дней). Залить содержимое в `www/kadastrhelp.ru`.
-Когда сайт там откроется — перевести canonical, `og:*`, `sitemap.xml`, `robots.txt`,
-JSON-LD и редирект `index.html` с github.io на `https://kadastrhelp.ru/` и добавить
-заливку в `DEPLOY.bat`. ⚠️ У reg.ru на карточке домена висит «Данные администратора
-не идентифицированы» — владельцу пройти идентификацию через Госуслуги, иначе .ru-домен
-могут приостановить.
+**Домен `kadastrhelp.ru`** (reg.ru, до 26.09.2027, аккаунт владельца `baymurzin.86@bk.ru`).
+Хостинг: Apache за nginx, `.htaccess` работает, HTTPS от reg.ru, PHP 8.2, наружу до Railway
+и Telegram ходит. Сайт лежит в `~/www/kadastrhelp.ru` (домашний каталог
+`/var/www/u3661432/data`). Заливка — шаг 3 в `DEPLOY.bat`:
+`C:/Users/glebo/bti-lab/tools/upload-hosting.sh` собирает `node pack-hosting.mjs` в
+`C:/Users/glebo/bti-lab/hosting-dist` и зеркалит по SSH (ключ
+`~/.ssh/kadastrhelp_deploy_ed25519`, вписан в `~/.ssh/authorized_keys` на хостинге через
+«Shell-клиент» ISPmanager). В ISPmanager без пароля — кнопкой «Войти в панель» на карточке
+хостинга в кабинете reg.ru. Заглушка reg.ru сохранена в `~/placeholder-backup-20260929`.
+
+`pack-hosting.mjs` кладёт только публичные файлы и пишет `.htaccess`: редиректы
+http→https и www→без www (301), 404, `no-cache` на HTML, запрет dotfile-ов кроме
+`.image-slots.state.json`. ⚠️ `.css`/`.js` отдаёт сам nginx reg.ru с `max-age` 45 суток,
+`.htaccess` на это не влияет — поэтому сборка дописывает `?v=<хеш содержимого>` к
+`site.css`, `fonts.css`, `support.js`, `contacts.js` в HTML. Новый JS/CSS-файл, который
+подключается со страницы, добавить в `VERSIONED`, иначе правки дойдут до вернувшихся
+посетителей только через полтора месяца. ⚠️ На карточке домена «Данные администратора не
+идентифицированы» — владельцу пройти идентификацию через Госуслуги, иначе .ru-домен могут
+приостановить.
 
 ## Как устроен сайт
 
@@ -132,8 +141,15 @@ LeadModal и hero/CTA-блоки страниц услуг берут номер
 ## Заявки с сайта (с 28.09.2026)
 
 Окно заявки (`LeadModal.dc.html`) отправляет `POST` на `/api/lead` — на Railway и
-localhost тот же origin, на github.io и kadastrhelp.ru — `BTI_CONTACTS.leadApi`
-(Railway). Таймаут 8 с. Успех: «Заявка отправлена. Кадастровый инженер свяжется с
+localhost тот же origin, на github.io — `BTI_CONTACTS.leadApi` (Railway). Таймаут 8 с.
+На kadastrhelp.ru сначала свой адрес `/api/lead.php` (`hosting/api/lead.php`, 10 с): он
+пересылает заявку на Railway с сервера хостинга — для провайдеров, режущих
+`*.up.railway.app`. Секрет `LEAD_RELAY_SECRET` лежит на Railway и в
+`~/lead-relay.secret` на хостинге (вне сайта, права 600); с ним `server.js` считает лимит по
+IP посетителя из `X-Lead-Client-IP`, а не по одному IP хостинга. Напрямую на Railway форма
+идёт, только если заявка точно не дошла (404, 5xx кроме 504); после 504 и таймаута — нет,
+чтобы не задвоить. ⚠️ Прод-API шлёт настоящие заявки: не отправлять форму на живых
+адресах из тестов, `tools/qa-r2-functional.mjs` подменяет `fetch` внутри страницы. Успех: «Заявка отправлена. Кадастровый инженер свяжется с
 вами.» Отказ или таймаут: текст копируется в буфер и появляется кнопка «Отправить
 через Telegram» (`t.me/kadastricom_bot?text=…`) — сама ничего не открывает.
 
