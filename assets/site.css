@@ -1232,6 +1232,20 @@ a.row { cursor: pointer; }
   .close-x { right: var(--inset-mobile); }
 }
 
+/* Lead modal on a phone turned sideways (740x360, 844x390): the form scrolls
+   under the fixed .close-x, and scrolled to the bottom the .lead-submit row sat
+   right under it — a tap on the button's right end closed the modal instead of
+   sending. On short viewports keep the form column clear of the close button's
+   column; everywhere, make the button an opaque chip so fields scrolling under
+   it never show through the transparent box. */
+.lead-overlay .close-x { background: var(--ink); }
+@media (max-height: 500px) {
+  .lead-overlay { padding-right: calc(var(--inset-desktop) + 56px); }
+}
+@media (max-height: 500px) and (max-width: 720px) {
+  .lead-overlay { padding-right: calc(var(--inset-mobile) + 56px); }
+}
+
 /* Lead modal at narrow phones: a sticky .lead-submit (position:sticky; bottom:0)
    was tried here, but on tall forms its normal-flow position starts below the
    fold, so the browser pins it at the viewport bottom from the very first
