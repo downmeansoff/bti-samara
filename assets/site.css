@@ -168,6 +168,10 @@ input, select, textarea { font-family: inherit; }
   padding: 14px 0;
   border-bottom: 1px solid var(--line-on-dark);
   transition: color .2s ease, padding-left .2s ease;
+  /* «Перераспределение,» at the 24px floor is wider than a 320px screen's
+     276px column; the title carries soft hyphens (Header.dc.html), this is
+     the fallback so no word is ever clipped at the edge. */
+  overflow-wrap: break-word;
 }
 .hdr-menu-link:hover, .hdr-menu-link:focus-visible { color: var(--stamp); padding-left: 12px; }
 .hdr-menu-divider { height: 1px; background: var(--line-on-dark); margin: 28px 0; }
@@ -184,6 +188,7 @@ input, select, textarea { font-family: inherit; }
   padding: 10px 16px; font-size: 13.5px; font-weight: 600; min-height: 44px;
 }
 .hdr-chip:hover { border-color: var(--stamp); color: var(--stamp); }
+.hdr-chip-num { white-space: nowrap; }
 /* Non-interactive "также в MAX" note — was inheriting .hdr-chip's full pill geometry
    (border/padding/min-height), reading as a clickable chip identical to the real
    phone/Telegram/Email chips next to it. Strip the chip shape, keep it as plain text
@@ -338,7 +343,10 @@ input, select, textarea { font-family: inherit; }
 .phone-btn-region { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; opacity: .72; }
 .phone-btn-num { font-size: 15px; font-weight: 700; white-space: nowrap; }
 .phone-max-note { font-size: 12.5px; color: var(--tx-on-dark-lo); padding-left: 2px; }
-.phone-max-note--link { text-decoration: underline; text-underline-offset: 3px; color: var(--tx-on-dark-lo); }
+.phone-max-note--link { position: relative; text-decoration: underline; text-underline-offset: 3px; color: var(--tx-on-dark-lo); }
+/* Invisible hit area like .about-link/.ftr-contact; the top edge stays inside
+   the gap so it never reaches the call button above. */
+.phone-max-note--link::before { content: ''; position: absolute; inset: -3px -10px -12px; }
 .phone-max-note--link:hover { color: var(--stamp); }
 @media (max-width: 720px) {
   /* Review round 1 (26.09.2026) found the stacked two-row layout (region A
@@ -351,7 +359,7 @@ input, select, textarea { font-family: inherit; }
      qa-r2-functional.mjs mobile viewport). Caption+number stack vertically
      inside each half-width button so the number still has room not to wrap. */
   .phone-group { width: 100%; gap: 8px; flex-wrap: nowrap; }
-  .phone-item { flex: 1 1 0; min-width: 0; gap: 2px; }
+  .phone-item { flex: 1 1 0; min-width: 0; gap: 8px; }
   .phone-item .btn { width: 100%; }
   .phone-btn { min-height: 44px; padding: 8px 10px; gap: 6px; }
   .phone-btn svg { width: 15px; height: 15px; }
@@ -763,6 +771,12 @@ a.row { cursor: pointer; }
 }
 .cta-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 40px; }
 @media (max-width: 720px) { .cta-band { padding: 76px var(--inset-mobile); } }
+/* Phones on their side are wider than 720px but only ~360px tall: the desktop
+   140px section padding left a blank screen between the FAQ and this band. */
+@media (max-height: 500px) {
+  :root { --section-y: 80px; }
+  .cta-band { padding-top: 80px; padding-bottom: 80px; }
+}
 
 /* =====================================================================
    FOOTER
@@ -796,7 +810,8 @@ a.row { cursor: pointer; }
 /* Two regional numbers since 26.09.2026 — caption above each, MAX note under. */
 .ftr-contact-region { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--tx-on-dark-lo); }
 .ftr-contact-max { font-size: 12.5px; color: var(--tx-on-dark-lo); margin: -6px 0 0 26px; }
-.ftr-contact-max--link { text-decoration: underline; text-underline-offset: 2px; color: var(--tx-on-dark-lo); }
+.ftr-contact-max--link { position: relative; text-decoration: underline; text-underline-offset: 2px; color: var(--tx-on-dark-lo); }
+.ftr-contact-max--link::before { content: ''; position: absolute; inset: -2px -10px -10px; }
 .ftr-contact-max--link:hover { color: var(--stamp); }
 
 .ftr-bottom {
@@ -868,7 +883,14 @@ a.row { cursor: pointer; }
   width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--line-on-dark);
   color: var(--tx-on-dark); font-size: 16px; padding: 10px 2px; border-radius: 0;
 }
-.lead-select { -webkit-appearance: none; appearance: none; }
+/* appearance:none drops the native arrow and Chrome clips a long preselected
+   service mid-letter — draw a chevron and end the text with an ellipsis. */
+.lead-select {
+  -webkit-appearance: none; appearance: none;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23f4f2ee' stroke-opacity='.62' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 4px center; background-size: 12px 8px;
+}
 .lead-select option { color: #000; }
 .lead-input::placeholder, .lead-textarea::placeholder { color: rgba(244,242,238,.35); }
 .lead-input:focus, .lead-select:focus, .lead-textarea:focus { border-bottom-color: var(--stamp); }
@@ -924,6 +946,8 @@ a.row { cursor: pointer; }
 .chapter-crumb a::before { content: ''; position: absolute; inset: -11px 0; }
 .chapter-crumb a:hover, .chapter-crumb a:focus-visible { color: var(--tx-on-dark); border-color: var(--line-on-dark); }
 .chapter-crumb span[aria-current] { color: var(--tx-on-dark); font-weight: 700; }
+/* The last separator travels with the current page when the row wraps. */
+.crumb-sep { margin-right: 9px; }
 
 /* chapter hero — same .hero canvas as home, quieter: smaller media frame, no filmstrip below */
 .hero--chapter { padding-bottom: 64px; }
@@ -993,8 +1017,10 @@ a.row { cursor: pointer; }
 
 /* =====================================================================
    PHOTO SLOTS WITH A SAVED PAN
-   .image-slots.state.json keeps the owner's framing: hero-home is panned
-   x≈-29%, about-portrait x≈+23%. image-slot.js applies that pan as a
+   Since 30.09.2026 #hero-home is a plain <img> (the slot fetched a 346 KB
+   base64 sidecar before the photo could start — 5-8 s on slow 4G); its saved
+   pan x≈-29% is the same crop as object-position 93.9% in this 4:5 box.
+   about-portrait is still a slot, pan x≈+23%. image-slot.js applies a pan as a
    percentage of the frame, so it only fills a PORTRAIT frame (w/h ≤ ~0.84);
    in a landscape box it slides the photo aside and exposes a strip of
    background. The slot itself is therefore always a 4:5 box anchored to the

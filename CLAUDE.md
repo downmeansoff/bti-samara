@@ -48,6 +48,11 @@ http→https и www→без www (301), чистые адреса страниц
 Client-rendered на **dc-runtime**: `support.js` разворачивает `<x-dc>`, `<dc-import>`,
 `sc-for`, `sc-if`. Компоненты — `*.dc.html`, логика в `class Component extends DCLogic`.
 Картинки-слоты — `image-slot.js` + `.image-slots.state.json` (dotfile с base64).
+С 30.09.2026 фото героев главной и межевания — обычные `<img>` из `assets/photos/`
+с `preload` в `<head>` (слот ждал 346 КБ base64 обоих фото, LCP 5–8 с на медленном 4G);
+в слоте остался только `about-portrait`, sidecar пустой. Сменить фото = положить
+новый файл под новым именем (nginx reg.ru кэширует статику долго) и поправить `src`
+и `preload`.
 
 Раздаётся `server.js` — Node без зависимостей: слушает `$PORT`, страницы отдаёт по
 чистым адресам (см. «Адреса страниц»), HTML/JS с `no-cache`, картинки на сутки. Отдаёт только файлы из

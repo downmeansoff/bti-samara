@@ -13,7 +13,7 @@
   <a href="#main" class="skip-link">Перейти к содержимому</a>
   <div class="hdr-row">
     <a class="hdr-logo" href="./">
-      <img src="assets/logo-mark.png" alt="Кадастровый инженер" />
+      <img src="assets/logo-mark-96.png" alt="Кадастровый инженер" />
       <div class="hdr-logo-text">
         <span>КАДАСТРОВЫЙ</span>
         <span>ИНЖЕНЕР</span>
@@ -97,7 +97,8 @@
 const HEADER_SERVICES = [
   { slug: 'mezhevanie', title: 'Межевание земельных участков' },
   { slug: 'tehplan', title: 'Технический план объекта недвижимости' },
-  { slug: 'razdel-obedinenie', title: 'Перераспределение, раздел и объединение участков' },
+  // \u00AD soft hyphens: at 320px the first word is wider than the menu column.
+  { slug: 'razdel-obedinenie', title: 'Пере\u00ADраспре\u00ADделение, раздел и объединение участков' },
 ];
 
 class Component extends DCLogic {

@@ -7,6 +7,7 @@
 <meta name="description" content="Межевание земельных участков в Самаре и Башкортостане. Межевой план, согласование границ, подача в Росреестр. Опыт более 12 лет." />
 <link rel="icon" type="image/png" href="assets/logo-mark.png" />
 <link rel="apple-touch-icon" href="assets/logo-mark.png" />
+<link rel="preload" as="image" href="assets/photos/hero-mezhevanie.webp" fetchpriority="high" />
 <link rel="canonical" href="https://kadastrhelp.ru/mezhevanie" />
 <meta property="og:url" content="https://kadastrhelp.ru/mezhevanie" />
 <meta property="og:type" content="website" />
@@ -37,7 +38,7 @@
   <div class="hero-top">
     <div class="hero-copy">
       <div class="chapter-crumb">
-        <a href="./">Главная</a><span>/</span><a href="./#services">Услуги</a><span>/</span><span aria-current="page">Межевание</span>
+        <a href="./">Главная</a><span>/</span><a href="./#services">Услуги</a><span><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Межевание</span></span>
       </div>
       <h1 class="hero-title hero-title--mezh">Межевание земельных участков</h1>
       <div class="hero-tagline">ГРАНИЦЫ — ЭТО ДЕНЬГИ. МЫ ДЕЛАЕМ ИХ ТОЧНЫМИ.</div>
@@ -69,7 +70,7 @@
     </div>
     <div class="hero-media">
       <div class="hero-photo-frame hero-photo-frame--sm">
-        <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-mezhevanie" shape="rect" placeholder="Фото: геодезист проводит межевание участка" hint-size="100%,100%" style="width:100%;height:100%"></x-import>
+        <img id="hero-mezhevanie" src="assets/photos/hero-mezhevanie.webp" alt="" fetchpriority="high" />
         <svg class="boundary-svg boundary-svg--photo" viewBox="0 0 796 597" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <g class="boundary-parcels">
             <line x1="0" y1="239" x2="796" y2="206"></line>
