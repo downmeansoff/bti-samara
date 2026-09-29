@@ -23,7 +23,18 @@
 ⚠️ `*.up.railway.app` у части российских провайдеров режет РКН — посетитель видит
 «не открывается». Поэтому основной раздаём github.io.
 
-Идеал на будущее — свой домен (200–1500 ₽/год). Владелец пока не купил.
+**Свой домен `kadastrhelp.ru`** куплен на reg.ru (до 26.09.2027, аккаунт владельца
+`baymurzin.86@bk.ru`) вместе с хостингом: сервер `server244.hosting.reg.ru`, Apache за
+nginx, `.htaccess` работает, HTTPS уже выдан. На 29.09.2026 там заглушка reg.ru «Почти
+готово» — сайт ещё не залит. Сборка для хостинга: `node pack-hosting.mjs` кладёт в
+`C:/Users/glebo/bti-lab/hosting-dist` только публичные файлы плюс сгенерированные
+`.htaccess` (404, кодировка, `no-cache` на HTML, запрет dotfile-ов кроме
+`.image-slots.state.json`, ассеты на 7 дней). Залить содержимое в `www/kadastrhelp.ru`.
+Когда сайт там откроется — перевести canonical, `og:*`, `sitemap.xml`, `robots.txt`,
+JSON-LD и редирект `index.html` с github.io на `https://kadastrhelp.ru/` и добавить
+заливку в `DEPLOY.bat`. ⚠️ У reg.ru на карточке домена висит «Данные администратора
+не идентифицированы» — владельцу пройти идентификацию через Госуслуги, иначе .ru-домен
+могут приостановить.
 
 ## Как устроен сайт
 
@@ -32,7 +43,9 @@ Client-rendered на **dc-runtime**: `support.js` разворачивает `<x
 Картинки-слоты — `image-slot.js` + `.image-slots.state.json` (dotfile с base64).
 
 Раздаётся `server.js` — Node без зависимостей: слушает `$PORT`, `/` редиректит на
-`index.dc.html`, HTML/JS отдаёт с `no-cache`, картинки на сутки.
+`index.dc.html`, HTML/JS отдаёт с `no-cache`, картинки на сутки. Отдаёт только файлы из
+явного списка (`isPubliclyServable`) — `server.js`, `package.json`, `CLAUDE.md` и прочее
+служебное дают 404. Он же принимает заявки — см. «Заявки с сайта» ниже.
 
 Локально посмотреть:
 ```
@@ -116,11 +129,38 @@ LeadModal и hero/CTA-блоки страниц услуг берут номер
   `<head>`).
 - Почта `baymurzin.86@bk.ru` — без изменений.
 
-Окно заявки (`LeadModal.dc.html`) при отправке в Telegram-бота дополнительно копирует
-текст заявки в буфер обмена (`navigator.clipboard`, ошибка молча игнорируется) и в
-состоянии «отправлено» показывает подсказку: если поле сообщения в боте пустое —
-нажать «Запустить» и вставить текст. Это подстраховка на случай, если клиент
-Telegram не подставил `?text=` автоматически.
+## Заявки с сайта (с 28.09.2026)
+
+Окно заявки (`LeadModal.dc.html`) отправляет `POST` на `/api/lead` — на Railway и
+localhost тот же origin, на github.io и kadastrhelp.ru — `BTI_CONTACTS.leadApi`
+(Railway). Таймаут 8 с. Успех: «Заявка отправлена. Кадастровый инженер свяжется с
+вами.» Отказ или таймаут: текст копируется в буфер и появляется кнопка «Отправить
+через Telegram» (`t.me/kadastricom_bot?text=…`) — сама ничего не открывает.
+
+`server.js` проверяет origin (github.io, kadastrhelp.ru с www и без, Railway), поля,
+скрытое поле-ловушку `website`, лимиты (5 заявок за 10 минут с IP — IP берётся из
+последнего звена `X-Forwarded-For`; 60 в час на всех) и шлёт заявку ботом
+`@kadastricom_bot` в каждый чат из `TG_LEAD_CHAT_IDS`. Что клиент напишет самому боту,
+тоже пересылается туда. Логи Railway: `LEAD_OK id`, `LEAD_UNDELIVERED` (заявка целиком —
+только когда Telegram не принял), `OWNER_REGISTER chat=<id>`.
+
+Переменные Railway (сервис `bti-samara-landing`): `TG_BOT_TOKEN`, `TG_LEAD_CHAT_IDS`
+(через запятую), `TG_WEBHOOK_SECRET` (путь `/tg/<секрет>` и заголовок
+`X-Telegram-Bot-Api-Secret-Token`), `TG_OWNER_CODE`, `TG_API_BASE` (только для тестов).
+Токен и коды лежат вне репозитория: `C:/Users/glebo/bti-lab/secrets/tg.env`.
+**Токен бота в репозиторий и в клиентский JS не класть никогда** — репозиторий публичный.
+Пока `TG_LEAD_CHAT_IDS` пуст, API отвечает 503 `not_configured`, и форма показывает
+запасную кнопку.
+
+Подключить получателя: он открывает `https://t.me/kadastricom_bot?start=<TG_OWNER_CODE>`,
+его chat id читается `python C:/Users/glebo/bti-lab/secrets/tg-updates.py` (только
+чтение), вписывается в `TG_LEAD_CHAT_IDS`, потом `setWebhook` на
+`https://bti-samara-landing-production.up.railway.app/tg/<TG_WEBHOOK_SECRET>` с тем же
+`secret_token`. После webhook бот сам отвечает «Готово» на такую ссылку и пишет
+`OWNER_REGISTER` в лог.
+
+Проверка без сети: `node tests/lead-e2e.mjs` — поднимает сервер против поддельного
+Telegram, 65 проверок.
 
 ## Правила по контенту
 
