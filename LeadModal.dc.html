@@ -137,13 +137,21 @@ const LM_DRAFT_KEY = 'bti_lead_draft';
 // On its own Railway domain (or any local server.js instance — dev/testing
 // on localhost:*/127.0.0.1:* always has the same-origin API too) the site
 // calls the API by relative path, no CORS involved. Everywhere else
-// (kadastrhelp.ru, the GitHub Pages mirror, which are static-only hosts with
-// no server.js behind them) it calls the absolute URL from contacts.js —
-// that's what the CORS allow-list in server.js exists for.
+// (kadastrhelp.ru, the GitHub Pages mirror, which have no server.js behind
+// them) it calls the absolute URL from contacts.js — that's what the CORS
+// allow-list in server.js exists for; kadastrhelp.ru tries its PHP relay first.
 const LM_RAILWAY_ORIGIN = 'https://bti-samara-landing-production.up.railway.app';
 const LM_SUBMIT_TIMEOUT_MS = 8000;
+// hosting/api/lead.php gives Railway 4 s to connect and 8 s in total.
+const LM_RELAY_TIMEOUT_MS = 10000;
 function lmIsSameOriginApi() {
   return location.origin === LM_RAILWAY_ORIGIN || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+}
+// On the own domain the form posts to the same-origin PHP relay first:
+// providers that block *.up.railway.app still let the page reach its own
+// host. Only if the relay never reached Railway does it try Railway directly.
+function lmIsRelayHost() {
+  return location.hostname === 'kadastrhelp.ru' || location.hostname === 'www.kadastrhelp.ru';
 }
 
 class Component extends DCLogic {
@@ -299,7 +307,11 @@ class Component extends DCLogic {
       if (this.state.sending) return;
       this.setState({ sending: true, showError: false });
 
-      const apiUrl = lmIsSameOriginApi() ? '/api/lead' : C.leadApi;
+      const attempts = lmIsSameOriginApi()
+        ? [['/api/lead', LM_SUBMIT_TIMEOUT_MS]]
+        : lmIsRelayHost()
+          ? [['/api/lead.php', LM_RELAY_TIMEOUT_MS], [C.leadApi, LM_SUBMIT_TIMEOUT_MS]]
+          : [[C.leadApi, LM_SUBMIT_TIMEOUT_MS]];
       const payload = {
         name: this.state.name,
         phone: this.state.phone,
@@ -310,25 +322,35 @@ class Component extends DCLogic {
         website: this.state.website,
       };
 
-      const controller = new AbortController();
-      this._submitController = controller;
-      const timer = setTimeout(() => controller.abort(), LM_SUBMIT_TIMEOUT_MS);
       let ok = false;
-      try {
-        const res = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          signal: controller.signal,
-        });
-        let json = null;
-        try { json = await res.json(); } catch {}
-        ok = res.ok && !!(json && json.ok);
-      } catch {
-        ok = false;
-      } finally {
-        clearTimeout(timer);
-        if (this._submitController === controller) this._submitController = null;
+      for (const [apiUrl, timeoutMs] of attempts) {
+        const controller = new AbortController();
+        this._submitController = controller;
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        let retry = false;
+        try {
+          const res = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal,
+          });
+          let json = null;
+          try { json = await res.json(); } catch {}
+          ok = res.ok && !!(json && json.ok);
+          // Retry elsewhere only when the lead surely never reached server.js:
+          // lead.php missing or broken (404, 500) or Railway unreachable from
+          // the hosting (502). 504 means it timed out after sending.
+          retry = !ok && (res.status === 404 || (res.status >= 500 && res.status !== 504));
+        } catch {
+          ok = false;
+          // Timeout or the window was closed: the request may have gone out.
+          retry = !controller.signal.aborted;
+        } finally {
+          clearTimeout(timer);
+          if (this._submitController === controller) this._submitController = null;
+        }
+        if (ok || !retry || !this.state.isOpen) break;
       }
 
       if (ok) {

@@ -10,6 +10,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const ROOT = __dirname;
 const PORT = process.env.PORT || 3000;
@@ -133,7 +134,26 @@ function readBody(req, maxBytes) {
   });
 }
 
+function isTrustedRelay(req) {
+  // The same-origin relay on kadastrhelp.ru (hosting/api/lead.php) posts from
+  // the hosting server's one IP, so the visitor's address travels in
+  // X-Lead-Client-IP. Honour it only next to the shared secret; without
+  // LEAD_RELAY_SECRET set the headers are ignored entirely.
+  // Trimmed like the PHP side trims ~/lead-relay.secret: a pasted trailing
+  // newline must not silently turn every relayed lead into the hosting's IP.
+  const secret = (process.env.LEAD_RELAY_SECRET || '').trim();
+  const given = req.headers['x-lead-relay'];
+  if (!secret || typeof given !== 'string') return false;
+  const a = Buffer.from(given);
+  const b = Buffer.from(secret);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
 function getClientIp(req) {
+  if (isTrustedRelay(req)) {
+    const relayed = req.headers['x-lead-client-ip'];
+    if (typeof relayed === 'string' && /^[0-9a-fA-F:.]{2,45}$/.test(relayed)) return relayed;
+  }
   // Trust exactly one upstream hop: the platform's own edge proxy (Railway).
   // A reverse proxy APPENDS the address it actually saw on the TCP socket as
   // the LAST entry of X-Forwarded-For; every entry before that is whatever

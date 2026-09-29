@@ -109,6 +109,7 @@ const mainEnv = {
   TG_LEAD_CHAT_IDS: '111,222',
   TG_WEBHOOK_SECRET: 'whsecret123',
   TG_OWNER_CODE: 'owner777',
+  LEAD_RELAY_SECRET: 'relaysecret-test-0123' + String.fromCharCode(10), // trailing newline as if pasted; server.js must trim it
 };
 const main = await startServer(mainEnv, MAIN_PORT);
 const MAIN = `http://127.0.0.1:${MAIN_PORT}`;
@@ -122,6 +123,7 @@ delete noConfEnv.TG_BOT_TOKEN;
 delete noConfEnv.TG_LEAD_CHAT_IDS;
 delete noConfEnv.TG_WEBHOOK_SECRET;
 delete noConfEnv.TG_OWNER_CODE;
+delete noConfEnv.LEAD_RELAY_SECRET;
 const noConf = await startServer({ TG_API_BASE: MOCK_BASE }, NOCONF_PORT, noConfEnv);
 const NOCONF = `http://127.0.0.1:${NOCONF_PORT}`;
 
@@ -400,6 +402,26 @@ try {
     const newCalls = mockCalls.slice(before);
     assertTrue('composed Telegram text stays within the 4096 limit', newCalls.length > 0 && newCalls.every((c) => c.body && typeof c.body.text === 'string' && c.body.text.length <= 4096), newCalls.map((c) => c.body && c.body.text.length));
     assertTrue('truncated text has no dangling unterminated entity', newCalls.every((c) => !/&(?:amp|lt|gt|quot|#39)?$/.test(c.body.text.replace(/…$/, ''))), newCalls.map((c) => c.body && c.body.text.slice(-10)));
+  }
+
+  // ---------------- Relay (kadastrhelp.ru api/lead.php): visitor IP from X-Lead-Client-IP ----------------
+  {
+    const relay = (clientIp, secret) => ({ 'X-Forwarded-For': '10.0.0.70', 'X-Lead-Relay': secret, 'X-Lead-Client-IP': clientIp });
+    let last = 0;
+    for (let i = 0; i < 6; i++) {
+      const r = await postLead(validPayload(), relay('172.16.0.1', 'relaysecret-test-0123'));
+      last = r.status;
+      if (i < 5) assertTrue(`relay: visitor request ${i + 1}/5 succeeds`, r.status === 200, JSON.stringify(r.json));
+    }
+    assertTrue('relay: 6th request from the same visitor -> 429', last === 429, 'got ' + last);
+    const other = await postLead(validPayload(), relay('172.16.0.2', 'relaysecret-test-0123'));
+    assertTrue('relay: another visitor behind the same hosting IP is not limited', other.status === 200, JSON.stringify(other.json));
+    let spoofLast = 0;
+    for (let i = 0; i < 6; i++) {
+      const r = await postLead(validPayload(), { 'X-Forwarded-For': '10.0.0.71', 'X-Lead-Relay': 'wrong-secret-000000000', 'X-Lead-Client-IP': `172.16.1.${i}` });
+      spoofLast = r.status;
+    }
+    assertTrue('relay: wrong secret -> X-Lead-Client-IP ignored, limited by proxy hop', spoofLast === 429, 'got ' + spoofLast);
   }
 
   // ---------------- Static file allowlist: internal files are never served ----------------

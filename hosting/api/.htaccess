@@ -1,0 +1,3 @@
+# The lead relay takes at most 8 KiB (lead.php); refuse bigger bodies before
+# Apache/PHP buffer them up to the host-wide post_max_size.
+LimitRequestBody 16384

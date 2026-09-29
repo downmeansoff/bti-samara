@@ -99,12 +99,26 @@ for (const entry of fs.readdirSync(SRC, { withFileTypes: true })) {
   }
 }
 copyDir('assets');
+// hosting/ holds files only the reg.ru host runs (api/lead.php, the lead
+// relay); they land at the site root, hosting/api/x -> api/x.
+for (const rel of listFiles(path.join(SRC, 'hosting'))) {
+  const destPath = path.join(DEST, rel);
+  fs.mkdirSync(path.dirname(destPath), { recursive: true });
+  fs.copyFileSync(path.join(SRC, 'hosting', rel), destPath);
+}
 for (const rel of TOP_LEVEL_FILES) {
   if (fs.existsSync(path.join(SRC, rel))) {
     copyFile(rel);
   } else {
     console.warn(`pack-hosting: expected file missing, skipped: ${rel}`);
   }
+}
+
+// 404.html is served at whatever path was missing, so its links are absolute.
+// GitHub Pages hosts the site under /bti-samara/, the domain at the root.
+const notFound = path.join(DEST, '404.html');
+if (fs.existsSync(notFound)) {
+  fs.writeFileSync(notFound, fs.readFileSync(notFound, 'utf8').split('/bti-samara/').join('/'));
 }
 
 fs.writeFileSync(path.join(DEST, '.htaccess'), ROOT_HTACCESS);
