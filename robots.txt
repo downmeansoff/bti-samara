@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://downmeansoff.github.io/bti-samara/sitemap.xml
+Sitemap: https://kadastrhelp.ru/sitemap.xml
