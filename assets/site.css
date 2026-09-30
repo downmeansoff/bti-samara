@@ -628,6 +628,7 @@ a.row { cursor: pointer; }
 .about-quote-label { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--tx-on-dark-lo); max-width: 22ch; }
 
 .about-lead { font-size: 18px; line-height: 1.7; max-width: 70ch; margin: 0 0 48px; }
+.about-lead--tight { margin-bottom: 20px; }
 
 .about-points { display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; margin-bottom: 40px; }
 .about-point {
@@ -647,6 +648,10 @@ a.row { cursor: pointer; }
 .about-link::before { content: ''; position: absolute; inset: -10px; }
 .about-link:hover { color: var(--stamp); border-color: var(--stamp); }
 
+.about-projects { margin: 16px 0 56px; }
+.about-sub { font-family: var(--font-body); font-weight: 800; font-size: 26px; line-height: 1.2; letter-spacing: -.01em; margin: 0 0 12px; }
+.about-projects-lead { font-size: 16px; line-height: 1.65; color: var(--tx-on-paper-lo); max-width: 70ch; margin: 0 0 28px; }
+.about-projects .row-body { max-width: 72ch; }
 .about-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
 .about-stat2 { text-align: right; }
 .about-stat2-num { font-family: var(--font-display); font-weight: 800; font-size: 40px; line-height: 1; margin-bottom: 6px; }

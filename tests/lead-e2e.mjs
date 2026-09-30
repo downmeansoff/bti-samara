@@ -357,6 +357,93 @@ try {
     assertTrue('group message is not treated as a lead (no forward, no reply)', callsBefore() === before, `before=${before} after=${callsBefore()}`);
   }
 
+  // ---------------- Bot: greeting carries the menu buttons ----------------
+  {
+    const before = callsBefore();
+    await postWebhook({
+      update_id: 20,
+      message: { message_id: 20, date: 0, chat: { id: 7101, type: 'private' }, from: { id: 7101, first_name: 'Client' }, text: '/start' },
+    });
+    await sleep(150);
+    const c = mockCalls.slice(before);
+    const kb = c[0] && c[0].body.reply_markup && c[0].body.reply_markup.inline_keyboard;
+    const flat = kb ? kb.flat() : [];
+    assertTrue('greeting is HTML with services/contacts/site buttons',
+      c.length === 1 && c[0].body.parse_mode === 'HTML'
+        && flat.some((b) => b.callback_data === 'services') && flat.some((b) => b.callback_data === 'contacts')
+        && flat.some((b) => b.url === 'https://kadastrhelp.ru/'),
+      JSON.stringify(c));
+  }
+
+  // ---------------- Bot: /services and /contacts answer, never forwarded ----------------
+  {
+    const before = callsBefore();
+    await postWebhook({
+      update_id: 21,
+      message: { message_id: 21, date: 0, chat: { id: 7102, type: 'private' }, from: { id: 7102, first_name: 'Client' }, text: '/services' },
+    });
+    await sleep(150);
+    let c = mockCalls.slice(before);
+    assertTrue('/services lists the three service pages, no forward',
+      c.length === 1 && String(c[0].body.chat_id) === '7102'
+        && ['/mezhevanie', '/tehplan', '/razdel-obedinenie'].every((s) => c[0].body.text.includes('kadastrhelp.ru' + s)),
+      JSON.stringify(c));
+
+    const before2 = callsBefore();
+    await postWebhook({
+      update_id: 22,
+      message: { message_id: 22, date: 0, chat: { id: 7102, type: 'private' }, from: { id: 7102, first_name: 'Client' }, text: '/contacts@kadastricom_bot' },
+    });
+    await sleep(150);
+    c = mockCalls.slice(before2);
+    // Numbers must come from assets/contacts.js, printed in the tappable +7 form.
+    assertTrue('/contacts (with @botname) prints both phones from contacts.js and the email',
+      c.length === 1 && c[0].body.text.includes('+7 902 749-28-01') && c[0].body.text.includes('+7 917 769-61-19')
+        && c[0].body.text.includes('baymurzin.86@bk.ru') && c[0].body.text.includes('https://max.ru/u/'),
+      JSON.stringify(c));
+  }
+
+  // ---------------- Bot: unknown command -> greeting, not a lead ----------------
+  {
+    const before = callsBefore();
+    await postWebhook({
+      update_id: 23,
+      message: { message_id: 23, date: 0, chat: { id: 7103, type: 'private' }, from: { id: 7103, first_name: 'Client' }, text: '/help' },
+    });
+    await sleep(150);
+    const c = mockCalls.slice(before);
+    assertTrue('/help gets the greeting and is not forwarded to lead chats',
+      c.length === 1 && String(c[0].body.chat_id) === '7103' && /Здравствуйте/.test(c[0].body.text),
+      JSON.stringify(c));
+  }
+
+  // ---------------- Bot: inline buttons (callback_query) ----------------
+  {
+    const before = callsBefore();
+    await postWebhook({
+      update_id: 24,
+      callback_query: { id: 'cq1', from: { id: 7104, first_name: 'Client' }, data: 'contacts', message: { message_id: 30, date: 0, chat: { id: 7104, type: 'private' } } },
+    });
+    await sleep(150);
+    const c = mockCalls.slice(before);
+    const ack = c.filter((x) => x.method === 'answerCallbackQuery');
+    const msg = c.filter((x) => x.method === 'sendMessage');
+    assertTrue('button press is acknowledged and answered with contacts',
+      ack.length === 1 && ack[0].body.callback_query_id === 'cq1'
+        && msg.length === 1 && String(msg[0].body.chat_id) === '7104' && /Контакты/.test(msg[0].body.text),
+      JSON.stringify(c));
+
+    const before2 = callsBefore();
+    await postWebhook({
+      update_id: 25,
+      callback_query: { id: 'cq2', from: { id: 321, first_name: 'Кто-то' }, data: 'services', message: { message_id: 31, date: 0, chat: { id: -10099, type: 'group' } } },
+    });
+    await sleep(150);
+    const c2 = mockCalls.slice(before2);
+    assertTrue('button press in a group is only acknowledged, nothing posted',
+      c2.length === 1 && c2[0].method === 'answerCallbackQuery', JSON.stringify(c2));
+  }
+
   // ---------------- Webhook: per-sender rate limit ----------------
   {
     const before = callsBefore();

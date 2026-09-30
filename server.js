@@ -11,6 +11,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const vm = require('vm');
 
 const ROOT = __dirname;
 const PORT = process.env.PORT || 3000;
@@ -453,7 +454,96 @@ setInterval(() => {
   }
 }, WEBHOOK_SENDER_WINDOW_MS).unref();
 
+// ---------------------------------------------------------------------------
+// What a visitor sees in the bot: greeting with buttons, /services, /contacts.
+// Phones, MAX links and email come from assets/contacts.js — the same file the
+// pages read — so the bot can't drift from the site.
+// ---------------------------------------------------------------------------
+
+const SITE_URL = 'https://kadastrhelp.ru/';
+
+function loadContacts() {
+  try {
+    const sandbox = { window: {} };
+    vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'assets', 'contacts.js'), 'utf8'), sandbox, { timeout: 1000 });
+    return sandbox.window.BTI_CONTACTS || null;
+  } catch (e) {
+    console.error('contacts.js load failed:', e && e.message);
+    return null;
+  }
+}
+const CONTACTS = loadContacts();
+
+const BOT_MENU = {
+  inline_keyboard: [
+    [{ text: 'Услуги и цены', callback_data: 'services' }, { text: 'Контакты', callback_data: 'contacts' }],
+    [{ text: 'Открыть сайт', url: SITE_URL }],
+  ],
+};
+
+const BOT_GREETING = [
+  '<b>Здравствуйте!</b> Это бот кадастрового инженера Баймурзина Азата Ринатовича — межевание, технические планы, раздел и объединение участков в Самарской области и Республике Башкортостан.',
+  '',
+  'Напишите здесь, что нужно сделать, и оставьте номер телефона — сообщение сразу получит инженер и свяжется с вами. Можно приложить фото документов или выписку из ЕГРН.',
+  '',
+  'Консультация — бесплатно.',
+].join('\n');
+
+const BOT_SERVICES = [
+  '<b>Услуги</b>',
+  '',
+  '• <a href="' + SITE_URL + 'mezhevanie">Межевание земельных участков</a>',
+  '• <a href="' + SITE_URL + 'tehplan">Технический план объекта недвижимости</a>',
+  '• <a href="' + SITE_URL + 'razdel-obedinenie">Перераспределение, раздел и объединение участков</a>',
+  '',
+  'Площадь, регион и срочность задачи влияют на стоимость. Точную цену назовём на бесплатной консультации.',
+  '<a href="' + SITE_URL + '#pricing">Цены на сайте</a>',
+  '',
+  'Чтобы оставить заявку, напишите задачу и телефон прямо сюда.',
+].join('\n');
+
+function botContactsText() {
+  const lines = ['<b>Контакты</b>'];
+  const c = CONTACTS || {};
+  for (const ph of c.phones || []) {
+    // "8 902 749-28-01" -> "+7 902 749-28-01": Telegram makes the +7 form tappable.
+    const num = escapeHtml(String(ph.display || '').replace(/^8\s/, '+7 '));
+    const max = ph.max ? ' · <a href="' + escapeHtml(ph.max) + '">MAX</a>' : '';
+    lines.push('', escapeHtml(ph.region || ''), num + max);
+  }
+  lines.push('');
+  if (c.email) lines.push('Почта: ' + escapeHtml(c.email));
+  lines.push('Сайт: <a href="' + SITE_URL + '">kadastrhelp.ru</a>');
+  return lines.join('\n');
+}
+
+function sendBotText(chatId, text, withMenu) {
+  const payload = { chat_id: chatId, text, parse_mode: 'HTML', link_preview_options: { is_disabled: true } };
+  if (withMenu) payload.reply_markup = BOT_MENU;
+  return telegramCall('sendMessage', payload);
+}
+
+// /services, /contacts (typed or from the command menu) and the greeting's
+// buttons. Returns true when the input was one of ours — never a lead.
+async function answerBotCommand(chatId, command) {
+  if (command === 'services') { await sendBotText(chatId, BOT_SERVICES, false); return true; }
+  if (command === 'contacts') { await sendBotText(chatId, botContactsText(), false); return true; }
+  return false;
+}
+
+async function processCallback(cq) {
+  const chat = cq.message && cq.message.chat;
+  // Stop the button's loading spinner whatever happens next.
+  await telegramCall('answerCallbackQuery', { callback_query_id: cq.id });
+  if (!chat || chat.id === undefined || chat.id === null) return;
+  if (chat.type && chat.type !== 'private') return;
+  const isOwnerChat = parseChatIds(process.env.TG_LEAD_CHAT_IDS).includes(String(chat.id));
+  if (!isOwnerChat && !checkWebhookRateLimit(chat.id)) return;
+  await answerBotCommand(chat.id, String(cq.data || ''));
+}
+
 async function processUpdate(update) {
+  if (update && update.callback_query) return processCallback(update.callback_query);
   const message = update && update.message;
   if (!message) return;
   const chatId = message.chat && message.chat.id;
@@ -483,7 +573,15 @@ async function processUpdate(update) {
       await telegramCall('sendMessage', { chat_id: chatId, text: 'Сюда уже приходят заявки с сайта.' });
       return;
     }
-    await telegramCall('sendMessage', { chat_id: chatId, text: 'Здравствуйте! Опишите задачу и оставьте телефон — сообщение получит кадастровый инженер.' });
+    await sendBotText(chatId, BOT_GREETING, true);
+    return;
+  }
+
+  // Other commands: /services and /contacts answer; anything else (/help,
+  // a mistyped command) gets the greeting. Commands are never leads.
+  if (text.charAt(0) === '/') {
+    const command = text.slice(1).split(/\s/)[0].split('@')[0].toLowerCase();
+    if (!(await answerBotCommand(chatId, command))) await sendBotText(chatId, BOT_GREETING, true);
     return;
   }
 
