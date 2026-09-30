@@ -428,30 +428,58 @@ async function handleLeadRoute(req, res) {
 // authenticates (unlike an HTTP header) so it can't be spoofed by rotating a
 // request header the way X-Forwarded-For could.
 const WEBHOOK_SENDER_MAX = 5;
+const WEBHOOK_MENU_MAX = 20; // commands and button taps: answered from memory, never forwarded
 const WEBHOOK_SENDER_WINDOW_MS = 60 * 1000;
 const webhookSenderHits = new Map();
+const webhookMenuHits = new Map();
 
-function checkWebhookRateLimit(chatId) {
+// Menu taps have their own bucket, so browsing /services and /contacts can't
+// use up the few lead messages a visitor is allowed per minute.
+function checkWebhookRateLimit(chatId, hitsByChat = webhookSenderHits, max = WEBHOOK_SENDER_MAX) {
   const now = Date.now();
   const key = String(chatId);
-  let hits = (webhookSenderHits.get(key) || []).filter((t) => now - t < WEBHOOK_SENDER_WINDOW_MS);
-  if (hits.length >= WEBHOOK_SENDER_MAX) {
-    if (hits.length === 0) webhookSenderHits.delete(key);
-    else webhookSenderHits.set(key, hits);
+  let hits = (hitsByChat.get(key) || []).filter((t) => now - t < WEBHOOK_SENDER_WINDOW_MS);
+  if (hits.length >= max) {
+    if (hits.length === 0) hitsByChat.delete(key);
+    else hitsByChat.set(key, hits);
     return false;
   }
   hits.push(now);
-  webhookSenderHits.set(key, hits);
+  hitsByChat.set(key, hits);
   return true;
+}
+
+function checkMenuRateLimit(chatId) {
+  return checkWebhookRateLimit(chatId, webhookMenuHits, WEBHOOK_MENU_MAX);
+}
+
+// Photos sent as one album arrive as separate updates sharing media_group_id.
+// The first item spends a lead-bucket slot; up to nine more within two minutes
+// ride along on it, and only the first gets the thank-you reply.
+const ALBUM_MAX_ITEMS = 10;
+const ALBUM_TTL_MS = 2 * 60 * 1000;
+const albums = new Map(); // "chat:group" -> { t, n }
+
+function isAlbumFollowUp(chatId, groupId) {
+  if (!groupId) return false;
+  const now = Date.now();
+  const key = chatId + ':' + groupId;
+  const a = albums.get(key);
+  if (a && now - a.t < ALBUM_TTL_MS && a.n < ALBUM_MAX_ITEMS) { a.n += 1; return true; }
+  if (!a || now - a.t >= ALBUM_TTL_MS) albums.set(key, { t: now, n: 1 });
+  return false;
 }
 
 setInterval(() => {
   const now = Date.now();
-  for (const [key, hits] of webhookSenderHits) {
-    const fresh = hits.filter((t) => now - t < WEBHOOK_SENDER_WINDOW_MS);
-    if (fresh.length === 0) webhookSenderHits.delete(key);
-    else if (fresh.length !== hits.length) webhookSenderHits.set(key, fresh);
+  for (const hitsByChat of [webhookSenderHits, webhookMenuHits]) {
+    for (const [key, hits] of hitsByChat) {
+      const fresh = hits.filter((t) => now - t < WEBHOOK_SENDER_WINDOW_MS);
+      if (fresh.length === 0) hitsByChat.delete(key);
+      else if (fresh.length !== hits.length) hitsByChat.set(key, fresh);
+    }
   }
+  for (const [key, a] of albums) if (now - a.t >= ALBUM_TTL_MS) albums.delete(key);
 }, WEBHOOK_SENDER_WINDOW_MS).unref();
 
 // ---------------------------------------------------------------------------
@@ -538,7 +566,7 @@ async function processCallback(cq) {
   if (!chat || chat.id === undefined || chat.id === null) return;
   if (chat.type && chat.type !== 'private') return;
   const isOwnerChat = parseChatIds(process.env.TG_LEAD_CHAT_IDS).includes(String(chat.id));
-  if (!isOwnerChat && !checkWebhookRateLimit(chat.id)) return;
+  if (!isOwnerChat && !checkMenuRateLimit(chat.id)) return;
   await answerBotCommand(chat.id, String(cq.data || ''));
 }
 
@@ -559,7 +587,11 @@ async function processUpdate(update) {
   // reply into the group as if it were a customer conversation.
   if (message.chat && message.chat.type && message.chat.type !== 'private') return;
 
-  if (!isOwnerChat && !checkWebhookRateLimit(chatId)) return;
+  // Commands (/start, /services, /contacts, ...) draw on the menu bucket, real
+  // messages on the stricter lead bucket; the rest of an album rides on its first item.
+  const isCommand = text.charAt(0) === '/';
+  const albumRest = !isCommand && isAlbumFollowUp(chatId, message.media_group_id);
+  if (!isOwnerChat && !albumRest && !(isCommand ? checkMenuRateLimit(chatId) : checkWebhookRateLimit(chatId))) return;
 
   if (text === '/start' || text.indexOf('/start ') === 0) {
     const code = text.length > 6 ? text.slice(6).trim() : '';
@@ -588,21 +620,41 @@ async function processUpdate(update) {
   // Chats already collecting leads (the owner) chatting with the bot — never
   // loop their own messages back into the lead chats.
   if (isOwnerChat) return;
-  if (!leadChatIds.length) return;
 
+  let results = []; // empty when no lead chat is registered yet: handled as undelivered below
   if (text) {
     const from = message.from || {};
     const fullName = [from.first_name, from.last_name].filter(Boolean).join(' ');
     const lines = ['💬 <b>Сообщение в боте</b>'];
     if (fullName) lines.push('Имя: ' + escapeHtml(fullName));
     if (from.username) lines.push('Username: @' + escapeHtml(from.username));
-    lines.push(escapeHtml(text));
+    // Header + text must stay under Telegram's cap once escaped, or the whole
+    // send is rejected and the lead is lost — fit the text into what is left.
+    const budget = Math.max(0, TG_TEXT_LIMIT - lines.join('\n').length - 2);
+    let body = escapeHtml(text);
+    if (body.length > budget) {
+      body = body.slice(0, budget);
+      const amp = body.lastIndexOf('&');
+      if (amp !== -1 && body.indexOf(';', amp) === -1) body = body.slice(0, amp);
+      if (/[\uD800-\uDBFF]$/.test(body)) body = body.slice(0, -1);
+      body += '…';
+    }
+    lines.push(body);
     const forwardText = lines.join('\n');
-    await Promise.all(leadChatIds.map((cid) => telegramCall('sendMessage', { chat_id: cid, text: forwardText, parse_mode: 'HTML' })));
+    results = await Promise.all(leadChatIds.map((cid) => telegramCall('sendMessage', { chat_id: cid, text: forwardText, parse_mode: 'HTML' })));
   } else {
-    await Promise.all(leadChatIds.map((cid) => telegramCall('forwardMessage', { chat_id: cid, from_chat_id: chatId, message_id: message.message_id })));
+    results = await Promise.all(leadChatIds.map((cid) => telegramCall('forwardMessage', { chat_id: cid, from_chat_id: chatId, message_id: message.message_id })));
   }
 
+  if (!results.some((r) => r.ok)) {
+    // Same safety net as the site form: the message is not lost, it lands in the log,
+    // and the visitor is told to reach the engineer directly instead of being thanked.
+    console.log('BOT_UNDELIVERED ' + JSON.stringify({ chat: chatId, username: message.from && message.from.username, text: text || '(non-text message)', time: new Date().toISOString() }));
+    if (!albumRest) await sendBotText(chatId, 'Не получилось передать сообщение инженеру — позвоните или напишите напрямую.\n\n' + botContactsText(), false);
+    return;
+  }
+
+  if (albumRest) return;
   await telegramCall('sendMessage', {
     chat_id: chatId,
     text: 'Спасибо! Сообщение передано кадастровому инженеру, он свяжется с вами. Если не указали телефон — напишите его здесь.',
@@ -651,6 +703,8 @@ const server = http.createServer((req, res) => {
     const u = new URL(req.url, 'http://x');
     urlPath = decodeURIComponent(u.pathname);
     search = u.search;
+    // A decoded NUL makes fs.stat() throw synchronously, outside any handler: process exit.
+    if (urlPath.indexOf('\0') !== -1) throw new Error('NUL in path');
   } catch {
     res.writeHead(400).end('Bad Request');
     return;

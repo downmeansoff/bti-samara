@@ -444,6 +444,66 @@ try {
       c2.length === 1 && c2[0].method === 'answerCallbackQuery', JSON.stringify(c2));
   }
 
+  // ---------------- Server: a NUL byte in the path must not kill the process ----------------
+  {
+    try {
+      const codes = [];
+      for (const p of ['/assets/%00', '/%00.html', '/assets/a%00b.png']) codes.push((await fetch(MAIN + p)).status);
+      const alive = await fetch(MAIN + '/');
+      assertTrue('NUL byte in the path -> 400, server keeps serving', codes.every((s) => s === 400) && alive.status === 200, JSON.stringify(codes) + ' alive=' + alive.status);
+    } catch (e) {
+      assertTrue('NUL byte in the path -> 400, server keeps serving', false, String(e));
+    }
+  }
+
+  // ---------------- Bot: browsing the menu does not use up the lead-message allowance ----------------
+  {
+    const before = callsBefore();
+    for (let i = 0; i < 6; i++) {
+      await postWebhook({ update_id: 200 + i, message: { message_id: 200 + i, date: 0, chat: { id: 7201, type: 'private' }, from: { id: 7201, first_name: 'Menu' }, text: '/services' } });
+      await sleep(40);
+    }
+    await postWebhook({ update_id: 210, message: { message_id: 210, date: 0, chat: { id: 7201, type: 'private' }, from: { id: 7201, first_name: 'Menu' }, text: 'Нужно межевание, тел. 8 927 000-00-00' } });
+    await sleep(400);
+    const c = mockCalls.slice(before);
+    const menuReplies = c.filter((x) => x.body && String(x.body.chat_id) === '7201' && /Услуги/.test(x.body.text || ''));
+    const toLead = c.filter((x) => x.body && ['111', '222'].includes(String(x.body.chat_id)));
+    assertTrue('6 menu commands do not throttle the visitor\'s next real message', menuReplies.length === 6 && toLead.length === 2, `menu=${menuReplies.length} lead=${toLead.length}`);
+  }
+
+  // ---------------- Bot: an album goes through whole, with a single thank-you ----------------
+  {
+    const before = callsBefore();
+    for (let i = 0; i < 8; i++) {
+      await postWebhook({ update_id: 220 + i, message: { message_id: 220 + i, date: 0, chat: { id: 7202, type: 'private' }, from: { id: 7202, first_name: 'Album' }, media_group_id: 'grp1', photo: [{ file_id: 'f' + i, file_unique_id: 'u' + i, width: 90, height: 90 }] } });
+      await sleep(40);
+    }
+    await sleep(400);
+    const c = mockCalls.slice(before);
+    const fwd = c.filter((x) => x.method === 'forwardMessage');
+    const thanks = c.filter((x) => x.body && String(x.body.chat_id) === '7202' && /Спасибо/.test(x.body.text || ''));
+    assertTrue('8-photo album: every photo forwarded to both lead chats, client thanked once', fwd.length === 16 && thanks.length === 1, `forwards=${fwd.length} thanks=${thanks.length}`);
+  }
+
+  // ---------------- Bot: when Telegram refuses the forward, the text lands in the log ----------------
+  {
+    mockFail = true;
+    await postWebhook({ update_id: 230, message: { message_id: 230, date: 0, chat: { id: 7203, type: 'private' }, from: { id: 7203, first_name: 'Log', username: 'logger' }, text: 'Нужен тех план, тел. 8 927 123-45-67' } });
+    await sleep(400);
+    mockFail = false;
+    assertTrue('failed forward is logged as BOT_UNDELIVERED together with the text', main.stdoutBuf.includes('BOT_UNDELIVERED') && main.stdoutBuf.includes('8 927 123-45-67'), main.stdoutBuf.slice(-300));
+  }
+
+  // ---------------- Bot: a near-limit client message is cut to fit, not dropped ----------------
+  {
+    const before = callsBefore();
+    const long = 'Очень длинное описание участка. '.repeat(140).slice(0, 4090);
+    await postWebhook({ update_id: 240, message: { message_id: 240, date: 0, chat: { id: 7204, type: 'private' }, from: { id: 7204, first_name: 'Длинный', username: 'long_user_name' }, text: long } });
+    await sleep(400);
+    const toLead = mockCalls.slice(before).filter((x) => x.body && ['111', '222'].includes(String(x.body.chat_id)));
+    assertTrue('4090-char client message reaches both lead chats within the 4096 limit', toLead.length === 2 && toLead.every((x) => x.body.text.length <= 4096), toLead.map((x) => x.body.text.length).join(','));
+  }
+
   // ---------------- Webhook: per-sender rate limit ----------------
   {
     const before = callsBefore();
