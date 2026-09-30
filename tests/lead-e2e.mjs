@@ -485,6 +485,38 @@ try {
     assertTrue('8-photo album: every photo forwarded to both lead chats, client thanked once', fwd.length === 16 && thanks.length === 1, `forwards=${fwd.length} thanks=${thanks.length}`);
   }
 
+  // ---------------- Bot: a refused first photo does not open a way in for the rest of its album ----------------
+  {
+    for (let i = 0; i < 5; i++) {
+      await postWebhook({ update_id: 250 + i, message: { message_id: 250 + i, date: 0, chat: { id: 7205, type: 'private' }, from: { id: 7205, first_name: 'Burst' }, text: 'Заявка номер ' + i } });
+      await sleep(30);
+    }
+    await sleep(300);
+    const before = callsBefore();
+    for (let i = 0; i < 3; i++) {
+      await postWebhook({ update_id: 260 + i, message: { message_id: 260 + i, date: 0, chat: { id: 7205, type: 'private' }, from: { id: 7205, first_name: 'Burst' }, media_group_id: 'grpA', photo: [{ file_id: 'a' + i, file_unique_id: 'ua' + i, width: 90, height: 90 }] } });
+      await sleep(30);
+    }
+    await sleep(300);
+    const c = mockCalls.slice(before);
+    assertTrue('album sent after the allowance is used up: nothing forwarded, no reply', c.length === 0, JSON.stringify(c.map((x) => x.method)));
+  }
+
+  // ---------------- Bot: rotating album ids does not multiply the allowance ----------------
+  {
+    const before = callsBefore();
+    let id = 300;
+    for (let g = 0; g < 8; g++) {
+      for (let i = 0; i < 10; i++, id++) {
+        await postWebhook({ update_id: id, message: { message_id: id, date: 0, chat: { id: 7206, type: 'private' }, from: { id: 7206, first_name: 'Rotate' }, media_group_id: 'rot' + g, photo: [{ file_id: 'r' + id, file_unique_id: 'ur' + id, width: 90, height: 90 }] } });
+      }
+    }
+    await sleep(600);
+    const fwd = mockCalls.slice(before).filter((x) => x.method === 'forwardMessage');
+    // 5 photos admitted by the lead bucket + at most 20 riders, each forwarded to 2 lead chats.
+    assertTrue('8 albums x 10 photos within a minute: no more than 5 + 20 photos forwarded', fwd.length >= 20 && fwd.length <= 2 * 25, `forwards=${fwd.length}`);
+  }
+
   // ---------------- Bot: when Telegram refuses the forward, the text lands in the log ----------------
   {
     mockFail = true;
@@ -492,6 +524,15 @@ try {
     await sleep(400);
     mockFail = false;
     assertTrue('failed forward is logged as BOT_UNDELIVERED together with the text', main.stdoutBuf.includes('BOT_UNDELIVERED') && main.stdoutBuf.includes('8 927 123-45-67'), main.stdoutBuf.slice(-300));
+  }
+
+  // ---------------- Bot: a refused photo leaves its caption and file id in the log ----------------
+  {
+    mockFail = true;
+    await postWebhook({ update_id: 400, message: { message_id: 400, date: 0, chat: { id: 7207, type: 'private' }, from: { id: 7207, first_name: 'Photo' }, caption: 'Выписка ЕГРН, тел 8 927 555-66-77', photo: [{ file_id: 'small1', file_unique_id: 'us1', width: 90, height: 90 }, { file_id: 'big1', file_unique_id: 'ub1', width: 800, height: 800 }] } });
+    await sleep(400);
+    mockFail = false;
+    assertTrue('failed photo forward is logged with its caption and the largest file id', main.stdoutBuf.includes('8 927 555-66-77') && main.stdoutBuf.includes('"file_id":"big1"'), main.stdoutBuf.slice(-300));
   }
 
   // ---------------- Bot: a near-limit client message is cut to fit, not dropped ----------------

@@ -178,7 +178,8 @@ IP посетителя из `X-Lead-Client-IP`, а не по одному IP х
 последнего звена `X-Forwarded-For`; 60 в час на всех) и шлёт заявку ботом
 `@kadastricom_bot` в каждый чат из `TG_LEAD_CHAT_IDS`. Что клиент напишет самому боту,
 тоже пересылается туда. Логи Railway: `LEAD_OK id`, `LEAD_UNDELIVERED` (заявка целиком —
-только когда Telegram не принял), `OWNER_REGISTER chat=<id>`.
+только когда Telegram не принял), `OWNER_REGISTER chat=<id>`, `BOT_UNDELIVERED` (то, что
+клиент написал боту, а Telegram не переслал: текст или подпись и `file_id` — в логе).
 
 Переменные Railway (сервис `bti-samara-landing`): `TG_BOT_TOKEN`, `TG_LEAD_CHAT_IDS`
 (через запятую), `TG_WEBHOOK_SECRET` (путь `/tg/<секрет>` и заголовок
@@ -196,7 +197,7 @@ IP посетителя из `X-Lead-Client-IP`, а не по одному IP х
 `OWNER_REGISTER` в лог.
 
 Проверка без сети: `node tests/lead-e2e.mjs` — поднимает сервер против поддельного
-Telegram, 65 проверок.
+Telegram, больше ста проверок.
 
 ## Правила по контенту
 

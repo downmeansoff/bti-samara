@@ -458,21 +458,35 @@ function checkMenuRateLimit(chatId) {
 // ride along on it, and only the first gets the thank-you reply.
 const ALBUM_MAX_ITEMS = 10;
 const ALBUM_TTL_MS = 2 * 60 * 1000;
+const ALBUM_FOLLOW_MAX = 20; // riders per chat per minute over all albums: rotating group ids can't multiply the allowance
 const albums = new Map(); // "chat:group" -> { t, n }
+const albumFollowHits = new Map();
 
+// Only an album whose first item the lead bucket admitted (openAlbum) has riders:
+// a refused first item leaves nothing behind, so the rest of its album is refused too.
 function isAlbumFollowUp(chatId, groupId) {
   if (!groupId) return false;
-  const now = Date.now();
-  const key = chatId + ':' + groupId;
-  const a = albums.get(key);
-  if (a && now - a.t < ALBUM_TTL_MS && a.n < ALBUM_MAX_ITEMS) { a.n += 1; return true; }
-  if (!a || now - a.t >= ALBUM_TTL_MS) albums.set(key, { t: now, n: 1 });
-  return false;
+  const a = albums.get(chatId + ':' + groupId);
+  if (!a || Date.now() - a.t >= ALBUM_TTL_MS || a.n >= ALBUM_MAX_ITEMS) return false;
+  if (!checkWebhookRateLimit(chatId, albumFollowHits, ALBUM_FOLLOW_MAX)) return false;
+  a.n += 1;
+  return true;
+}
+
+function openAlbum(chatId, groupId) {
+  if (groupId) albums.set(chatId + ':' + groupId, { t: Date.now(), n: 1 });
+}
+
+// Of a photo the largest size, else the document / video / voice / ...: what getFile needs.
+function mediaFileId(m) {
+  const photo = Array.isArray(m.photo) && m.photo.length ? m.photo[m.photo.length - 1] : null;
+  const f = photo || m.document || m.video || m.voice || m.audio || m.video_note || m.animation || m.sticker;
+  return f && f.file_id ? f.file_id : undefined;
 }
 
 setInterval(() => {
   const now = Date.now();
-  for (const hitsByChat of [webhookSenderHits, webhookMenuHits]) {
+  for (const hitsByChat of [webhookSenderHits, webhookMenuHits, albumFollowHits]) {
     for (const [key, hits] of hitsByChat) {
       const fresh = hits.filter((t) => now - t < WEBHOOK_SENDER_WINDOW_MS);
       if (fresh.length === 0) hitsByChat.delete(key);
@@ -590,8 +604,11 @@ async function processUpdate(update) {
   // Commands (/start, /services, /contacts, ...) draw on the menu bucket, real
   // messages on the stricter lead bucket; the rest of an album rides on its first item.
   const isCommand = text.charAt(0) === '/';
-  const albumRest = !isCommand && isAlbumFollowUp(chatId, message.media_group_id);
-  if (!isOwnerChat && !albumRest && !(isCommand ? checkMenuRateLimit(chatId) : checkWebhookRateLimit(chatId))) return;
+  const albumRest = !isCommand && !isOwnerChat && isAlbumFollowUp(chatId, message.media_group_id);
+  if (!isOwnerChat && !albumRest) {
+    if (!(isCommand ? checkMenuRateLimit(chatId) : checkWebhookRateLimit(chatId))) return;
+    if (!isCommand) openAlbum(chatId, message.media_group_id);
+  }
 
   if (text === '/start' || text.indexOf('/start ') === 0) {
     const code = text.length > 6 ? text.slice(6).trim() : '';
@@ -647,9 +664,18 @@ async function processUpdate(update) {
   }
 
   if (!results.some((r) => r.ok)) {
-    // Same safety net as the site form: the message is not lost, it lands in the log,
-    // and the visitor is told to reach the engineer directly instead of being thanked.
-    console.log('BOT_UNDELIVERED ' + JSON.stringify({ chat: chatId, username: message.from && message.from.username, text: text || '(non-text message)', time: new Date().toISOString() }));
+    // Same safety net as the site form: what the visitor sent lands in the log (for media the
+    // caption and file id, enough to fetch it with the Bot API), and the visitor is told to
+    // reach the engineer directly instead of being thanked.
+    console.log('BOT_UNDELIVERED ' + JSON.stringify({
+      chat: chatId,
+      username: message.from && message.from.username,
+      text: text || message.caption || '(non-text message)',
+      message_id: message.message_id,
+      media_group_id: message.media_group_id,
+      file_id: mediaFileId(message),
+      time: new Date().toISOString(),
+    }));
     if (!albumRest) await sendBotText(chatId, 'Не получилось передать сообщение инженеру — позвоните или напишите напрямую.\n\n' + botContactsText(), false);
     return;
   }
