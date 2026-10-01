@@ -600,8 +600,15 @@ function isOwnerChatId(chatId) {
   return parseChatIds(process.env.TG_LEAD_CHAT_IDS).includes(String(chatId));
 }
 
+// Telegram fetches the menu cover and the documents album photos by URL. The
+// site's own host (shared hosting) refuses most of those fetches (live test
+// 02.10), so they are served from this server: BOT_ASSET_ORIGIN, else the
+// Railway public domain, else bot-ui.js falls back to the site URL.
+const BOT_ASSET_ORIGIN = process.env.BOT_ASSET_ORIGIN
+  || (process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' + process.env.RAILWAY_PUBLIC_DOMAIN + '/' : '');
+
 function botCtx(chatId) {
-  return { contacts: CONTACTS, isOwner: isOwnerChatId(chatId) };
+  return { contacts: CONTACTS, isOwner: isOwnerChatId(chatId), assetOrigin: BOT_ASSET_ORIGIN };
 }
 
 function screenPayload(chatId, s) {
@@ -653,7 +660,7 @@ async function dropReplyKeyboard(chatId, text) {
 }
 
 async function handleDocumentsCallback(chatId) {
-  const r = await botCall('sendMediaGroup', { chat_id: chatId, media: botUi.documentsMedia() });
+  const r = await botCall('sendMediaGroup', { chat_id: chatId, media: botUi.documentsMedia(BOT_ASSET_ORIGIN) });
   if (r.ok) await sendScreen(chatId, { type: 'documents' });
   else await sendScreenObj(chatId, botUi.documentsFallback());
 }

@@ -153,6 +153,31 @@ assertTrue('screen() never renders a flow route', botUi.screen(botUi.route('l:e'
     assertTrue(`media caption HTML well-formed: ${item.media}`, v.ok, v.error);
     assertTrue(`media is an absolute https URL: ${item.media}`, /^https:\/\//.test(item.media));
   }
+  // The cover and the album photos are fetched by Telegram's servers; the site's shared hosting
+  // refuses most of those fetches (live test 02.10), so server.js passes its own origin.
+  assertTrue('assetBase: no origin -> the site URL', botUi.assetBase(undefined) === C.siteUrl && botUi.assetBase('') === C.siteUrl, botUi.assetBase(undefined));
+  assertTrue('assetBase: a bare https origin gets one trailing slash',
+    botUi.assetBase('https://bot.example.up.railway.app') === 'https://bot.example.up.railway.app/'
+      && botUi.assetBase('https://bot.example.up.railway.app/') === 'https://bot.example.up.railway.app/'
+      && botUi.assetBase('https://x.example:8443/') === 'https://x.example:8443/');
+  for (const bad of ['http://x.example/', 'javascript:alert(1)', 'https://x.example/path/', 'https://', '//x.example/', 'https://x.example/?q=1', 'https://user@x.example/', 42, null, {}]) {
+    assertTrue(`assetBase rejects ${JSON.stringify(bad)} (site URL instead)`, botUi.assetBase(bad) === C.siteUrl, String(botUi.assetBase(bad)));
+  }
+  const viaOrigin = botUi.documentsMedia('https://bot.example.up.railway.app/');
+  assertTrue('documentsMedia(origin): every photo comes from that origin, same files and captions as by default',
+    viaOrigin.length === media.length && viaOrigin.every((m, n) => m.media === 'https://bot.example.up.railway.app/' + C.awards.items[n].img && m.caption === media[n].caption),
+    JSON.stringify(viaOrigin.map((m) => m.media)));
+  assertTrue('documentsMedia(): by default the photos come from the site URL', media.every((m, n) => m.media === C.siteUrl + C.awards.items[n].img));
+  const menuDefault = botUi.screen({ type: 'menu' }, ctx);
+  const menuOrigin = botUi.screen({ type: 'menu' }, Object.assign({}, ctx, { assetOrigin: 'https://bot.example.up.railway.app/' }));
+  assertTrue('menu cover: by default the site URL; with ctx.assetOrigin that origin; the rest of the screen is identical',
+    menuDefault.linkPreview.url === C.siteUrl + 'assets/bot-cover.jpg'
+      && menuOrigin.linkPreview.url === 'https://bot.example.up.railway.app/assets/bot-cover.jpg'
+      && menuOrigin.linkPreview.prefer_large_media === true && menuOrigin.linkPreview.show_above_text === true
+      && menuOrigin.text === menuDefault.text && JSON.stringify(menuOrigin.keyboard) === JSON.stringify(menuDefault.keyboard),
+    JSON.stringify([menuDefault.linkPreview, menuOrigin.linkPreview]));
+  assertTrue('the fallback keeps the site URLs (a person opens those links in a browser)',
+    botUi.documentsFallback().text.includes(botUi.escapeHtml(C.siteUrl + C.awards.items[0].img)));
   const fallback = botUi.documentsFallback();
   for (const a of C.awards.items) {
     assertTrue(`documentsFallback lists ${a.title}`, fallback.text.includes(botUi.escapeHtml(a.title)));

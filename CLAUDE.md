@@ -184,6 +184,14 @@ IP посетителя из `X-Lead-Client-IP`, а не по одному IP х
 Переменные Railway (сервис `bti-samara-landing`): `TG_BOT_TOKEN`, `TG_LEAD_CHAT_IDS`
 (через запятую), `TG_WEBHOOK_SECRET` (путь `/tg/<секрет>` и заголовок
 `X-Telegram-Bot-Api-Secret-Token`), `TG_OWNER_CODE`, `TG_API_BASE` (только для тестов).
+Обложка меню и пять фото альбома «Документы и награды» Telegram тянет сам по URL. С
+`kadastrhelp.ru` (общий хостинг) он их почти не получает — живой тест 02.10: «failed to get
+HTTP URL content» / `WEBPAGE_CURL_FAILED` для 4 фото из 5, с хоста Railway — все. Поэтому
+бот отдаёт эти адреса со своего сервера: `BOT_ASSET_ORIGIN` (необязательно, `https://хост`),
+иначе `RAILWAY_PUBLIC_DOMAIN` (Railway выставляет сам), иначе адрес сайта. Ссылки запасного
+текста документов остаются на сайт (их открывают в браузере). После деплоя, который меняет
+эти адреса или файлы, проверять живым прогоном: `sendMediaGroup` и `sendPhoto` с теми же
+URL в свой чат.
 Токен и коды лежат вне репозитория: `C:/Users/glebo/bti-lab/secrets/tg.env`.
 **Токен бота в репозиторий и в клиентский JS не класть никогда** — репозиторий публичный.
 Пока `TG_LEAD_CHAT_IDS` пуст, API отвечает 503 `not_configured`, и форма показывает

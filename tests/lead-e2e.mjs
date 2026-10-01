@@ -132,6 +132,8 @@ const mainEnv = {
   TG_LEAD_CHAT_IDS: '111,222',
   TG_WEBHOOK_SECRET: 'whsecret123',
   TG_OWNER_CODE: 'owner777',
+  RAILWAY_PUBLIC_DOMAIN: '', // the bot's cover/album origin: tests that need it set it themselves
+  BOT_ASSET_ORIGIN: '',
   LEAD_RELAY_SECRET: 'relaysecret-test-0123' + String.fromCharCode(10), // trailing newline as if pasted; server.js must trim it
 };
 const main = await startServer(mainEnv, MAIN_PORT);
@@ -2044,6 +2046,48 @@ try {
     assertTrue('G8: ...after the client corrects the phone, the corrected request is logged once more (and only once)',
       capLines().length === 2 && capLines()[1].includes('+7 927 595-00-01'), capLines().map((l) => l.slice(0, 120)).join(' | '));
   });
+
+  // ---------------- Cover and album photos come from the bot server, not from the shared hosting ----------------
+  // Live test 02.10: Telegram's own fetch of kadastrhelp.ru/assets/... failed for most files ("failed to get HTTP URL
+  // content", WEBPAGE_CURL_FAILED), while the same files from the Railway host loaded every time.
+  const assetRun = async (extraEnv, port, chat) => {
+    let out = null;
+    await withServer(extraEnv, port, async ({ post }) => {
+      const before = callsBefore();
+      await post(tMsg(chat, '/start'));
+      await sleep(300);
+      await post(tCb(chat, 'a:d', 1));
+      await sleep(400);
+      const c = mockCalls.slice(before);
+      out = {
+        menu: c.find((x) => x.method === 'sendMessage' && /Кадастровые документы без лишних нервов/.test((x.body && x.body.text) || '')),
+        album: c.find((x) => x.method === 'sendMediaGroup'),
+      };
+    });
+    return out;
+  };
+  {
+    const r = await assetRun({ RAILWAY_PUBLIC_DOMAIN: 'bot.example.up.railway.app', BOT_ASSET_ORIGIN: '' }, 4181, 8601);
+    assertTrue('asset origin: with RAILWAY_PUBLIC_DOMAIN the menu cover is fetched from the bot server',
+      !!r.menu && r.menu.body.link_preview_options.url === 'https://bot.example.up.railway.app/assets/bot-cover.jpg', JSON.stringify(r.menu && r.menu.body.link_preview_options));
+    assertTrue('asset origin: ...and so are the five album photos',
+      !!r.album && r.album.body.media.length === 5 && r.album.body.media.every((m) => m.media.indexOf('https://bot.example.up.railway.app/assets/docs/') === 0),
+      JSON.stringify(r.album && r.album.body.media.map((m) => m.media)));
+  }
+  {
+    const r = await assetRun({ RAILWAY_PUBLIC_DOMAIN: 'bot.example.up.railway.app', BOT_ASSET_ORIGIN: 'https://assets.example/' }, 4182, 8602);
+    assertTrue('asset origin: BOT_ASSET_ORIGIN wins over RAILWAY_PUBLIC_DOMAIN (cover and album)',
+      !!r.menu && r.menu.body.link_preview_options.url === 'https://assets.example/assets/bot-cover.jpg'
+        && !!r.album && r.album.body.media.every((m) => m.media.indexOf('https://assets.example/assets/docs/') === 0),
+      JSON.stringify([r.menu && r.menu.body.link_preview_options, r.album && r.album.body.media.map((m) => m.media)]));
+  }
+  {
+    const r = await assetRun({ RAILWAY_PUBLIC_DOMAIN: '', BOT_ASSET_ORIGIN: 'http://not-https.example/' }, 4183, 8603);
+    assertTrue('asset origin: neither variable (or a non-https origin) falls back to the site URL',
+      !!r.menu && r.menu.body.link_preview_options.url === 'https://kadastrhelp.ru/assets/bot-cover.jpg'
+        && !!r.album && r.album.body.media.every((m) => m.media.indexOf('https://kadastrhelp.ru/assets/docs/') === 0),
+      JSON.stringify([r.menu && r.menu.body.link_preview_options, r.album && r.album.body.media.map((m) => m.media)]));
+  }
 
   // ---------------- G9: bot-ui-check notices LM_SERVICES entries trading places on the site ----------------
   {

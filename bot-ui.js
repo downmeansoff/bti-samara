@@ -69,7 +69,21 @@ function numberRows(count, dataFor) {
 }
 
 const DISABLE_PREVIEW = { is_disabled: true };
-const COVER_PREVIEW = { url: C.siteUrl + 'assets/bot-cover.jpg', prefer_large_media: true, show_above_text: true };
+
+// The menu cover and the documents album are fetched by Telegram's own servers.
+// The site's host (shared hosting) turns most of those fetches away — live test
+// 02.10: "failed to get HTTP URL content" / WEBPAGE_CURL_FAILED for 4 of 5 photos
+// — while the bot server's own host served every one. server.js passes its own
+// origin as ctx.assetOrigin ("https://host/"); anything else (absent, not a bare
+// https origin) means the site URL.
+function assetBase(origin) {
+  return typeof origin === 'string' && /^https:\/\/[A-Za-z0-9.-]+(:\d+)?\/?$/.test(origin)
+    ? origin.replace(/\/?$/, '/')
+    : C.siteUrl;
+}
+function coverPreview(origin) {
+  return { url: assetBase(origin) + 'assets/bot-cover.jpg', prefer_large_media: true, show_above_text: true };
+}
 
 // ---------------------------------------------------------------------------
 // Lead services (section 4): short picker labels by LM_SERVICES index — the
@@ -221,7 +235,7 @@ const PRICE_HEADING = 'Стоимость';
 // using the leadFlow helpers further down.
 // ---------------------------------------------------------------------------
 
-function screenMenu() {
+function screenMenu(ctx) {
   const parts = C.home.eyebrow.split(' · ');
   const eyebrowTitle = parts[0];
   const eyebrowSub = parts.slice(1).join(' · ');
@@ -241,7 +255,7 @@ function screenMenu() {
     [btn('Отзывы', 'r'), btn('Частые вопросы', 'f')],
     [btn('Контакты', 'c'), urlBtn(LBL_OPEN_SITE, C.siteUrl)],
   ];
-  return { text, keyboard: kb(rows), linkPreview: COVER_PREVIEW };
+  return { text, keyboard: kb(rows), linkPreview: coverPreview(ctx && ctx.assetOrigin) };
 }
 
 function screenServices() {
@@ -372,10 +386,10 @@ function screenProjects() {
 
 // a:d is answered, not edited (sendMediaGroup first) — server.js special-
 // cases route.type === 'documents'. These three pure helpers cover its parts.
-function documentsMedia() {
+function documentsMedia(origin) {
   return C.awards.items.map((a) => ({
     type: 'photo',
-    media: C.siteUrl + a.img,
+    media: assetBase(origin) + a.img,
     caption: b(a.title) + '\n' + esc(a.sub),
     parse_mode: 'HTML',
   }));
@@ -453,7 +467,7 @@ function screenContacts(contacts) {
 function screen(r, ctx) {
   if (!r) return null;
   switch (r.type) {
-    case 'menu': return screenMenu();
+    case 'menu': return screenMenu(ctx);
     case 'services': return screenServices();
     case 'service': return screenService(r.id);
     case 'serviceSteps': return screenServiceSteps(r.id);
@@ -810,6 +824,7 @@ module.exports = {
   startPayloadRoute,
   isFlowRoute,
   screen,
+  assetBase,
   documentsMedia,
   documentsFallback,
   contactsBlock,
