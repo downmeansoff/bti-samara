@@ -497,6 +497,8 @@ input, select, textarea { font-family: inherit; }
 .svc-tile { position: relative; overflow: hidden; display: block; background: var(--paper-ink); }
 .svc-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
 .svc-tile:hover img { transform: scale(1.035); }
+/* The surveyor stands at the left of this 4:3 photo; the tiles are narrower than 4:3, so anchor the crop to him. */
+img[src*="hero-mezhevanie"] { object-position: 20% 50%; }
 .svc-tile-scrim {
   position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(10,8,6,.82) 0%, rgba(10,8,6,0) 46%);
@@ -1024,7 +1026,8 @@ a.row { cursor: pointer; }
    PHOTO SLOTS WITH A SAVED PAN
    Since 30.09.2026 #hero-home is a plain <img> (the slot fetched a 346 KB
    base64 sidecar before the photo could start — 5-8 s on slow 4G); its saved
-   pan x≈-29% is the same crop as object-position 93.9% in this 4:5 box.
+   pan x≈-29% was the same crop as object-position 93.9% in this 4:5 box. Since 02.10.2026
+   the photo file (hero-home-v2.webp) is itself a 4:5 crop, so the pan is gone (object-position 50% 50%).
    about-portrait is still a slot, pan x≈+23%. image-slot.js applies a pan as a
    percentage of the frame, so it only fills a PORTRAIT frame (w/h ≤ ~0.84);
    in a landscape box it slides the photo aside and exposes a strip of
@@ -1038,6 +1041,11 @@ a.row { cursor: pointer; }
 }
 @media (min-width: 721px) {
   .hero-media .hero-photo-frame:not(.hero-photo-frame--sm) { height: auto; aspect-ratio: 4 / 5; max-height: 700px; }
+}
+/* The short mobile band shows only the top of the 4:5 photo and the film badge covers its bottom edge:
+   slide the photo up so the surveyor's whole face is above the badge. */
+@media (max-width: 720px) {
+  #hero-home { top: -13%; }
 }
 /* The parcel is drawn twice: in the portrait desktop frame it lies on the
    ground around the tripod; the short mobile band shows only the top of the
