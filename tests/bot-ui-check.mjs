@@ -171,8 +171,8 @@ assertTrue('screen() never renders a flow route', botUi.screen(botUi.route('l:e'
   const menuDefault = botUi.screen({ type: 'menu' }, ctx);
   const menuOrigin = botUi.screen({ type: 'menu' }, Object.assign({}, ctx, { assetOrigin: 'https://bot.example.up.railway.app/' }));
   assertTrue('menu cover: by default the site URL; with ctx.assetOrigin that origin; the rest of the screen is identical',
-    menuDefault.linkPreview.url === C.siteUrl + 'assets/bot-cover.jpg'
-      && menuOrigin.linkPreview.url === 'https://bot.example.up.railway.app/assets/bot-cover.jpg'
+    menuDefault.linkPreview.url === C.siteUrl + 'assets/bot-cover-v2.jpg'
+      && menuOrigin.linkPreview.url === 'https://bot.example.up.railway.app/assets/bot-cover-v2.jpg'
       && menuOrigin.linkPreview.prefer_large_media === true && menuOrigin.linkPreview.show_above_text === true
       && menuOrigin.text === menuDefault.text && JSON.stringify(menuOrigin.keyboard) === JSON.stringify(menuDefault.keyboard),
     JSON.stringify([menuDefault.linkPreview, menuOrigin.linkPreview]));

@@ -1050,7 +1050,11 @@ a.row { cursor: pointer; }
 .hero-photo-frame.hero-photo-frame--wide { height: auto; max-height: none; aspect-ratio: 16 / 9; }
 @media (min-width: 721px) {
   .hero-top--photo { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
-  .hero-top--photo .hero-media { align-self: center; padding-bottom: 0; }
+  .hero-top--photo .hero-media { align-self: start; padding-bottom: 0; }
+}
+@media (min-width: 1201px) {
+  /* the slide gets the wide column: at 5fr/7fr the copy (a 5-line headline) stood far taller than the slide */
+  .hero-top--photo { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); }
 }
 @media (min-width: 721px) and (max-width: 1000px) {
   .hero-top--photo { grid-template-columns: minmax(0, 1fr); gap: 8px; }

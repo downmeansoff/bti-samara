@@ -82,7 +82,7 @@ function assetBase(origin) {
     : C.siteUrl;
 }
 function coverPreview(origin) {
-  return { url: assetBase(origin) + 'assets/bot-cover.jpg', prefer_large_media: true, show_above_text: true };
+  return { url: assetBase(origin) + 'assets/bot-cover-v2.jpg', prefer_large_media: true, show_above_text: true };
 }
 
 // ---------------------------------------------------------------------------

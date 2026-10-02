@@ -342,7 +342,7 @@ try {
     const startFlat = startKb ? startKb.flat() : [];
     assertTrue('bare /start sends only the menu screen, no forward', newCalls.length === 1 && String(newCalls[0].body.chat_id) === '777'
       && startFlat.some((b) => b.callback_data === 'l') && startFlat.length === 9
-      && newCalls[0].body.link_preview_options && /bot-cover\.jpg$/.test(newCalls[0].body.link_preview_options.url || ''),
+      && newCalls[0].body.link_preview_options && /bot-cover-v2.jpg$/.test(newCalls[0].body.link_preview_options.url || ''),
       JSON.stringify(newCalls));
   }
 
@@ -708,7 +708,7 @@ try {
       flat.length === 9 && kb.length === 5 && expectedData.every((d) => flat.some((b) => b.callback_data === d)) && flat.some((b) => b.url === 'https://kadastrhelp.ru/'),
       JSON.stringify(flat));
     assertTrue('/start: cover photo shown large, above the text',
-      c[0].body.link_preview_options && c[0].body.link_preview_options.url === 'https://kadastrhelp.ru/assets/bot-cover.jpg'
+      c[0].body.link_preview_options && c[0].body.link_preview_options.url === 'https://kadastrhelp.ru/assets/bot-cover-v2.jpg'
         && c[0].body.link_preview_options.prefer_large_media === true && c[0].body.link_preview_options.show_above_text === true,
       JSON.stringify(c[0].body.link_preview_options));
   }
@@ -2069,7 +2069,7 @@ try {
   {
     const r = await assetRun({ RAILWAY_PUBLIC_DOMAIN: 'bot.example.up.railway.app', BOT_ASSET_ORIGIN: '' }, 4181, 8601);
     assertTrue('asset origin: with RAILWAY_PUBLIC_DOMAIN the menu cover is fetched from the bot server',
-      !!r.menu && r.menu.body.link_preview_options.url === 'https://bot.example.up.railway.app/assets/bot-cover.jpg', JSON.stringify(r.menu && r.menu.body.link_preview_options));
+      !!r.menu && r.menu.body.link_preview_options.url === 'https://bot.example.up.railway.app/assets/bot-cover-v2.jpg', JSON.stringify(r.menu && r.menu.body.link_preview_options));
     assertTrue('asset origin: ...and so are the five album photos',
       !!r.album && r.album.body.media.length === 5 && r.album.body.media.every((m) => m.media.indexOf('https://bot.example.up.railway.app/assets/docs/') === 0),
       JSON.stringify(r.album && r.album.body.media.map((m) => m.media)));
@@ -2077,14 +2077,14 @@ try {
   {
     const r = await assetRun({ RAILWAY_PUBLIC_DOMAIN: 'bot.example.up.railway.app', BOT_ASSET_ORIGIN: 'https://assets.example/' }, 4182, 8602);
     assertTrue('asset origin: BOT_ASSET_ORIGIN wins over RAILWAY_PUBLIC_DOMAIN (cover and album)',
-      !!r.menu && r.menu.body.link_preview_options.url === 'https://assets.example/assets/bot-cover.jpg'
+      !!r.menu && r.menu.body.link_preview_options.url === 'https://assets.example/assets/bot-cover-v2.jpg'
         && !!r.album && r.album.body.media.every((m) => m.media.indexOf('https://assets.example/assets/docs/') === 0),
       JSON.stringify([r.menu && r.menu.body.link_preview_options, r.album && r.album.body.media.map((m) => m.media)]));
   }
   {
     const r = await assetRun({ RAILWAY_PUBLIC_DOMAIN: '', BOT_ASSET_ORIGIN: 'http://not-https.example/' }, 4183, 8603);
     assertTrue('asset origin: neither variable (or a non-https origin) falls back to the site URL',
-      !!r.menu && r.menu.body.link_preview_options.url === 'https://kadastrhelp.ru/assets/bot-cover.jpg'
+      !!r.menu && r.menu.body.link_preview_options.url === 'https://kadastrhelp.ru/assets/bot-cover-v2.jpg'
         && !!r.album && r.album.body.media.every((m) => m.media.indexOf('https://kadastrhelp.ru/assets/docs/') === 0),
       JSON.stringify([r.menu && r.menu.body.link_preview_options, r.album && r.album.body.media.map((m) => m.media)]));
   }
