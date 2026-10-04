@@ -320,6 +320,34 @@ for (const def of SERVICE_DEFS) {
 }
 
 // ---------------------------------------------------------------------------
+// Services without a page of their own (owner, 04.10.2026: list them among the
+// bot's services too). On the site each one is a single LM_SERVICES entry with
+// the same label as its PRICE_ROWS row, so that label and that price are all
+// the bot may show: the title, the note in brackets, the price.
+// ---------------------------------------------------------------------------
+
+const EXTRA_SERVICE_DEFS = [
+  { id: 'obsl', lmIndex: 3, title: 'Акт обследования' },
+  { id: 'osmotr', lmIndex: 4, title: 'Акт осмотра объекта' },
+  { id: 'vynos', lmIndex: 5, title: 'Вынос точек в натуру' },
+];
+
+const extraServices = [];
+for (const def of EXTRA_SERVICE_DEFS) {
+  const label = leadServices[def.lmIndex];
+  // The index ties the service to the site's request form; the title check
+  // catches a reordered LM_SERVICES before the bot offers the wrong service.
+  if (typeof label !== 'string' || (label !== def.title && label.indexOf(def.title + ' (') !== 0)) {
+    fail(`LM_SERVICES[${def.lmIndex}] is ${JSON.stringify(label)}, expected the service "${def.title}"`);
+    continue;
+  }
+  const row = priceRows.find((r) => r.label === label);
+  if (!row) { fail(`PRICE_ROWS has no row labelled exactly like LM_SERVICES[${def.lmIndex}]: ${JSON.stringify(label)}`); continue; }
+  const note = label === def.title ? '' : label.slice(def.title.length + 2, -1);
+  extraServices.push({ id: def.id, lmIndex: def.lmIndex, title: def.title, note, price: row.price });
+}
+
+// ---------------------------------------------------------------------------
 // Assemble (stable key order — this *is* the serialized order) and write.
 // ---------------------------------------------------------------------------
 
@@ -353,6 +381,7 @@ const data = {
   leadServices,
   serviceOrder: SERVICE_DEFS.map((d) => d.id),
   services,
+  extraServices,
 };
 
 if (failed) {

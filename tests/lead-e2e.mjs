@@ -420,9 +420,9 @@ try {
     let c = mockCalls.slice(before);
     const svcKb = c[0] && c[0].body.reply_markup && c[0].body.reply_markup.inline_keyboard;
     const svcFlat = svcKb ? svcKb.flat() : [];
-    assertTrue('/services lists the three services as buttons, no forward',
+    assertTrue('/services lists the six services as buttons, no forward',
       c.length === 1 && String(c[0].body.chat_id) === '7102'
-        && ['s:mezh', 's:tehplan', 's:razdel'].every((d) => svcFlat.some((b) => b.callback_data === d)),
+        && ['s:mezh', 's:tehplan', 's:razdel', 's:obsl', 's:osmotr', 's:vynos'].every((d) => svcFlat.some((b) => b.callback_data === d)),
       JSON.stringify(c));
 
     const before2 = callsBefore();
@@ -1571,6 +1571,10 @@ try {
     c = await D.hit(tCb(chat, 'l:mezh', 9101));
     e = editIn(c);
     assertTrue('U13: l:<id> opens the name step with its service named', e && e.body.text.indexOf('Услуга: Межевание земельных участков\n\nКак к вам обращаться?') === 0, JSON.stringify(e && e.body.text));
+    // A service without a page of its own (owner, 04.10.2026) starts the same way.
+    c = await D.hit(tCb(chat, 'l:vynos', 9102));
+    e = editIn(c);
+    assertTrue('U13: l:vynos (no page of its own) opens the name step with "Вынос точек в натуру"', e && e.body.text.indexOf('Услуга: Вынос точек в натуру\n\nКак к вам обращаться?') === 0, JSON.stringify(e && e.body.text));
   }
 
   // ---------------- U4: "Изменить" changes one field and comes back ----------------

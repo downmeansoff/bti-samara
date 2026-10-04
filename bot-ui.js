@@ -99,9 +99,17 @@ const LEAD_SERVICES = [
   'Вынос точек в натуру',
   'Другое / не знаю точно',
 ];
+// Services without a page of their own (Акт обследования, Акт осмотра объекта,
+// Вынос точек в натуру): title, note and price from the site, see
+// gen-bot-content.mjs. Own keys only, like every callback lookup.
+const EXTRA_SERVICES = Object.freeze(Object.assign(Object.create(null), ...C.extraServices.map((s) => ({ [s.id]: s }))));
+const EXTRA_IDS = C.extraServices.map((s) => s.id);
+
 // mezh/tehplan/razdel map onto the first three LM_SERVICES entries — same
-// verbatim strings and order the site's own LeadModal already uses.
-const SERVICE_ID_TO_LM_INDEX = Object.freeze(Object.assign(Object.create(null), { mezh: 0, tehplan: 1, razdel: 2 }));
+// verbatim strings and order the site's own LeadModal already uses; the
+// services without a page carry their LM_SERVICES index with them.
+const SERVICE_ID_TO_LM_INDEX = Object.freeze(Object.assign(Object.create(null), { mezh: 0, tehplan: 1, razdel: 2 },
+  ...C.extraServices.map((s) => ({ [s.id]: s.lmIndex }))));
 
 // ---------------------------------------------------------------------------
 // Callback grammar (section 3 + FIXES.md: h:d, l:e, l:e:s|n|p|c, l:b)
@@ -154,6 +162,8 @@ function route(data) {
   }
   if ((m = /^s:([a-z]{1,20})(?::(w|f|q(\d{1,3})))?$/.exec(d))) {
     const id = m[1];
+    // A service without a page has one screen: no steps, no FAQ.
+    if (hasOwn(EXTRA_SERVICES, id)) return m[2] ? null : { type: 'extraService', id };
     if (!hasOwn(C.services, id)) return null;
     if (!m[2]) return { type: 'service', id };
     if (m[2] === 'w') return { type: 'serviceSteps', id };
@@ -202,6 +212,7 @@ function startPayloadRoute(payload) {
   const p = String(payload || '').toLowerCase();
   if (p === 'request') return { type: 'leadStart' };
   if (SERVICE_IDS.includes(p)) return { type: 'service', id: p };
+  if (EXTRA_IDS.includes(p)) return { type: 'extraService', id: p };
   if (p === 'prices') return { type: 'prices' };
   if (p === 'faq') return { type: 'faqList' };
   if (p === 'contacts') return { type: 'contacts' };
@@ -258,11 +269,29 @@ function screenMenu(ctx) {
   return { text, keyboard: kb(rows), linkPreview: coverPreview(ctx && ctx.assetOrigin) };
 }
 
+// The title and its note in brackets, the way the site's price table and
+// request form write them.
+function extraServiceBlock(svc) {
+  return b(svc.title) + (svc.note ? '\n' + esc('(' + svc.note + ')') : '');
+}
+
 function screenServices() {
-  const blocks = SERVICE_IDS.map((id) => b(C.services[id].title) + '\n' + esc(C.services[id].blurb));
+  const blocks = SERVICE_IDS.map((id) => b(C.services[id].title) + '\n' + esc(C.services[id].blurb))
+    .concat(EXTRA_IDS.map((id) => extraServiceBlock(EXTRA_SERVICES[id])));
   const text = [b(C.servicesSection.heading), esc(C.servicesSection.lead)].concat(blocks).join('\n\n');
-  const rows = SERVICE_IDS.map((id) => [btn(C.services[id].title, 's:' + id)]);
+  const rows = SERVICE_IDS.map((id) => [btn(C.services[id].title, 's:' + id)])
+    .concat(EXTRA_IDS.map((id) => [btn(EXTRA_SERVICES[id].title, 's:' + id)]));
   rows.push([btn(LBL_REQUEST, 'l'), btn(LBL_MENU_BACK, 'm')]);
+  return { text, keyboard: kb(rows), linkPreview: DISABLE_PREVIEW };
+}
+
+// The site says nothing more about these services than the title, the note
+// and the price, so the screen is exactly that plus the request button.
+function screenExtraService(id) {
+  if (!hasOwn(EXTRA_SERVICES, id)) return null;
+  const svc = EXTRA_SERVICES[id];
+  const text = [extraServiceBlock(svc), '', b(PRICE_HEADING), b(nbspPrice(svc.price))].join('\n');
+  const rows = [[btn(LBL_REQUEST, 'l:' + id)], [btn(LBL_SERVICES_BACK, 's'), btn(LBL_MENU_BACK, 'm')]];
   return { text, keyboard: kb(rows), linkPreview: DISABLE_PREVIEW };
 }
 
@@ -470,6 +499,7 @@ function screen(r, ctx) {
     case 'menu': return screenMenu(ctx);
     case 'services': return screenServices();
     case 'service': return screenService(r.id);
+    case 'extraService': return screenExtraService(r.id);
     case 'serviceSteps': return screenServiceSteps(r.id);
     case 'serviceFaqList': return screenServiceFaqList(r.id);
     case 'serviceFaqAnswer': return screenServiceFaqAnswer(r.id, r.n);

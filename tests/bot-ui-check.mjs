@@ -108,6 +108,7 @@ for (const id of SERVICE_IDS) {
     C.services[id].faq.forEach((_, n) => routeStrings.push('s:' + id + ':q' + n));
   }
 }
+for (const s of C.extraServices) routeStrings.push('s:' + s.id);
 C.faq.forEach((_, n) => routeStrings.push('q' + n));
 
 const screens = []; // { name, data?, msg, kind }
@@ -135,9 +136,40 @@ for (const [data, expect] of [
   ['l:constructor', 'leadUnknown'], ['l:toString', 'leadUnknown'], ['l:__proto__', 'leadUnknown'], ['l:edit', 'leadUnknown'], ['l:o7', 'leadUnknown'], ['l:zzz', 'leadUnknown'],
   ['h:d', 'howDocs'], ['l:e', 'leadEditMenu'], ['l:b', 'leadBack'], ['l:e:s', 'leadEditField'], ['l:e:n', 'leadEditField'], ['l:e:p', 'leadEditField'], ['l:e:c', 'leadEditField'],
   ['l:mezh', 'leadStartService'], ['l:o6', 'leadOption'],
+  ['s:obsl', 'extraService'], ['s:vynos', 'extraService'], ['s:obsl:w', null], ['s:osmotr:f', null], ['s:vynos:q0', null],
+  ['l:obsl', 'leadStartService'], ['l:osmotr', 'leadStartService'], ['l:vynos', 'leadStartService'],
 ]) {
   const r = botUi.route(data);
   assertTrue(`route(${JSON.stringify(data)}) -> ${expect === null ? 'null' : expect}`, expect === null ? r === null : !!r && r.type === expect, JSON.stringify(r));
+}
+
+// Services without a page (owner, 04.10.2026): listed under «Услуги» after
+// the three with pages, one screen each with the site's price, and «Оставить
+// заявку» opens the form with that very LM_SERVICES entry chosen.
+{
+  const list = screenByData.get('s');
+  const listData = ((list && list.keyboard.inline_keyboard) || []).flat().map((x) => x.callback_data);
+  assertTrue('extra services: Акт обследования, Акт осмотра объекта, Вынос точек в натуру from LM_SERVICES 3..5',
+    C.extraServices.map((s) => s.id + ':' + s.lmIndex).join() === 'obsl:3,osmotr:4,vynos:5', JSON.stringify(C.extraServices));
+  assertTrue('services screen: the three pages first, then the three without a page',
+    JSON.stringify(listData.slice(0, 6)) === JSON.stringify(['s:mezh', 's:tehplan', 's:razdel', 's:obsl', 's:osmotr', 's:vynos']), JSON.stringify(listData));
+  for (const s of C.extraServices) {
+    const label = C.leadServices[s.lmIndex];
+    const row = C.priceRows.find((r) => r.label === label);
+    assertTrue(`extra ${s.id}: price is the PRICE_ROWS price of LM_SERVICES[${s.lmIndex}] "${label}"`, !!row && row.price === s.price, JSON.stringify(row));
+    assertTrue(`extra ${s.id}: title and note put back together give LM_SERVICES[${s.lmIndex}]`,
+      (s.note ? s.title + ' (' + s.note + ')' : s.title) === label, JSON.stringify(s));
+    assertTrue(`extra ${s.id}: listed on the services screen`, !!list && list.text.includes('<b>' + s.title + '</b>'));
+    const msg = screenByData.get('s:' + s.id);
+    const rows = ((msg && msg.keyboard.inline_keyboard) || []).map((row) => row.map((x) => x.callback_data));
+    assertTrue(`extra ${s.id}: screen shows the price`, !!msg && msg.text.replace(/ /g, ' ').includes(s.price), msg && msg.text);
+    assertTrue(`extra ${s.id}: screen buttons are [Оставить заявку -> l:${s.id}] and [← Услуги][← Меню]`,
+      JSON.stringify(rows) === JSON.stringify([['l:' + s.id], ['s', 'm']]), JSON.stringify(rows));
+    assertTrue(`extra ${s.id}: l:${s.id} chooses LM_SERVICES[${s.lmIndex}]`,
+      lf.SERVICE_ID_TO_LM_INDEX[s.id] === s.lmIndex && lf.leadServiceLabel(lf.SERVICE_ID_TO_LM_INDEX[s.id]) === label);
+    const deep = botUi.startPayloadRoute(s.id);
+    assertTrue(`extra ${s.id}: /start ${s.id} opens its screen`, !!deep && deep.type === 'extraService' && deep.id === s.id, JSON.stringify(deep));
+  }
 }
 assertTrue('route(l:e:p) names the phone field', botUi.route('l:e:p').field === 'phone');
 assertTrue('screen() never renders a flow route', botUi.screen(botUi.route('l:e'), ctx) === null);
