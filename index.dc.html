@@ -24,6 +24,9 @@
 {"@context":"https://schema.org","@type":"ProfessionalService","name":"ИП Баймурзин Азат Ринатович","description":"Межевание, технические планы, перераспределение, раздел и объединение участков. Самара, Самарская область, Республика Башкортостан.","url":"https://kadastrhelp.ru/","image":"https://kadastrhelp.ru/assets/og-cover.jpg","logo":"https://kadastrhelp.ru/assets/logo-mark.png","telephone":"+7 902 749-28-01","email":"baymurzin.86@bk.ru","taxID":"026802515953","openingHours":"Mo-Fr 09:00-18:00","areaServed":[{"@type":"AdministrativeArea","name":"Самарская область"},{"@type":"AdministrativeArea","name":"Республика Башкортостан"}],"contactPoint":[{"@type":"ContactPoint","telephone":"+7 902 749-28-01","contactType":"customer service","areaServed":"Самарская область"},{"@type":"ContactPoint","telephone":"+7 917 769-61-19","contactType":"customer service","areaServed":"Республика Башкортостан"}],"sameAs":["https://t.me/kadastricom_bot","https://max.ru/u/f9LHodD0cOKQw0ntMHcTVpKZj7yk1IyNxxCf9YD1BStgrfLVht53Tiw5bao","https://max.ru/u/f9LHodD0cOJkSRIwE5ShMfP3HfMBSggCftDYpEczkBfjvAvR69cglmz1WM8","https://yandex.ru/maps/org/159032999200/"]}
 </script>
 <!-- Телефоны/Telegram выше — синхронно с assets/contacts.js, JSON-LD статический и его не читает. -->
+<!-- seo:jsonld -->
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Сколько по времени занимает межевание или технический план?","acceptedAnswer":{"@type":"Answer","text":"В среднем от 5 до 15 рабочих дней в зависимости от объекта и сложности. Точный срок фиксируем в договоре после оценки задачи."}},{"@type":"Question","name":"Вы работаете только в Самаре?","acceptedAnswer":{"@type":"Answer","text":"Нет, работаем по Самаре, Самарской области и Республике Башкортостан."}},{"@type":"Question","name":"Нужно ли мне присутствовать при замерах?","acceptedAnswer":{"@type":"Answer","text":"Нет, присутствие собственника не обязательно, достаточно представителя. Согласуем удобное время выезда и сообщим о результатах."}},{"@type":"Question","name":"Что делать, если Росреестр приостановил регистрацию?","acceptedAnswer":{"@type":"Answer","text":"Разбираемся в причине приостановки, донесём недостающие документы и доводим дело до положительного решения — это часть сопровождения."}},{"@type":"Question","name":"Работаете ли с юридическими лицами и застройщиками?","acceptedAnswer":{"@type":"Answer","text":"Да, работаем и с физическими, и с юридическими лицами, заключаем официальный договор."}},{"@type":"Question","name":"Сколько стоит услуга?","acceptedAnswer":{"@type":"Answer","text":"Стоимость зависит от площади объекта, региона и срочности задачи. Точную цену назовём на бесплатной консультации."}}]}]}</script>
+<!-- /seo:jsonld -->
 <script src="assets/contacts.js?v=3"></script>
 <script src="./support.js"></script>
 <!-- Режим правок: только по ссылке с ?review=1, посетителям не грузится -->
@@ -77,7 +80,7 @@
 
     <div class="hero-media reveal">
       <div class="hero-photo-frame hero-photo-frame--wide">
-        <img id="hero-home" src="assets/photos/hero-home-v3.webp" alt="" fetchpriority="high" />
+        <img id="hero-home" src="assets/photos/hero-home-v3.webp" alt="Кадастровый инженер с геодезическим приёмником на участке возле дома" fetchpriority="high" />
       </div>
       <div class="hero-geo" aria-label="Где работаем и как связаться">
         <div class="hero-geo-head">
@@ -397,7 +400,10 @@
     <div class="row-table reveal" style="margin-top:40px">
       <sc-for list="{{ priceRows }}" as="row" hint-placeholder-count="7">
         <div class="row row--nonum">
-          <div class="row-head" style="margin:0">{{ row.label }}</div>
+          <div class="row-head" style="margin:0">
+            <sc-if value="{{ row.hasHref }}" hint-placeholder-val="{{ false }}"><a href="{{ row.href }}" class="row-head-link">{{ row.label }}</a></sc-if>
+            <sc-if value="{{ row.noHref }}" hint-placeholder-val="{{ true }}">{{ row.label }}</sc-if>
+          </div>
           <div class="{{ row.priceClass }}">{{ row.price }}</div>
         </div>
       </sc-for>
@@ -531,6 +537,13 @@ const STATS = [
   { value: '1000+', label: 'объектов поставлено на кадастровый учёт' },
 ];
 
+// Строки прайса, у которых есть своя страница (ссылка вокруг названия услуги).
+const PRICE_PAGES = [
+  { prefix: 'Акт обследования', href: 'akt-obsledovaniya' },
+  { prefix: 'Акт осмотра объекта', href: 'akt-osmotra' },
+  { prefix: 'Вынос точек в натуру', href: 'vynos-tochek' },
+];
+
 const PRICE_ROWS = [
   { label: 'Межевой план на уточнение границ земельного участка', price: 'от 7 000 ₽' },
   { label: 'Перераспределение, раздел и объединение участков', price: 'от 8 500 ₽' },
@@ -623,11 +636,13 @@ class Component extends DCLogic {
     const contactLinks = [{ label: 'Telegram', href: C.telegram.url }]
       .concat(C.phones.filter(ph => ph.max).map(ph => ({ label: 'MAX · ' + ph.short, href: ph.max })));
     const openIdx = this.state.faqOpen;
+    // ?seo-snapshot=1 (only the prerender build uses it): every FAQ answer open, so the snapshot has all of them.
+    const snap = /[?&]seo-snapshot(=|&|$)/.test(location.search);
     const faqItems = FAQ_BASE.map((it, i) => ({
       q: it.q,
       a: it.a,
-      isOpen: i === openIdx,
-      isClosed: i !== openIdx,
+      isOpen: snap || i === openIdx,
+      isClosed: !snap && i !== openIdx,
       toggle: () => this.setState(s => ({ faqOpen: s.faqOpen === i ? null : i })),
     }));
 
@@ -665,7 +680,10 @@ class Component extends DCLogic {
       nextLightbox: this.nextLightbox,
       docs: DOCS,
       // «по запросу» тише настоящих цифр — цена с числом должна читаться первой.
-      priceRows: PRICE_ROWS.map(r => ({ ...r, priceClass: r.price === 'по запросу' ? 'row-price row-price--ask' : 'row-price' })),
+      priceRows: PRICE_ROWS.map(r => {
+        const href = PRICE_PAGES.filter(p => r.label.indexOf(p.prefix) === 0).map(p => p.href)[0] || '';
+        return { ...r, href, hasHref: !!href, noHref: !href, priceClass: r.price === 'по запросу' ? 'row-price row-price--ask' : 'row-price' };
+      }),
       reviews: REVIEWS.map(r => ({
         ...r,
         ratingLabel: 'Оценка ' + r.rating + ' из 5',

@@ -33,6 +33,9 @@
     'mezhevanie.dc.html': 'Межевание',
     'tehplan.dc.html': 'Технический план',
     'razdel-obedinenie.dc.html': 'Раздел и объединение',
+    'vynos-tochek.dc.html': 'Вынос точек',
+    'akt-obsledovaniya.dc.html': 'Акт обследования',
+    'akt-osmotra.dc.html': 'Акт осмотра',
     'politika.dc.html': 'Политика конфиденциальности',
   };
   const PART_NAMES = { Header: 'Шапка', Footer: 'Подвал', LeadModal: 'Окно заявки' };

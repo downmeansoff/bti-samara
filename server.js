@@ -53,7 +53,7 @@ const PUBLIC_TOP_FILES = new Set([
 
 // Pages reachable at a clean address (/mezhevanie -> mezhevanie.dc.html);
 // the home page is "/".
-const PAGE_SLUGS = new Set(['mezhevanie', 'tehplan', 'razdel-obedinenie', 'politika']);
+const PAGE_SLUGS = new Set(['mezhevanie', 'tehplan', 'razdel-obedinenie', 'vynos-tochek', 'akt-obsledovaniya', 'akt-osmotra', 'politika']);
 
 function isPubliclyServable(relPath) {
   const parts = relPath.split(path.sep).filter(Boolean);
@@ -1400,8 +1400,8 @@ const server = http.createServer((req, res) => {
   // file-name addresses (and a trailing slash) answer 301 to them, so bookmarks
   // and the search index follow. Same rules as the reg.ru .htaccess written by
   // pack-hosting.mjs.
-  const oldPage = /^\/(index|mezhevanie|tehplan|razdel-obedinenie|politika)(?:\.dc)?\.html$/.exec(urlPath)
-    || /^\/(mezhevanie|tehplan|razdel-obedinenie|politika)\/$/.exec(urlPath);
+  const oldPage = /^\/(index|mezhevanie|tehplan|razdel-obedinenie|vynos-tochek|akt-obsledovaniya|akt-osmotra|politika)(?:\.dc)?\.html$/.exec(urlPath)
+    || /^\/(mezhevanie|tehplan|razdel-obedinenie|vynos-tochek|akt-obsledovaniya|akt-osmotra|politika)\/$/.exec(urlPath);
   if (oldPage) {
     res.writeHead(301, { Location: (oldPage[1] === 'index' ? '/' : '/' + oldPage[1]) + search }).end();
     return;

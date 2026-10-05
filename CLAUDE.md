@@ -545,3 +545,15 @@ index/mezhevanie/razdel-obedinenie один из двух `.phone-item` в hero 
   кнопки hero на экране (см. запись 28.09).
 
 Подробный разбор с приоритетами: https://claude.ai/code/artifact/2c0ff8d1-02f9-41a7-8fd5-e746586d479a
+
+## SEO
+
+Подробно — `SEO.md`. Коротко: страницы рисуются JavaScript-ом, поэтому `pack-hosting.mjs` делает для
+роботов поисковиков готовые копии (`make-snapshots.mjs` → `_snap/`, правила в `.htaccess`, посетители
+получают живую страницу). Структурированные данные строятся из тех же массивов, что и текст страниц:
+после правки FAQ или цены на странице запусти `node seo-markup.mjs`. Три посадочные
+(`vynos-tochek`, `akt-obsledovaniya`, `akt-osmotra`) генерируются из `landings-data.mjs`
+(`node gen-landings.mjs`), руками их не править; в них только цены из прайса владельца, без сроков
+и юридических обещаний. Новая страница = слаг в `server.js` (`PAGE_SLUGS`), в трёх списках
+`pack-hosting.mjs`, в `404.html`, в `sitemap.xml`, в меню (`Header`/`Footer`). Проверка: `node tests/seo-check.mjs`.
+Тексты посадочных перед выкладкой читает инженер.

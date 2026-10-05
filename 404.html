@@ -46,7 +46,7 @@
 // The GitHub Pages mirror has no rewrites, so the clean page addresses the
 // site links to land here: forward them to the page file.
 (function () {
-  var m = /^(\/bti-samara)\/(mezhevanie|tehplan|razdel-obedinenie|politika)\/?$/.exec(location.pathname);
+  var m = /^(\/bti-samara)\/(mezhevanie|tehplan|razdel-obedinenie|vynos-tochek|akt-obsledovaniya|akt-osmotra|politika)\/?$/.exec(location.pathname);
   if (m) location.replace(m[1] + '/' + m[2] + '.dc.html' + location.search + location.hash);
 })();
 </script>

@@ -18,6 +18,9 @@
 <meta property="og:locale" content="ru_RU" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="theme-color" content="#121212" />
+<!-- seo:jsonld -->
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Service","name":"Технический план объекта недвижимости","serviceType":"Технический план объекта недвижимости","url":"https://kadastrhelp.ru/tehplan","provider":{"@type":"ProfessionalService","name":"ИП Баймурзин Азат Ринатович","url":"https://kadastrhelp.ru/","telephone":"+7 902 749-28-01"},"areaServed":[{"@type":"City","name":"Самара"},{"@type":"AdministrativeArea","name":"Самарская область"},{"@type":"AdministrativeArea","name":"Республика Башкортостан"}],"description":"Технический план объекта недвижимости. Самара, Самарская область, Республика Башкортостан. Опыт более 12 лет."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://kadastrhelp.ru/"},{"@type":"ListItem","position":2,"name":"Услуги","item":"https://kadastrhelp.ru/#services"},{"@type":"ListItem","position":3,"name":"Технический план объекта недвижимости","item":"https://kadastrhelp.ru/tehplan"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Чем технический план отличается от технического паспорта?","acceptedAnswer":{"@type":"Answer","text":"Технический план — документ для кадастрового учёта в Росреестре, паспорт — справочный документ БТИ."}},{"@type":"Question","name":"Нужен ли выезд на объект?","acceptedAnswer":{"@type":"Answer","text":"Да, для точных обмеров специалист выезжает лично."}},{"@type":"Question","name":"Как быстро будет готов план?","acceptedAnswer":{"@type":"Answer","text":"Обычно от 5 до 10 рабочих дней после выезда."}}]}]}</script>
+<!-- /seo:jsonld -->
 <script src="assets/contacts.js?v=3"></script>
 <script src="./support.js"></script>
 <!-- Режим правок: только по ссылке с ?review=1, посетителям не грузится -->
@@ -252,8 +255,10 @@ class Component extends DCLogic {
     const C = window.BTI_CONTACTS;
     const phones = C.phones.map(ph => ({ ...ph, hasMax: !!ph.max, noMax: !ph.max, tg: C.telegram.url, ariaLabel: ph.region + ': ' + ph.display }));
     const openIdx = this.state.faqOpen;
+    // ?seo-snapshot=1 (only the prerender build uses it): every FAQ answer open, so the snapshot has all of them.
+    const snap = /[?&]seo-snapshot(=|&|$)/.test(location.search);
     const faqItems = FAQ_BASE.map((it, i) => ({
-      q: it.q, a: it.a, isOpen: i === openIdx, isClosed: i !== openIdx,
+      q: it.q, a: it.a, isOpen: snap || i === openIdx, isClosed: !snap && i !== openIdx,
       toggle: () => this.setState(s => ({ faqOpen: s.faqOpen === i ? null : i })),
     }));
     return { whenItems: WHEN_ITEMS, checklist: CHECKLIST, processSteps: PROCESS_STEPS, faqItems, related: RELATED, phones };

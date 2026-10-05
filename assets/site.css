@@ -1396,3 +1396,7 @@ a.row { cursor: pointer; }
   .row-figure { text-align: left; }
   .row-figure-num { font-size: 26px; }
 }
+
+/* A price-list row whose service has its own page: the name is a link (underline only, the row looks the same). */
+.row-head-link { color: inherit; border-bottom: 1px solid var(--line-on-paper); transition: color .2s ease, border-color .2s ease; }
+.row-head-link:hover, .row-head-link:focus-visible { color: var(--stamp); border-bottom-color: var(--stamp); }

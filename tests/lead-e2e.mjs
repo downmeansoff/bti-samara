@@ -657,7 +657,7 @@ try {
       const r = await fetch(MAIN + p);
       assertTrue(`static allowlist blocks ${p} -> 404`, r.status === 404, r.status);
     }
-    const allowed = ['/', '/mezhevanie', '/tehplan', '/razdel-obedinenie', '/politika', '/Header.dc.html', '/robots.txt', '/favicon.ico', '/support.js', '/image-slot.js', '/.image-slots.state.json'];
+    const allowed = ['/', '/mezhevanie', '/tehplan', '/razdel-obedinenie', '/vynos-tochek', '/akt-obsledovaniya', '/akt-osmotra', '/politika', '/Header.dc.html', '/robots.txt', '/favicon.ico', '/support.js', '/image-slot.js', '/.image-slots.state.json'];
     for (const p of allowed) {
       const r = await fetch(MAIN + p, { redirect: 'manual' });
       assertTrue(`static allowlist still serves ${p} -> 200`, r.status === 200, r.status);
@@ -674,6 +674,7 @@ try {
       ['/index.dc.html', '/'], ['/index.html', '/'], ['/index.dc.html?review=1', '/?review=1'],
       ['/mezhevanie.dc.html', '/mezhevanie'], ['/tehplan.dc.html?x=1', '/tehplan?x=1'],
       ['/razdel-obedinenie.dc.html', '/razdel-obedinenie'], ['/politika.dc.html', '/politika'],
+      ['/vynos-tochek.dc.html', '/vynos-tochek'], ['/akt-obsledovaniya/', '/akt-obsledovaniya'], ['/akt-osmotra.html', '/akt-osmotra'],
       ['/politika/', '/politika'], ['/tehplan.html', '/tehplan'],
     ];
     for (const [from, to] of redirects) {

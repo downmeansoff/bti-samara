@@ -13,9 +13,11 @@
 // image-slot.js fills in at runtime, so the pages are missing them without it.
 
 import crypto from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { makeSnapshots, pagesFromSitemap } from './make-snapshots.mjs';
 
 const SRC = path.dirname(fileURLToPath(import.meta.url));
 const DEST = 'C:/Users/glebo/bti-lab/hosting-dist';
@@ -58,24 +60,44 @@ function listFiles(dir, base = dir) {
 // The redirects replace the http -> https rule reg.ru writes when it issues
 // the free certificate (this file overwrites theirs), plus www -> bare domain
 // so there is one address, matching canonical/og:url.
-const ROOT_HTACCESS = `<IfModule mod_rewrite.c>
+const BOT_UA = 'YandexBot|YandexMobileBot|YandexImages|YandexAccessibilityBot|Googlebot|Google-InspectionTool|AdsBot-Google|bingbot|DuckDuckBot|Applebot|Mail\\.RU_Bot|SputnikBot';
+
+// Search-engine robots get a prerendered copy of the same page (_snap/, made by
+// make-snapshots.mjs); visitors get the live page. Written only when the copies exist.
+function snapRules(pages) {
+  const slugs = pages.filter(x => x !== '');
+  return `  # Robots: prerendered copy of the same page. The /_snap/ address itself is closed
+  # from outside (THE_REQUEST is the original request, so the internal rewrites still work).
+  RewriteCond %{THE_REQUEST} \\s/+_snap/ [NC]
+  RewriteRule ^ - [F,L]
+  RewriteCond %{HTTP_USER_AGENT} (${BOT_UA}) [NC]
+  RewriteCond %{DOCUMENT_ROOT}/_snap/$1.html -f
+  RewriteRule ^(${slugs.join('|')})$ /_snap/$1.html [L,E=SEO_SNAP:1]
+  RewriteCond %{HTTP_USER_AGENT} (${BOT_UA}) [NC]
+  RewriteCond %{DOCUMENT_ROOT}/_snap/index.html -f
+  RewriteRule ^$ /_snap/index.html [L,E=SEO_SNAP:1]
+
+`;
+}
+
+const rootHtaccess = (snap) => `<IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteCond %{HTTP_HOST} ^www\\.(.+)$ [NC]
   RewriteRule .* https://%1%{REQUEST_URI} [R=301,L]
   RewriteCond %{SERVER_PORT} !^443$
   RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
 
-  # Clean page addresses. The old file-name ones (what the visitor typed, hence
+${snap}  # Clean page addresses. The old file-name ones (what the visitor typed, hence
   # THE_REQUEST — internal rewrites below must not loop back here) answer 301,
   # so bookmarks and the search index follow; the query string carries over.
   RewriteCond %{THE_REQUEST} \\s/+index(?:\\.dc)?\\.html[\\s?] [NC]
   RewriteRule ^ / [R=301,L]
-  RewriteCond %{THE_REQUEST} \\s/+(mezhevanie|tehplan|razdel-obedinenie|politika)(?:\\.dc)?\\.html[\\s?] [NC]
+  RewriteCond %{THE_REQUEST} \\s/+(mezhevanie|tehplan|razdel-obedinenie|vynos-tochek|akt-obsledovaniya|akt-osmotra|politika)(?:\\.dc)?\\.html[\\s?] [NC]
   RewriteRule ^ /%1 [R=301,L]
   # A trailing slash would make the pages' relative asset links resolve
   # under /mezhevanie/.
-  RewriteRule ^(mezhevanie|tehplan|razdel-obedinenie|politika)/$ /$1 [R=301,L]
-  RewriteRule ^(mezhevanie|tehplan|razdel-obedinenie|politika)$ /$1.dc.html [L]
+  RewriteRule ^(mezhevanie|tehplan|razdel-obedinenie|vynos-tochek|akt-obsledovaniya|akt-osmotra|politika)/$ /$1 [R=301,L]
+  RewriteRule ^(mezhevanie|tehplan|razdel-obedinenie|vynos-tochek|akt-obsledovaniya|akt-osmotra|politika)$ /$1.dc.html [L]
 </IfModule>
 
 DirectoryIndex index.dc.html
@@ -90,6 +112,8 @@ AddDefaultCharset utf-8
   <FilesMatch "\\.html$">
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
+  Header append Vary User-Agent env=SEO_SNAP
+  Header append Vary User-Agent env=REDIRECT_SEO_SNAP
 </IfModule>
 
 # Hide .htaccess and any other dotfile (works on both Apache 2.2 and 2.4),
@@ -120,7 +144,7 @@ fs.mkdirSync(DEST, { recursive: true });
 // index.html is only the GitHub Pages root stub (redirect to index.dc.html);
 // here DirectoryIndex serves the home page at "/" directly.
 for (const entry of fs.readdirSync(SRC, { withFileTypes: true })) {
-  if (entry.isFile() && entry.name.toLowerCase().endsWith('.html') && entry.name !== 'index.html') {
+  if (entry.isFile() && entry.name.toLowerCase().endsWith('.html') && entry.name !== 'index.html' && entry.name !== 'seo-verification.html') {
     copyFile(entry.name);
   }
 }
@@ -151,13 +175,45 @@ for (const rel of VERSIONED) {
   const p = path.join(DEST, rel);
   if (fs.existsSync(p)) versionOf[rel] = crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex').slice(0, 10);
 }
+const stampHtml = (html) => html.replace(/(\s(?:href|src)=")((?:\.\/)?)([^"?#]+)(\?[^"]*)?"/g, (m, attr, dot, rel) =>
+  versionOf[rel] ? `${attr}${dot}${rel}?v=${versionOf[rel]}"` : m);
 for (const name of fs.readdirSync(DEST)) {
   if (!name.endsWith('.html')) continue;
   const p = path.join(DEST, name);
-  const html = fs.readFileSync(p, 'utf8').replace(/(\s(?:href|src)=")((?:\.\/)?)([^"?#]+)(\?[^"]*)?"/g, (m, attr, dot, rel) =>
-    versionOf[rel] ? `${attr}${dot}${rel}?v=${versionOf[rel]}"` : m);
-  fs.writeFileSync(p, html);
+  fs.writeFileSync(p, stampHtml(fs.readFileSync(p, 'utf8')));
 }
+
+// Prerendered copies for search-engine robots (see make-snapshots.mjs). Without
+// Chrome/Edge on this machine they are skipped and the .htaccess has no robot rules.
+// Webmaster verification tags (Yandex, Google): paste the <meta> lines into
+// seo-verification.html next to this file and they go into the <head> of every page of
+// the sitemap, the robots' prerendered copies included (a verification robot arrives
+// with a search-engine user agent). File-based verification needs nothing here: drop the
+// yandex_*.html / google*.html file the service gives into the repository root.
+const SEO_PAGES = pagesFromSitemap();
+const verifyFile = path.join(SRC, 'seo-verification.html');
+const verifyTags = fs.existsSync(verifyFile) ? fs.readFileSync(verifyFile, 'utf8').trim() : '';
+const addVerify = (html) => (verifyTags && !html.includes(verifyTags) ? html.replace('</head>', verifyTags + '\n</head>') : html);
+if (verifyTags) {
+  for (const slug of SEO_PAGES) {
+    const p = path.join(DEST, (slug || 'index') + '.dc.html');
+    fs.writeFileSync(p, addVerify(fs.readFileSync(p, 'utf8')));
+  }
+}
+
+const snapCount = await makeSnapshots({ dest: DEST, stamp: (html) => addVerify(stampHtml(html)) });
+
+// sitemap.xml with <lastmod> = date of the last commit that touched the page file.
+const lastmod = (slug) => {
+  try { return execFileSync('git', ['log', '-1', '--format=%cs', '--', (slug || 'index') + '.dc.html'], { cwd: SRC, encoding: 'utf8' }).trim(); } catch { return ''; }
+};
+fs.writeFileSync(path.join(DEST, 'sitemap.xml'),
+  '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+  SEO_PAGES.map((slug) => {
+    const d = lastmod(slug);
+    return '  <url>\n    <loc>https://kadastrhelp.ru/' + slug + '</loc>\n' + (d ? '    <lastmod>' + d + '</lastmod>\n' : '') + '  </url>\n';
+  }).join('') +
+  '</urlset>\n');
 
 // 404.html is served at whatever path was missing, so its links are absolute.
 // GitHub Pages hosts the site under /bti-samara/, the domain at the root.
@@ -166,7 +222,7 @@ if (fs.existsSync(notFound)) {
   fs.writeFileSync(notFound, fs.readFileSync(notFound, 'utf8').split('/bti-samara/').join('/'));
 }
 
-fs.writeFileSync(path.join(DEST, '.htaccess'), ROOT_HTACCESS);
+fs.writeFileSync(path.join(DEST, '.htaccess'), rootHtaccess(snapCount > 0 ? snapRules(SEO_PAGES) : ''));
 fs.writeFileSync(path.join(DEST, 'assets', '.htaccess'), ASSETS_HTACCESS);
 
 const files = listFiles(DEST).sort();
