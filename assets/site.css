@@ -1336,3 +1336,63 @@ a.row { cursor: pointer; }
   .doc-tile { scroll-snap-align: start; }
   .doc-tile--big { grid-column: auto; grid-row: auto; }
 }
+
+/* =====================================================================
+   06.10.2026 — contacts and the home-hero geo card.
+   .phone-notes: "Написать в MAX" + "Telegram" under a phone (hero, geo card,
+   CTA band, pullquote). .hero-geo: on desktop the home hero's right column is
+   slide + this card, and the card stretches to the height of the copy column
+   so there is no empty black block under the slide; the phone buttons live in
+   the card there (.phone-group--hero is hidden), on a tablet / phone the card
+   is hidden and the phone buttons stay in the copy as before.
+   ===================================================================== */
+.phone-notes { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+.hero-geo { display: none; }
+@media (min-width: 1001px) {
+  .hero-top--photo .hero-media { align-self: stretch; display: flex; flex-direction: column; gap: 16px; }
+  .hero-top--photo .hero-photo-frame--wide { flex: 0 0 auto; width: 100%; }
+  .phone-group--hero { display: none; }
+  .hero-geo {
+    flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; gap: 22px;
+    position: relative; isolation: isolate; overflow: hidden;
+    border: 1px solid var(--line-on-dark); padding: 26px 30px 28px;
+    background: var(--ink-panel) url(drawings/granicy.svg) right center / cover no-repeat;
+  }
+  .hero-geo::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(28,28,28,.94) 0%, rgba(28,28,28,.74) 100%); }
+  .hero-geo-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 20px; }
+  .hero-geo-kicker { font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--tx-on-dark-lo); }
+  .hero-geo-note { font-size: 13px; color: var(--tx-on-dark-lo); }
+  .hero-geo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .hero-geo-region { display: flex; flex-direction: column; gap: 16px; border-top: 2px solid var(--stamp); padding-top: 18px; }
+  .hero-geo-area { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: clamp(17px, 1.6vw, 22px); line-height: 1.25; color: var(--tx-on-dark); }
+  .hero-geo-area svg { flex: 0 0 auto; color: var(--stamp); }
+}
+@media (max-width: 720px) {
+  .phone-notes { flex-wrap: nowrap; gap: 8px; }
+}
+
+/* Step 01 of "Как мы работаем": Telegram / MAX as real links under the text. */
+.row-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.row-link-chip {
+  position: relative; font-size: 12.5px; font-weight: 700; letter-spacing: .04em;
+  border: 1px solid var(--line-on-paper); color: inherit; padding: 8px 14px;
+  transition: border-color .2s ease, color .2s ease;
+}
+.row-link-chip::before { content: ''; position: absolute; inset: -4px 0; }
+.row-link-chip:hover, .row-link-chip:focus-visible { border-color: var(--stamp); color: var(--stamp); }
+
+/* "Полное сопровождение" panel: who to call / write to. */
+.pullquote-contacts { display: flex; flex-wrap: wrap; gap: 26px 44px; margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line-on-dark); }
+.pullquote-contact { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.pullquote-contact-area { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--tx-on-dark-lo); }
+.pullquote-contact-tel { font-family: var(--font-display); font-weight: 800; font-size: 22px; letter-spacing: .01em; white-space: nowrap; color: var(--tx-on-dark); }
+.pullquote-contact-tel:hover, .pullquote-contact-tel:focus-visible { color: var(--stamp); }
+
+/* «Значимые объекты»: key figure of each customer in the (previously empty) third column. */
+.row-figure { align-self: center; text-align: right; min-width: 96px; }
+.row-figure-num { font-family: var(--font-display); font-weight: 800; font-size: 32px; line-height: 1; color: var(--ink); }
+.row-figure-label { margin-top: 6px; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--tx-on-paper-lo); }
+@media (max-width: 720px) {
+  .row-figure { text-align: left; }
+  .row-figure-num { font-size: 26px; }
+}

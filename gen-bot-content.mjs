@@ -180,7 +180,7 @@ function heroPrices(file) {
 
 const IDX = 'index.dc.html';
 
-const homeEyebrow = lit('Кадастровый инженер · Самара и Башкортостан', IDX);
+const homeEyebrow = lit('Кадастровый инженер · Самара и Самарская область · Башкортостан', IDX);
 const homeTitle = lit('Кадастровые документы без лишних нервов и задержек', IDX);
 // Site renders the tagline upper-cased via CSS (text-transform); the bot
 // uses sentence case for a calmer tone, matched case-insensitively.
@@ -218,7 +218,7 @@ const aboutP1 = lit(
   'ИП Баймурзин Азат Ринатович — практикующий кадастровый инженер с квалификационным аттестатом с 2013 года и общим профессиональным стажем 17 лет, из них 13 лет — на руководящей должности в БТИ. Беру на себя все технические и юридические сложности: от выезда и замеров до получения готовых документов в Росреестре.',
   IDX
 );
-const aboutP2 = lit('Образование и наличие соответствующих лицензий или сертификатов подтверждают квалификацию и право на выполнение кадастровых работ.', IDX);
+const aboutP2 = lit('Квалификационный аттестат кадастрового инженера № 02-13-942 выдан 17.05.2013. Членство в СРО «Ассоциация кадастровых инженеров «Содружество» (рег. № 704) подтверждено выпиской из реестра — её можно проверить онлайн.', IDX);
 const aboutPoints = required('index.dc.html ABOUT_POINTS', extractArray(IDX, 'ABOUT_POINTS'));
 
 const projectsHeading = lit('Значимые объекты', IDX);

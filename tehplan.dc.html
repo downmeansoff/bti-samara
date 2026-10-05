@@ -60,12 +60,15 @@
               <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.ariaLabel }}">
                 <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
               </a>
-              <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
-                <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
-              </sc-if>
-              <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
-                <span class="phone-max-note">также в MAX</span>
-              </sc-if>
+              <div class="phone-notes">
+                <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+                  <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+                </sc-if>
+                <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+                  <span class="phone-max-note">также в MAX</span>
+                </sc-if>
+                <a href="{{ ph.tg }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Telegram</a>
+              </div>
             </div>
           </sc-for>
         </div>
@@ -170,12 +173,15 @@
             <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.ariaLabel }}">
               <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
             </a>
-            <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
-              <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
-            </sc-if>
-            <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
-              <span class="phone-max-note">также в MAX</span>
-            </sc-if>
+            <div class="phone-notes">
+              <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+              </sc-if>
+              <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+                <span class="phone-max-note">также в MAX</span>
+              </sc-if>
+              <a href="{{ ph.tg }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Telegram</a>
+            </div>
           </div>
         </sc-for>
       </div>
@@ -244,7 +250,7 @@ class Component extends DCLogic {
 
   renderVals() {
     const C = window.BTI_CONTACTS;
-    const phones = C.phones.map(ph => ({ ...ph, hasMax: !!ph.max, noMax: !ph.max, ariaLabel: ph.region + ': ' + ph.display }));
+    const phones = C.phones.map(ph => ({ ...ph, hasMax: !!ph.max, noMax: !ph.max, tg: C.telegram.url, ariaLabel: ph.region + ': ' + ph.display }));
     const openIdx = this.state.faqOpen;
     const faqItems = FAQ_BASE.map((it, i) => ({
       q: it.q, a: it.a, isOpen: i === openIdx, isClosed: i !== openIdx,

@@ -42,25 +42,28 @@
 <div class="hero">
   <div class="hero-top hero-top--photo">
     <div class="hero-copy reveal">
-      <div class="hero-badge">Кадастровый инженер · Самара и Башкортостан</div>
+      <div class="hero-badge">Кадастровый инженер · Самара и Самарская область · Башкортостан</div>
       <h1 class="hero-title hero-title--index">Кадастровые документы без лишних нервов и задержек</h1>
       <div class="hero-tagline">БЫСТРО. ТОЧНО. НАДЁЖНО.</div>
       <p class="hero-desc">Межевание, технические планы, перераспределение, раздел и объединение участков. Аттестованный кадастровый инженер с опытом более 12 лет — более 1000 объектов поставлено на кадастровый учёт.</p>
       <div class="hero-actions">
         <dc-import name="LeadModal" label="Оставить заявку" variant="solid" size="lg" hint-size="230px,58px"></dc-import>
-        <div class="phone-group">
+        <div class="phone-group phone-group--hero">
           <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
             <div class="phone-item">
               <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.ariaLabel }}">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.9 21 3 13.1 3 3.6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8Z"></path></svg>
                 <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
               </a>
-              <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
-                <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
-              </sc-if>
-              <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
-                <span class="phone-max-note">также в MAX</span>
-              </sc-if>
+              <div class="phone-notes">
+                <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+                  <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+                </sc-if>
+                <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+                  <span class="phone-max-note">также в MAX</span>
+                </sc-if>
+                <a href="{{ ph.tg }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Telegram</a>
+              </div>
             </div>
           </sc-for>
         </div>
@@ -75,6 +78,34 @@
     <div class="hero-media reveal">
       <div class="hero-photo-frame hero-photo-frame--wide">
         <img id="hero-home" src="assets/photos/hero-home-v3.webp" alt="" fetchpriority="high" />
+      </div>
+      <div class="hero-geo" aria-label="Где работаем и как связаться">
+        <div class="hero-geo-head">
+          <span class="hero-geo-kicker">Где работаем</span>
+          <span class="hero-geo-note">При необходимости выезжаем на объект</span>
+        </div>
+        <div class="hero-geo-grid">
+          <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
+            <div class="hero-geo-region">
+              <div class="hero-geo-area"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"></path><circle cx="12" cy="10" r="2.3"></circle></svg>{{ ph.area }}</div>
+              <div class="phone-item">
+                <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.ariaLabel }}">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.9 21 3 13.1 3 3.6c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8Z"></path></svg>
+                  <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
+                </a>
+                <div class="phone-notes">
+                  <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+                    <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+                  </sc-if>
+                  <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+                    <span class="phone-max-note">также в MAX</span>
+                  </sc-if>
+                  <a href="{{ ph.tg }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Telegram</a>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
       </div>
     </div>
   </div>
@@ -173,6 +204,13 @@
           <div>
             <div class="row-head">{{ p.title }}</div>
             <div class="row-body">{{ p.desc }}</div>
+            <sc-if value="{{ p.hasLinks }}" hint-placeholder-val="{{ false }}">
+              <div class="row-links">
+                <sc-for list="{{ p.links }}" as="lk" hint-placeholder-count="3">
+                  <a href="{{ lk.href }}" target="_blank" rel="noreferrer" class="row-link-chip">{{ lk.label }}</a>
+                </sc-for>
+              </div>
+            </sc-if>
           </div>
           <span></span>
         </div>
@@ -201,7 +239,7 @@
 
     <h2 class="section-title reveal">Кадастровый инженер с опытом более 12 лет</h2>
     <p class="about-lead about-lead--tight reveal">ИП Баймурзин Азат Ринатович — практикующий кадастровый инженер с квалификационным аттестатом с 2013 года и общим профессиональным стажем 17 лет, из них 13 лет — на руководящей должности в БТИ. Беру на себя все технические и юридические сложности: от выезда и замеров до получения готовых документов в Росреестре.</p>
-    <p class="about-lead reveal">Образование и наличие соответствующих лицензий или сертификатов подтверждают квалификацию и право на выполнение кадастровых работ.</p>
+    <p class="about-lead reveal">Квалификационный аттестат кадастрового инженера № 02-13-942 выдан 17.05.2013. Членство в СРО «Ассоциация кадастровых инженеров «Содружество» (рег. № 704) подтверждено выпиской из реестра — её можно проверить онлайн.</p>
 
     <div class="about-points reveal">
       <sc-for list="{{ aboutPoints }}" as="pt" hint-placeholder-count="8">
@@ -220,7 +258,10 @@
               <div class="row-head">{{ p.title }}</div>
               <div class="row-body">{{ p.desc }}</div>
             </div>
-            <span></span>
+            <div class="row-figure">
+              <div class="row-figure-num">{{ p.fig }}</div>
+              <div class="row-figure-label">{{ p.figLabel }}</div>
+            </div>
           </div>
         </sc-for>
       </div>
@@ -232,7 +273,7 @@
       </a>
       <div class="about-stat2">
         <div class="about-stat2-num">2 региона</div>
-        <div class="about-stat2-label">Самарская обл. и Башкортостан</div>
+        <div class="about-stat2-label">Самара и Самарская область · Башкортостан</div>
       </div>
     </div>
   </div>
@@ -282,6 +323,20 @@
     <div>
       <p class="pullquote-text">Полное сопровождение на каждом этапе — от замеров до записи в ЕГРН.</p>
       <div class="pullquote-attr">БЫСТРО. ТОЧНО. НАДЁЖНО.</div>
+      <div class="pullquote-contacts">
+        <sc-for list="{{ phones }}" as="ph" hint-placeholder-count="2">
+          <div class="pullquote-contact">
+            <div class="pullquote-contact-area">{{ ph.area }}</div>
+            <a href="{{ ph.tel }}" class="pullquote-contact-tel">{{ ph.display }}</a>
+            <div class="phone-notes">
+              <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+              </sc-if>
+              <a href="{{ ph.tg }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Telegram</a>
+            </div>
+          </div>
+        </sc-for>
+      </div>
     </div>
   </div>
   <div class="pullquote-media">
@@ -389,12 +444,15 @@
             <a href="{{ ph.tel }}" class="btn btn--outline-light btn--lg phone-btn" aria-label="{{ ph.ariaLabel }}">
               <span class="phone-btn-text"><span class="phone-btn-region">{{ ph.short }}</span><span class="phone-btn-num">{{ ph.display }}</span></span>
             </a>
-            <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
-              <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
-            </sc-if>
-            <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
-              <span class="phone-max-note">также в MAX</span>
-            </sc-if>
+            <div class="phone-notes">
+              <sc-if value="{{ ph.hasMax }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ ph.max }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Написать в MAX</a>
+              </sc-if>
+              <sc-if value="{{ ph.noMax }}" hint-placeholder-val="{{ true }}">
+                <span class="phone-max-note">также в MAX</span>
+              </sc-if>
+              <a href="{{ ph.tg }}" target="_blank" rel="noreferrer" class="phone-max-note phone-max-note--link">Telegram</a>
+            </div>
           </div>
         </sc-for>
       </div>
@@ -443,6 +501,14 @@ const PROJECTS = [
   { n: '01', title: 'Администрация муниципального района Стерлитамакский район', desc: 'В рамках договора на проведение кадастровых работ выполнены работы по учёту сетей электроснабжения и трансформаторных подстанций в сёлах Наумовка, Ишпарсово и Талалаевка, а также трансформаторных подстанций в сёлах Загородный и Большой Куганак. Кроме того, зарегистрированы водозаборные сооружения в Октябрьском сельсовете.' },
   { n: '02', title: 'АО «БСК»', desc: 'По договору с АО «БСК» поставлены на государственный кадастровый учёт более 300 объектов недвижимости на территории компании, среди которых очистные сооружения общей площадью 417 гектаров.' },
   { n: '03', title: 'ОАО «Каустик»', desc: 'На территории ОАО «Каустик» поставлено на кадастровый учёт 142 объекта недвижимости.' },
+];
+
+// Цифры для карточек «Значимых объектов» — только то, что уже написано в PROJECTS выше
+// (5 сёл перечислены поимённо; 300+ и 142 объекта — из текста владельца).
+const PROJECT_FIGURES = [
+  { fig: '5 сёл', figLabel: 'сети и подстанции' },
+  { fig: '300+', figLabel: 'объектов на учёте' },
+  { fig: '142', figLabel: 'объекта на учёте' },
 ];
 
 const DOCS = [
@@ -553,7 +619,9 @@ class Component extends DCLogic {
 
   renderVals() {
     const C = window.BTI_CONTACTS;
-    const phones = C.phones.map(ph => ({ ...ph, hasMax: !!ph.max, noMax: !ph.max, ariaLabel: ph.region + ': ' + ph.display }));
+    const phones = C.phones.map(ph => ({ ...ph, hasMax: !!ph.max, noMax: !ph.max, tg: C.telegram.url, ariaLabel: ph.region + ': ' + ph.display }));
+    const contactLinks = [{ label: 'Telegram', href: C.telegram.url }]
+      .concat(C.phones.filter(ph => ph.max).map(ph => ({ label: 'MAX · ' + ph.short, href: ph.max })));
     const openIdx = this.state.faqOpen;
     const faqItems = FAQ_BASE.map((it, i) => ({
       q: it.q,
@@ -584,9 +652,9 @@ class Component extends DCLogic {
       svcBig: HOME_SERVICES[0],
       svcG1: HOME_SERVICES[1],
       svcG2: HOME_SERVICES[2],
-      processSteps: PROCESS_STEPS,
+      processSteps: PROCESS_STEPS.map((st, i) => ({ ...st, hasLinks: i === 0, links: contactLinks })),
       aboutPoints: ABOUT_POINTS,
-      projects: PROJECTS,
+      projects: PROJECTS.map((pr, i) => ({ ...pr, ...PROJECT_FIGURES[i] })),
       awards,
       openAttestat: () => { this._lightboxTrigger = document.activeElement; this.setState({ lightboxIdx: 0 }); },
       lightboxOpen: !!lb,
