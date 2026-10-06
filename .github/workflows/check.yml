@@ -29,5 +29,7 @@ jobs:
       # sitemap, canonical, structured data, routing lists, landing prices
       - run: node tests/seo-check.mjs
       # Telegram bot screens and the lead API / bot / static-file allowlist
+      # analytics is off by default; the privacy policy wording follows the counter
+      - run: node tests/analytics-check.mjs
       - run: node tests/bot-ui-check.mjs
       - run: node tests/lead-e2e.mjs

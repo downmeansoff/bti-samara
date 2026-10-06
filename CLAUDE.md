@@ -558,6 +558,11 @@ index/mezhevanie/razdel-obedinenie один из двух `.phone-item` в hero 
 `pack-hosting.mjs`, в `404.html`, в `sitemap.xml`, в меню (`Header`/`Footer`). Проверка: `node tests/seo-check.mjs`.
 Тексты посадочных перед выкладкой читает инженер.
 
+Аналитика (Яндекс Метрика): `assets/analytics.js`, выключена (`metrika: 0`), включается номером счётчика и датой
+`policyDate`; политика конфиденциальности переключает формулировку вместе со счётчиком. Вебвизор не включать.
+Цели: `lead_open`, `lead_sent`, `click_phone|telegram|max|email`. Проверка: `node tests/analytics-check.mjs`.
+Подробно — раздел «Аналитика» в `SEO.md`.
+
 ## Проверки на GitHub
 
 `.github/workflows/check.yml` на каждый push и pull request гоняет шесть команд: три `--check` генераторов

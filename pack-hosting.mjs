@@ -169,7 +169,7 @@ for (const rel of TOP_LEVEL_FILES) {
 // weeks later, next to fresh HTML. Stamp the page-level CSS/JS links with a
 // content hash so every change is a new URL. image-slot.js and review.js are
 // left alone: the first is an x-import component URL, the second owner-only.
-const VERSIONED = ['assets/site.css', 'assets/fonts/fonts.css', 'support.js', 'assets/contacts.js'];
+const VERSIONED = ['assets/site.css', 'assets/fonts/fonts.css', 'support.js', 'assets/contacts.js', 'assets/analytics.js'];
 const versionOf = {};
 for (const rel of VERSIONED) {
   const p = path.join(DEST, rel);

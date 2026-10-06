@@ -226,6 +226,7 @@ class Component extends DCLogic {
   open = () => {
     let draft = null;
     try { draft = JSON.parse(sessionStorage.getItem(LM_DRAFT_KEY) || 'null'); } catch {}
+    try { window.btiGoal && window.btiGoal('lead_open'); } catch {}
     const patch = { isOpen: true, sent: false, fallback: false, sending: false, showError: false };
     if (draft && typeof draft === 'object') {
       if (typeof draft.name === 'string') patch.name = draft.name;
@@ -355,6 +356,7 @@ class Component extends DCLogic {
 
       if (ok) {
         this.clearDraft();
+        try { window.btiGoal && window.btiGoal('lead_sent'); } catch {}
         this.setState({ sending: false, sent: true, fallback: false, showError: false });
       } else {
         // Network/timeout/server failure. This runs after an await, so it's no
