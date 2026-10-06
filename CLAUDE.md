@@ -557,3 +557,10 @@ index/mezhevanie/razdel-obedinenie один из двух `.phone-item` в hero 
 и юридических обещаний. Новая страница = слаг в `server.js` (`PAGE_SLUGS`), в трёх списках
 `pack-hosting.mjs`, в `404.html`, в `sitemap.xml`, в меню (`Header`/`Footer`). Проверка: `node tests/seo-check.mjs`.
 Тексты посадочных перед выкладкой читает инженер.
+
+## Проверки на GitHub
+
+`.github/workflows/check.yml` на каждый push и pull request гоняет шесть команд: три `--check` генераторов
+(`gen-bot-content`, `gen-landings`, `seo-markup`) и `tests/seo-check.mjs`, `tests/bot-ui-check.mjs`,
+`tests/lead-e2e.mjs`. Только проверки, без секретов; выкладка по-прежнему руками через `DEPLOY.bat`.
+Проверки идут на LF-чекауте: если тест на Windows зелёный, а на GitHub красный, смотри переводы строк.

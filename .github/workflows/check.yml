@@ -1,0 +1,33 @@
+# Checks only. Nothing here deploys: the site goes out by hand with DEPLOY.bat.
+# The repository is public, so these runs cost no Actions minutes; no secrets are used.
+name: check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # generated files must match their sources
+      - run: node gen-bot-content.mjs --check
+      - run: node gen-landings.mjs --check
+      - run: node seo-markup.mjs --check
+      # sitemap, canonical, structured data, routing lists, landing prices
+      - run: node tests/seo-check.mjs
+      # Telegram bot screens and the lead API / bot / static-file allowlist
+      - run: node tests/bot-ui-check.mjs
+      - run: node tests/lead-e2e.mjs
