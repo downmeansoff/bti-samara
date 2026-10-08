@@ -44,7 +44,7 @@ export function priceNumber(text) {
 /** [{cap, num}] from the page's hero price block. */
 export function heroPrices(html) {
   const out = [];
-  const re = /<(span|div) class="hero-price-cap">([^<]*)<\/>\s*<(span|div) class="hero-price-num">([^<]*)<\/>/g;
+  const re = /<(span|div) class="hero-price-cap">([^<]*)<\/\1>\s*<(span|div) class="hero-price-num">([^<]*)<\/\3>/g;
   let m;
   while ((m = re.exec(html))) out.push({ cap: m[2], num: m[4] });
   return out;

@@ -41,6 +41,21 @@ for (const slug of slugs) {
     try { parsed = JSON.parse(m[1]); } catch (e) { /* reported below */ }
     ok(`${file}: JSON-LD parses`, !!parsed);
   }
+  // These are the owner's visible starting prices, including the two different
+  // technical-plan tariffs. A broken HTML matcher must not silently omit them.
+  const expectedPrices = {
+    mezhevanie: [7000],
+    tehplan: [7500, 5000],
+    'razdel-obedinenie': [8500],
+  }[slug];
+  if (expectedPrices) {
+    const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .map(m => JSON.parse(m[1]));
+    const service = blocks.flatMap(b => b['@graph'] || [b]).find(n => n['@type'] === 'Service');
+    const prices = (service?.offers || []).map(o => o.priceSpecification?.minPrice);
+    ok(`${slug}: structured prices match the visible tariffs`,
+      JSON.stringify(prices) === JSON.stringify(expectedPrices), JSON.stringify(prices));
+  }
   if (slug) {
     ok(`${slug}: server.js PAGE_SLUGS`, serverSlugs.has(slug));
     const inList = new RegExp('[(|]' + slug + '[|)]', 'g');

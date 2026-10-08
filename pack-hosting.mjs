@@ -17,10 +17,17 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { makeSnapshots, pagesFromSitemap } from './make-snapshots.mjs';
+import { makeSnapshots, pagesFromSitemap, cleanDom } from './make-snapshots.mjs';
 
 const SRC = path.dirname(fileURLToPath(import.meta.url));
 const DEST = 'C:/Users/glebo/bti-lab/hosting-dist';
+// A controlled browser can export the rendered DOM separately. Importing those
+// snapshots avoids launching another browser during this packaging step.
+const snapshotArg = process.argv.find(a => a.startsWith('--snapshots-dir='));
+const snapshotSource = snapshotArg ? path.resolve(snapshotArg.slice('--snapshots-dir='.length)) : null;
+if (snapshotSource && (snapshotSource === path.resolve(DEST) || snapshotSource.startsWith(path.resolve(DEST) + path.sep))) {
+  throw new Error('snapshot source must be outside the generated hosting-dist directory');
+}
 
 const TOP_LEVEL_FILES = ['support.js', 'image-slot.js', '.image-slots.state.json', 'favicon.ico', 'robots.txt', 'sitemap.xml'];
 
@@ -201,7 +208,27 @@ if (verifyTags) {
   }
 }
 
-const snapCount = await makeSnapshots({ dest: DEST, stamp: (html) => addVerify(stampHtml(html)) });
+let snapCount;
+if (snapshotSource) {
+  const snapshotDest = path.join(DEST, '_snap');
+  fs.mkdirSync(snapshotDest, { recursive: true });
+  for (const slug of SEO_PAGES) {
+    const name = slug || 'index';
+    const html = cleanDom(fs.readFileSync(path.join(snapshotSource, name + '.html'), 'utf8'));
+    const source = fs.readFileSync(path.join(SRC, name + '.dc.html'), 'utf8');
+    const title = /<title>([^<]*)<\/title>/.exec(source)?.[1];
+    const canonical = `href="https://kadastrhelp.ru/${slug}"`;
+    if (!title || !html.includes(`<title>${title}</title>`) || !html.includes(canonical) ||
+        !/<h1[\s>]/.test(html) || html.includes('{{') || html.length < 5000) {
+      throw new Error(`invalid or stale browser snapshot: ${name}.html`);
+    }
+    fs.writeFileSync(path.join(snapshotDest, name + '.html'), addVerify(stampHtml(html)));
+  }
+  snapCount = SEO_PAGES.length;
+  console.log(`pack-hosting: imported ${snapCount} browser snapshots`);
+} else {
+  snapCount = await makeSnapshots({ dest: DEST, stamp: (html) => addVerify(stampHtml(html)) });
+}
 
 // sitemap.xml with <lastmod> = date of the last commit that touched the page file.
 const lastmod = (slug) => {
