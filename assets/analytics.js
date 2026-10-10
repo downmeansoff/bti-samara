@@ -1,5 +1,5 @@
-/* Web analytics: Yandex Metrica. OFF by default (metrika: 0): nothing is loaded and
-   no cookie is set until a counter number is written below.
+/* Web analytics: Yandex Metrica. Counter 113594675 for kadastrhelp.ru,
+   enabled with the owner's approval on 10 October 2026. Set metrika to 0 to disable.
 
    Turn on, in this order:
    1. Owner or lawyer reads the analytics wording in politika.dc.html (it switches on by itself
@@ -17,8 +17,8 @@
    Goals (JavaScript events) to create in the counter:
    lead_open, lead_sent, click_phone, click_telegram, click_max, click_email. */
 window.BTI_ANALYTICS = {
-  metrika: 0,
-  policyDate: '',
+  metrika: 113594675,
+  policyDate: '10 октября 2026 года',
   hosts: ['kadastrhelp.ru', 'www.kadastrhelp.ru']
 };
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// Analytics guard: assets/analytics.js is off by default, switches on only on the real domain,
+// Analytics guard: assets/analytics.js switches on only on the real domain,
 // respects opt-outs, and the privacy policy wording matches the counter state in both modes.
 //   node tests/analytics-check.mjs
 import fs from 'node:fs';
@@ -32,7 +32,7 @@ ok('no Webvisor', !/webvisor:\s*true/.test(SRC));
 ok('no goal parameters (form data never reaches the counter)', !/reachGoal'\s*,[^)]*,[^)]*,/.test(SRC));
 
 // ---- behaviour of analytics.js in a fake browser ----
-function run({ id = 0, host = 'kadastrhelp.ru', search = '', dnt, gpc, webdriver, storage = {} } = {}) {
+function run({ id, host = 'kadastrhelp.ru', search = '', dnt, gpc, webdriver, storage = {} } = {}) {
   const log = { inserted: [], ym: [], clickHandlers: [] };
   const store = { ...storage };
   const sandbox = {
@@ -51,8 +51,11 @@ function run({ id = 0, host = 'kadastrhelp.ru', search = '', dnt, gpc, webdriver
     Date,
   };
   sandbox.window = sandbox;
-  const code = id ? SRC.replace('metrika: 0,', `metrika: ${id},`) : SRC;
-  if (id && code === SRC) throw new Error('metrika placeholder not found in analytics.js');
+  const counterPattern = /\bmetrika:\s*\d+,/g;
+  if (id !== undefined && [...SRC.matchAll(counterPattern)].length !== 1) {
+    throw new Error('exactly one metrika configuration is required in analytics.js');
+  }
+  const code = id === undefined ? SRC : SRC.replace(counterPattern, `metrika: ${id},`);
   vm.runInNewContext(code, sandbox);
   // after the loader, window.ym is the queue stub; record calls the way the real tag would see them
   if (sandbox.ym) log.ym = (sandbox.ym.a || []).map(a => Array.from(a));
@@ -64,10 +67,23 @@ function run({ id = 0, host = 'kadastrhelp.ru', search = '', dnt, gpc, webdriver
   return { log, sandbox, store, click };
 }
 
-const off = run();
-ok('default: counter number is 0', /metrika:\s*0,/.test(SRC));
-ok('default: no tag injected', off.log.inserted.length === 0 && !off.sandbox.ym);
-ok('default: btiGoal is a safe no-op', typeof off.sandbox.btiGoal === 'function' && (off.sandbox.btiGoal('x'), true));
+const configured = run();
+const cfg = configured.sandbox.BTI_ANALYTICS;
+ok('configured counter is a nonnegative safe integer', Number.isSafeInteger(cfg.metrika) && cfg.metrika >= 0);
+ok('configured counter state controls tag loading', configured.log.inserted.length === (cfg.metrika ? 1 : 0));
+if (cfg.metrika) {
+  const actualInit = configured.log.ym.find(a => a[1] === 'init');
+  ok('configured counter initializes its real number without Webvisor', !!actualInit && actualInit[0] === cfg.metrika && actualInit[2].webvisor === false);
+  configured.sandbox.btiGoal('lead_open');
+  configured.sandbox.btiGoal('lead_sent');
+  const leadEvents = configured.sandbox.ym.a.map(a => Array.from(a)).filter(a => a[1] === 'reachGoal');
+  ok('configured lead events contain only counter, command and event name', leadEvents.length === 2 && leadEvents.every(a => a.length === 3 && a[0] === cfg.metrika) && leadEvents.map(a => a[2]).join() === 'lead_open,lead_sent');
+}
+
+const off = run({ id: 0 });
+ok('off: counter number is 0', off.sandbox.BTI_ANALYTICS.metrika === 0);
+ok('off: no tag injected', off.log.inserted.length === 0 && !off.sandbox.ym);
+ok('off: btiGoal is a safe no-op', typeof off.sandbox.btiGoal === 'function' && (off.sandbox.btiGoal('x'), true));
 
 const on = run({ id: 12345 });
 ok('on: tag loaded from mc.yandex.ru', on.log.inserted.length === 1 && on.log.inserted[0] === 'https://mc.yandex.ru/metrika/tag.js', on.log.inserted.join());
@@ -99,7 +115,6 @@ const undo = run({ id: 12345, search: '?nostat=0', storage: { btiNoStat: '1' } }
 ok('?nostat=0 clears the opt-out', !('btiNoStat' in undo.store) && undo.log.inserted.length === 1);
 
 // ---- the privacy policy follows the counter ----
-const cfg = vm.runInNewContext(SRC + '\n;window.BTI_ANALYTICS', { location: { search: '', hostname: 'x' }, navigator: {}, localStorage: { getItem: () => null }, window: {} });
 ok('a counter number requires a policy date', !cfg.metrika || (typeof cfg.policyDate === 'string' && cfg.policyDate.length > 5), 'metrika is set but policyDate is empty');
 
 const polHtml = read('politika.dc.html');
@@ -120,6 +135,8 @@ ok('policy, counter on: no longer claims "no analytics" or "no cookies"', !pOn.t
 ok('policy, counter on: tells how to opt out', pOn.text.includes('Global Privacy Control'));
 ok('policy, counter on: states no Webvisor and no form data', pOn.text.includes('вебвизор') && pOn.text.includes('имя и телефон'));
 ok('policy, counter on: new date shown', pOn.date === '10 октября 2026 года', pOn.date);
+const pConfigured = policy(cfg);
+ok('policy follows the deployed counter state and date', cfg.metrika ? pConfigured.text.includes('«Яндекс Метрика»') && pConfigured.date === cfg.policyDate : pConfigured.text.includes('не использует системы веб-аналитики'));
 
 console.log(`\n=== ANALYTICS SUMMARY ===\n${checks} checks, ${failed} failed`);
 process.exit(failed ? 1 : 0);
