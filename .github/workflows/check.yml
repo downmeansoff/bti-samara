@@ -25,6 +25,7 @@ jobs:
       # generated files must match their sources
       - run: node gen-bot-content.mjs --check
       - run: node gen-landings.mjs --check
+      - run: node gen-yandex-services.mjs --check
       - run: node seo-markup.mjs --check
       # sitemap, canonical, structured data, routing lists, landing prices
       - run: node tests/seo-check.mjs

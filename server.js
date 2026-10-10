@@ -49,7 +49,7 @@ function contentType(p) {
 const indexNowKeyFile = require('./indexnow-config.json').keyFile;
 if (!/^[a-f0-9]{32}\.txt$/.test(indexNowKeyFile)) throw new Error('invalid IndexNow key file');
 const PUBLIC_TOP_FILES = new Set([
-  'support.js', 'image-slot.js', 'favicon.ico', 'robots.txt', 'sitemap.xml',
+  'support.js', 'image-slot.js', 'favicon.ico', 'robots.txt', 'sitemap.xml', 'services-feed.xml',
   '.image-slots.state.json', indexNowKeyFile,
 ]);
 

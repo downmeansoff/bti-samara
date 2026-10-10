@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services_feed>
+  <source>
+    <name>Кадастровый инженер · ИП Баймурзин А.Р.</name>
+    <url>https://kadastrhelp.ru/</url>
+    <favicon>https://kadastrhelp.ru/favicon.ico</favicon>
+    <locale>ru</locale>
+    <redirect_service>1</redirect_service>
+  </source>
+  <categories>
+    <category>
+      <persistent_id>cadastral_works</persistent_id>
+      <name>Кадастровые работы</name>
+    </category>
+  </categories>
+  <executors>
+    <executor>
+      <persistent_id>ip_baymurzin_samara</persistent_id>
+      <url>https://kadastrhelp.ru/</url>
+      <is_organization>1</is_organization>
+      <name>ИП Баймурзин Азат Ринатович</name>
+      <org_permalink>146058424243</org_permalink>
+      <contacts>
+        <phones>
+          <phone is_primary="1">+79027492801</phone>
+        </phones>
+      </contacts>
+      <geo_info>
+        <addresses>
+          <address>
+            <text>Самара, Бобруйская улица, 132А, этаж 2</text>
+          </address>
+        </addresses>
+        <service_areas>
+          <area>
+            <text>Самарская область</text>
+          </area>
+        </service_areas>
+      </geo_info>
+      <services>
+        <service>
+          <persistent_id>mezhevanie</persistent_id>
+          <url>https://kadastrhelp.ru/mezhevanie</url>
+          <name>Межевой план на уточнение границ земельного участка</name>
+          <category_id>cadastral_works</category_id>
+          <price>
+            <from>
+              <value>7000</value>
+              <currency>RUB</currency>
+            </from>
+          </price>
+        </service>
+        <service>
+          <persistent_id>razdel-obedinenie</persistent_id>
+          <url>https://kadastrhelp.ru/razdel-obedinenie</url>
+          <name>Перераспределение, раздел и объединение участков</name>
+          <category_id>cadastral_works</category_id>
+          <price>
+            <from>
+              <value>8500</value>
+              <currency>RUB</currency>
+            </from>
+          </price>
+        </service>
+        <service>
+          <persistent_id>tehplan_buildings</persistent_id>
+          <url>https://kadastrhelp.ru/tehplan</url>
+          <name>Технический план — ИЖС и нежилые строения</name>
+          <category_id>cadastral_works</category_id>
+          <price>
+            <from>
+              <value>7500</value>
+              <currency>RUB</currency>
+            </from>
+          </price>
+        </service>
+        <service>
+          <persistent_id>tehplan_premises</persistent_id>
+          <url>https://kadastrhelp.ru/tehplan</url>
+          <name>Технический план — помещения</name>
+          <category_id>cadastral_works</category_id>
+          <price>
+            <from>
+              <value>5000</value>
+              <currency>RUB</currency>
+            </from>
+          </price>
+        </service>
+        <service>
+          <persistent_id>akt-obsledovaniya</persistent_id>
+          <url>https://kadastrhelp.ru/akt-obsledovaniya</url>
+          <name>Акт обследования (снятие с кадастрового учёта и прекращение права собственности)</name>
+          <category_id>cadastral_works</category_id>
+          <price>
+            <from>
+              <value>4500</value>
+              <currency>RUB</currency>
+            </from>
+          </price>
+        </service>
+        <service>
+          <persistent_id>akt-osmotra</persistent_id>
+          <url>https://kadastrhelp.ru/akt-osmotra</url>
+          <name>Акт осмотра объекта (отнесение к признакам объекта капитального строительства)</name>
+          <category_id>cadastral_works</category_id>
+          <price>
+            <from>
+              <value>4500</value>
+              <currency>RUB</currency>
+            </from>
+          </price>
+        </service>
+        <service>
+          <persistent_id>vynos-tochek</persistent_id>
+          <url>https://kadastrhelp.ru/vynos-tochek</url>
+          <name>Вынос точек в натуру</name>
+          <category_id>cadastral_works</category_id>
+          <price>
+            <from>
+              <value>750</value>
+              <currency>RUB</currency>
+            </from>
+            <unit>точка</unit>
+          </price>
+        </service>
+      </services>
+    </executor>
+  </executors>
+</services_feed>

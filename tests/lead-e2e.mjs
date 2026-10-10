@@ -657,7 +657,7 @@ try {
       const r = await fetch(MAIN + p);
       assertTrue(`static allowlist blocks ${p} -> 404`, r.status === 404, r.status);
     }
-    const allowed = ['/', '/mezhevanie', '/tehplan', '/razdel-obedinenie', '/vynos-tochek', '/akt-obsledovaniya', '/akt-osmotra', '/politika', '/Header.dc.html', '/robots.txt', '/favicon.ico', '/support.js', '/image-slot.js', '/.image-slots.state.json'];
+    const allowed = ['/', '/mezhevanie', '/tehplan', '/razdel-obedinenie', '/vynos-tochek', '/akt-obsledovaniya', '/akt-osmotra', '/politika', '/Header.dc.html', '/robots.txt', '/favicon.ico', '/services-feed.xml', '/support.js', '/image-slot.js', '/.image-slots.state.json'];
     for (const p of allowed) {
       const r = await fetch(MAIN + p, { redirect: 'manual' });
       assertTrue(`static allowlist still serves ${p} -> 200`, r.status === 200, r.status);
