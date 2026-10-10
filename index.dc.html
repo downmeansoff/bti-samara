@@ -230,7 +230,7 @@
       <!-- Стоковое лицо рядом с «ИП Баймурзин Азат Ринатович» читалось как его портрет.
            Слот спрятан до настоящего фото владельца; вместо него — его аттестат. -->
       <button type="button" class="about-doc" onClick="{{ openAttestat }}">
-        <img src="assets/docs/attestat-detail.jpg" alt="Квалификационный аттестат" width="755" height="335" />
+        <img src="assets/docs/attestat-detail.jpg" alt="Квалификационный аттестат" width="755" height="335" loading="lazy" decoding="async" />
       </button>
       <div class="about-portrait-tile about-portrait-tile--off">
         <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="about-portrait" shape="rect" placeholder="Фото: кадастровый инженер на объекте" hint-size="100%,100%" style="width:100%;height:100%"></x-import>
