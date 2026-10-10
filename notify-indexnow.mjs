@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const ASSETS = ['assets/site.css', 'assets/fonts/fonts.css', 'support.js', 'assets/contacts.js', 'assets/analytics.js'];
+const COMPONENTS = ['Header.dc.html', 'Footer.dc.html', 'ServiceCard.dc.html', 'LeadModal.dc.html', 'image-slot.js', '.image-slots.state.json'];
 const hash = text => crypto.createHash('sha256').update(text).digest('hex');
 const body = html => {
   const match = /<body\b[^>]*>[\s\S]*/i.exec(html);
@@ -50,6 +51,7 @@ export async function notifyIndexNow({ root = ROOT, stateFile = path.join(root, 
   const state = fs.existsSync(stateFile) ? JSON.parse(fs.readFileSync(stateFile, 'utf8')) : { host: config.host, pages: {} };
   if (state.host !== config.host || !state.pages || typeof state.pages !== 'object') throw new Error('invalid IndexNow state');
   const assetHashes = ASSETS.map(file => [file, hash(fs.readFileSync(path.join(root, file)))]);
+  const componentHashes = COMPONENTS.map(file => [file, hash(read(file).replace(/\r\n/g, '\n'))]);
   const signatures = {};
   // Finish every preflight before POST: don't report a partially published site.
   for (const url of urls) {
@@ -67,7 +69,7 @@ export async function notifyIndexNow({ root = ROOT, stateFile = path.join(root, 
     for (const [file, digest] of assetHashes) {
       if (!live.includes(`${file}?v=${digest.slice(0, 10)}`)) throw new Error(`stale live asset reference: ${url} ${file}`);
     }
-    signatures[url] = hash(JSON.stringify([source.replace(/\r\n/g, '\n'), assetHashes]));
+    signatures[url] = hash(JSON.stringify([source.replace(/\r\n/g, '\n'), assetHashes, componentHashes]));
   }
   const changed = urls.filter(url => state.pages[url] !== signatures[url]);
   if (!submit || !changed.length) return { sent: false, checked: urls.length, changed };
