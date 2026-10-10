@@ -558,6 +558,13 @@ index/mezhevanie/razdel-obedinenie один из двух `.phone-item` в hero 
 `pack-hosting.mjs`, в `404.html`, в `sitemap.xml`, в меню (`Header`/`Footer`). Проверка: `node tests/seo-check.mjs`.
 Тексты посадочных перед выкладкой читает инженер.
 
+Дополнения 10.10.2026 без изменения оформления: `WebSite` главной генерируется из
+существующего `og:site_name`. IndexNow — `indexnow-config.json`, публичный файл ключа
+в корне и `notify-indexnow.mjs`; `DEPLOY.bat` уведомляет Яндекс только после публикации
+и проверок совпадения живой версии. Без `--submit` отправки нет. Локальный журнал
+`.indexnow-state.json` не коммитить и не публиковать. Проверка без сети —
+`node tests/indexnow-check.mjs`. Ответ API не подтверждает включение страниц в поиск.
+
 Аналитика (Яндекс Метрика): `assets/analytics.js`, включена 10.10.2026 для счётчика `113594675` с разрешения пользователя.
 Для выключения установить `metrika: 0`; политика конфиденциальности переключает формулировку и дату вместе со счётчиком. Вебвизор не включать.
 Цели: `lead_open`, `lead_sent`, `click_phone|telegram|max|email`. Проверка: `node tests/analytics-check.mjs`.

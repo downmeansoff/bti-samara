@@ -28,6 +28,8 @@ jobs:
       - run: node seo-markup.mjs --check
       # sitemap, canonical, structured data, routing lists, landing prices
       - run: node tests/seo-check.mjs
+      # Notification dry-run and preflight checks use a mock HTTP client.
+      - run: node tests/indexnow-check.mjs
       # Telegram bot screens and the lead API / bot / static-file allowlist
       # analytics respects opt-outs; the privacy policy wording follows the counter
       - run: node tests/analytics-check.mjs

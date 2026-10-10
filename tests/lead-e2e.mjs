@@ -652,7 +652,7 @@ try {
 
   // ---------------- Static file allowlist: internal files are never served ----------------
   {
-    const forbidden = ['/server.js', '/package.json', '/pack-hosting.mjs', '/tests/lead-e2e.mjs', '/CLAUDE.md', '/DEPLOY.bat', '/.git/HEAD', '/.git/config'];
+    const forbidden = ['/server.js', '/package.json', '/pack-hosting.mjs', '/tests/lead-e2e.mjs', '/CLAUDE.md', '/DEPLOY.bat', '/.git/HEAD', '/.git/config', '/indexnow-config.json', '/notify-indexnow.mjs'];
     for (const p of forbidden) {
       const r = await fetch(MAIN + p);
       assertTrue(`static allowlist blocks ${p} -> 404`, r.status === 404, r.status);
@@ -662,6 +662,10 @@ try {
       const r = await fetch(MAIN + p, { redirect: 'manual' });
       assertTrue(`static allowlist still serves ${p} -> 200`, r.status === 200, r.status);
     }
+    const indexNow = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'indexnow-config.json'), 'utf8'));
+    const key = await fetch(MAIN + '/' + indexNow.keyFile);
+    assertTrue('IndexNow verification file is served as UTF-8 text', key.status === 200 && /text\/plain; charset=utf-8/.test(key.headers.get('content-type') || ''));
+    assertTrue('IndexNow verification file contains only the expected key', (await key.text()).trim() + '.txt' === indexNow.keyFile);
   }
 
   // ---------------- Clean page addresses: old file names answer 301 ----------------

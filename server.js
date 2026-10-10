@@ -46,9 +46,11 @@ function contentType(p) {
 // pack-hosting.mjs, CLAUDE.md, DEPLOY.bat, .git/, any other dotfile) must
 // never be reachable — without this, the generic "serve any existing file"
 // path below would hand all of that out to anonymous visitors too.
+const indexNowKeyFile = require('./indexnow-config.json').keyFile;
+if (!/^[a-f0-9]{32}\.txt$/.test(indexNowKeyFile)) throw new Error('invalid IndexNow key file');
 const PUBLIC_TOP_FILES = new Set([
   'support.js', 'image-slot.js', 'favicon.ico', 'robots.txt', 'sitemap.xml',
-  '.image-slots.state.json',
+  '.image-slots.state.json', indexNowKeyFile,
 ]);
 
 // Pages reachable at a clean address (/mezhevanie -> mezhevanie.dc.html);

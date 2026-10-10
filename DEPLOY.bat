@@ -23,6 +23,10 @@ echo.
 "C:\Program Files\Git\bin\bash.exe" "C:/Users/glebo/bti-lab/tools/upload-hosting.sh"
 if errorlevel 1 goto failed
 echo.
+echo   Soobshchaem Yandex ob obnovlennyh stranitsah...
+node notify-indexnow.mjs --submit
+if errorlevel 1 echo   IndexNow ne podtverzhden. Sayt opublikovan; proverite soobshchenie vyshe.
+echo.
 echo ============================================
 echo   GOTOVO
 echo ============================================

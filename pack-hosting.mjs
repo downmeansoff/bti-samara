@@ -29,7 +29,9 @@ if (snapshotSource && (snapshotSource === path.resolve(DEST) || snapshotSource.s
   throw new Error('snapshot source must be outside the generated hosting-dist directory');
 }
 
-const TOP_LEVEL_FILES = ['support.js', 'image-slot.js', '.image-slots.state.json', 'favicon.ico', 'robots.txt', 'sitemap.xml'];
+const indexNow = JSON.parse(fs.readFileSync(path.join(SRC, 'indexnow-config.json'), 'utf8'));
+if (!/^[a-f0-9]{32}\.txt$/.test(indexNow.keyFile)) throw new Error('invalid IndexNow key file');
+const TOP_LEVEL_FILES = ['support.js', 'image-slot.js', '.image-slots.state.json', 'favicon.ico', 'robots.txt', 'sitemap.xml', indexNow.keyFile];
 
 function rmrf(p) {
   fs.rmSync(p, { recursive: true, force: true });

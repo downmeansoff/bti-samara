@@ -68,6 +68,12 @@ ok('PAGE_SLUGS has no page missing from the sitemap (politika excepted)', [...se
 
 // every landing: price is the owner's price from the home price list
 const home = read('index.dc.html');
+const homeGraph = [...home.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+  .flatMap(m => { const node = JSON.parse(m[1]); return node['@graph'] || [node]; });
+const websites = homeGraph.filter(n => n['@type'] === 'WebSite');
+ok('home has one WebSite name declaration', websites.length === 1);
+ok('WebSite uses canonical home URL', websites[0]?.url === 'https://kadastrhelp.ru/');
+ok('WebSite name matches the existing site name', websites[0]?.name === /<meta property="og:site_name" content="([^"]*)"/.exec(home)?.[1]);
 const priceRows = extractConst(home.slice(home.indexOf('data-dc-script')), 'PRICE_ROWS');
 for (const l of LANDINGS) {
   for (const p of l.prices) {

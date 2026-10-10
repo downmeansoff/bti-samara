@@ -9,7 +9,7 @@
 //   node seo-markup.mjs --check   fail if a block is out of date
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, read, extractConst, heroPrices, jsonLdBlock, injectBlock, serviceNode, breadcrumbNode, faqNode } from './seo-lib.mjs';
+import { ROOT, SITE, read, extractConst, heroPrices, jsonLdBlock, injectBlock, serviceNode, breadcrumbNode, faqNode } from './seo-lib.mjs';
 
 const CHECK = process.argv.includes('--check');
 const text = (html, re, what) => {
@@ -38,7 +38,20 @@ const JOBS = [
   { file: 'mezhevanie.dc.html', nodes: () => serviceNodes('mezhevanie') },
   { file: 'tehplan.dc.html', nodes: () => serviceNodes('tehplan') },
   { file: 'razdel-obedinenie.dc.html', nodes: () => serviceNodes('razdel-obedinenie') },
-  { file: 'index.dc.html', nodes: () => [faqNode(extractConst(read('index.dc.html').slice(read('index.dc.html').indexOf('data-dc-script')), 'FAQ_BASE'))] },
+  { file: 'index.dc.html', nodes: () => {
+    const html = read('index.dc.html');
+    return [
+      {
+        '@type': 'WebSite',
+        '@id': SITE + '#website',
+        url: SITE,
+        name: text(html, /<meta property="og:site_name" content="([^"]*)"/, 'site name'),
+        alternateName: 'kadastrhelp.ru',
+        inLanguage: 'ru-RU',
+      },
+      faqNode(extractConst(html.slice(html.indexOf('data-dc-script')), 'FAQ_BASE')),
+    ];
+  } },
 ];
 
 let bad = 0;
