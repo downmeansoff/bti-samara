@@ -46,7 +46,7 @@ const JOBS = [
         '@id': SITE + '#website',
         url: SITE,
         name: text(html, /<meta property="og:site_name" content="([^"]*)"/, 'site name'),
-        alternateName: 'kadastrhelp.ru',
+        alternateName: ['Кадастр Хелп', 'kadastrhelp.ru'],
         inLanguage: 'ru-RU',
       },
       faqNode(extractConst(html.slice(html.indexOf('data-dc-script')), 'FAQ_BASE')),
