@@ -14,9 +14,11 @@ const urls = [...read('sitemap.xml').matchAll(/<loc>([^<]*)<\/loc>/g)].map(m => 
 const assets = ['assets/site.css', 'assets/fonts/fonts.css', 'support.js', 'assets/contacts.js', 'assets/analytics.js'];
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bti-indexnow-'));
 const stateFile = path.join(dir, 'state.json');
-let posts = [], status = 202, stale = false, noindex = false, wrongKey = false;
+let posts = [], postEndpoints = [], status = 202, stale = false, noindex = false, wrongKey = false, yandexUnavailable = false;
 const mockFetch = async (url, options = {}) => {
-  if (url === config.endpoint) {
+  if (url === config.endpoint || url === 'https://api.indexnow.org/indexnow') {
+    if (url === config.endpoint && yandexUnavailable) throw new TypeError('fetch failed');
+    postEndpoints.push(url);
     posts.push(JSON.parse(options.body));
     return new Response('', { status });
   }
@@ -65,7 +67,17 @@ try {
   status = 200;
   assert.equal((await run(true)).keyValidationPending, false);
   assert.equal((await run(true)).sent, false);
-  console.log('PASS: IndexNow preflights, dry run, 200/202 receipts, duplicate prevention, partial changes and rejected submissions; no real network requests.');
+  const prior = JSON.parse(readState());
+  delete prior.pages[urls[0]];
+  fs.writeFileSync(stateFile, JSON.stringify(prior));
+  yandexUnavailable = true;
+  const fallback = await run(true);
+  assert.equal(fallback.endpoint, 'https://api.indexnow.org/indexnow');
+  assert.equal(fallback.status, 200);
+  assert.equal(postEndpoints.at(-1), fallback.endpoint);
+  assert.deepEqual(posts.at(-1).urlList, [urls[0]]);
+  assert.equal((await run(true)).sent, false, 'fallback receipt also prevents duplicate submissions');
+  console.log('PASS: IndexNow preflights, dry run, 200/202 receipts, duplicate prevention, rejected submissions and network fallback; no real network requests.');
 } finally {
   // This exact directory was just created by mkdtemp under the OS temp folder.
   assert.ok(path.resolve(dir).startsWith(path.resolve(os.tmpdir()) + path.sep) && path.basename(dir).startsWith('bti-indexnow-'));

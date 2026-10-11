@@ -8,6 +8,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
+const FALLBACK_ENDPOINT = 'https://api.indexnow.org/indexnow';
 const ASSETS = ['assets/site.css', 'assets/fonts/fonts.css', 'support.js', 'assets/contacts.js', 'assets/analytics.js'];
 const COMPONENTS = ['Header.dc.html', 'Footer.dc.html', 'ServiceCard.dc.html', 'LeadModal.dc.html', 'image-slot.js', '.image-slots.state.json'];
 const hash = text => crypto.createHash('sha256').update(text).digest('hex');
@@ -73,15 +74,25 @@ export async function notifyIndexNow({ root = ROOT, stateFile = path.join(root, 
   }
   const changed = urls.filter(url => state.pages[url] !== signatures[url]);
   if (!submit || !changed.length) return { sent: false, checked: urls.length, changed };
-  const res = await fetchImpl(config.endpoint, {
+  const postOptions = {
     method: 'POST', redirect: 'error', signal: AbortSignal.timeout(20000),
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({ host: config.host, key, keyLocation, urlList: changed }),
-  });
+  };
+  let endpoint = config.endpoint;
+  let res;
+  try {
+    res = await fetchImpl(endpoint, postOptions);
+  } catch (error) {
+    // The official shared IndexNow endpoint can receive the same notification
+    // when Yandex's endpoint is unreachable. HTTP rejections are never bypassed.
+    endpoint = FALLBACK_ENDPOINT;
+    res = await fetchImpl(endpoint, { ...postOptions, signal: AbortSignal.timeout(20000) });
+  }
   if (res.status !== 200 && res.status !== 202) throw new Error(`IndexNow submission failed: HTTP ${res.status}`);
-  const receipt = { host: config.host, pages: signatures, receivedAt: new Date().toISOString(), status: res.status, urls: changed };
+  const receipt = { host: config.host, pages: signatures, receivedAt: new Date().toISOString(), endpoint, status: res.status, urls: changed };
   fs.writeFileSync(stateFile, JSON.stringify(receipt, null, 2) + '\n');
-  return { sent: true, checked: urls.length, status: res.status, changed, keyValidationPending: res.status === 202 };
+  return { sent: true, checked: urls.length, endpoint, status: res.status, changed, keyValidationPending: res.status === 202 };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
