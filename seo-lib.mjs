@@ -10,6 +10,7 @@ export const ROOT = path.dirname(fileURLToPath(import.meta.url));
 export const SITE = 'https://kadastrhelp.ru/';
 export const PROVIDER = {
   '@type': 'ProfessionalService',
+  '@id': SITE + '#business',
   name: 'ИП Баймурзин Азат Ринатович',
   url: SITE,
   telephone: '+7 902 749-28-01',

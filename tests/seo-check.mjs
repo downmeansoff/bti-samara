@@ -20,6 +20,8 @@ function ok(name, cond, extra = '') {
 const sitemap = read('sitemap.xml');
 const slugs = [...sitemap.matchAll(/<loc>https:\/\/kadastrhelp\.ru\/([^<]*)<\/loc>/g)].map(m => m[1]);
 ok('sitemap has pages', slugs.length >= 7, slugs.length);
+ok('every sitemap URL has a valid lastmod date',
+  [...sitemap.matchAll(/<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/g)].length === slugs.length);
 const serverSlugs = new Set([...read('server.js').match(/const PAGE_SLUGS = new Set\(\[([^\]]*)\]/)[1].matchAll(/'([^']+)'/g)].map(m => m[1]));
 const packSrc = read('pack-hosting.mjs');
 const notFound = read('404.html');
@@ -73,7 +75,16 @@ const homeGraph = [...home.matchAll(/<script type="application\/ld\+json">([\s\S
 const websites = homeGraph.filter(n => n['@type'] === 'WebSite');
 ok('home has one WebSite name declaration', websites.length === 1);
 ok('WebSite uses canonical home URL', websites[0]?.url === 'https://kadastrhelp.ru/');
-ok('WebSite name matches the existing site name', websites[0]?.name === /<meta property="og:site_name" content="([^"]*)"/.exec(home)?.[1]);
+ok('WebSite name matches the public site name', websites[0]?.name === 'Кадастр Хелп' && websites[0]?.name === /<meta property="og:site_name" content="([^"]*)"/.exec(home)?.[1]);
+const business = homeGraph.find(n => n['@type'] === 'ProfessionalService');
+ok('business identity connects the brand to the engineer',
+  business?.['@id'] === 'https://kadastrhelp.ru/#business' && business?.alternateName === 'Кадастр Хелп');
+for (const slug of slugs.filter(Boolean)) {
+  const nodes = [...read(slug + '.dc.html').matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+    .flatMap(m => { const node = JSON.parse(m[1]); return node['@graph'] || [node]; });
+  ok(`${slug}: service points to the same business`,
+    nodes.find(n => n['@type'] === 'Service')?.provider?.['@id'] === business?.['@id']);
+}
 const priceRows = extractConst(home.slice(home.indexOf('data-dc-script')), 'PRICE_ROWS');
 for (const l of LANDINGS) {
   for (const p of l.prices) {
